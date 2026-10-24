@@ -49,15 +49,68 @@ def ping() -> None:
 
 
 @app.command()
-def ingest() -> None:
-    """Move photos from data/inbox into product folders."""
-    _not_ready(1)
+def ingest(
+    no_vision: bool = typer.Option(False, help="Only move photos. Fill categories later with another ingest."),
+) -> None:
+    """Move photos from data/inbox into product folders and fill the category."""
+    from driftcheck.ingest import ingest_inbox
+    from driftcheck.vision import VisionUnavailable, get_vision_client
+
+    settings = load_settings()
+    client = None
+    if not no_vision:
+        client = get_vision_client(settings)
+        try:
+            client.ensure_ready()
+        except VisionUnavailable as error:
+            typer.echo(f"Not ready: {error}", err=True)
+            raise typer.Exit(code=1)
+    result = ingest_inbox(settings.data_dir, client)
+    typer.echo(f"Added {len(result.added)} products: {' '.join(result.added) or 'none'}")
+    if result.categorised:
+        typer.echo(f"Categorised {len(result.categorised)} products.")
+    if result.duplicates:
+        typer.echo(f"Skipped {len(result.duplicates)} duplicates: {' '.join(result.duplicates)}")
+    if result.skipped:
+        typer.echo(f"Skipped {len(result.skipped)} files that are not jpg, png or webp: {' '.join(result.skipped)}")
+    if result.category_failed:
+        typer.echo(f"No category yet for {' '.join(result.category_failed)}. Run ingest again to retry.", err=True)
 
 
 @app.command()
-def register() -> None:
+def jobs(
+    generator: str = typer.Option("qwen_edit", help="qwen_edit for the Kaggle notebook, gemini_app for the manual route."),
+) -> None:
+    """Write the generation jobs: a zip for Kaggle and a checklist for the Gemini app."""
+    from driftcheck.register import export_jobs, make_jobs
+
+    settings = load_settings()
+    count = len(make_jobs(settings.data_dir, generator))
+    out = export_jobs(settings.data_dir, generator)
+    typer.echo(f"{count} jobs for {generator}.")
+    typer.echo(f"Kaggle input: {out / 'kaggle_input.zip'}")
+    typer.echo(f"Manual checklist: {out / 'manual_checklist.md'}")
+
+
+@app.command()
+def register(
+    source: str = typer.Option(None, "--from", help="Unzipped Kaggle result folder to import first."),
+    model: str = typer.Option(None, help="Model name to record when the output has no json of its own."),
+) -> None:
     """Record outputs made in Kaggle or the Gemini app."""
-    _not_ready(1)
+    from pathlib import Path
+
+    from driftcheck.register import register_outputs
+
+    settings = load_settings()
+    result = register_outputs(settings.data_dir, model=model, source=Path(source) if source else None)
+    if source:
+        typer.echo(f"Imported {len(result.imported)} images from {source}.")
+    typer.echo(f"Registered {len(result.registered)} new outputs. {len(result.already)} were already registered.")
+    if result.bad_names:
+        typer.echo("These break the naming rule <style>__<generator>.jpg and were skipped:", err=True)
+        for name in result.bad_names:
+            typer.echo(f"  {name}", err=True)
 
 
 @app.command()
