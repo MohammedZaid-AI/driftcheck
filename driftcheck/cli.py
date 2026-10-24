@@ -82,9 +82,13 @@ def jobs(
     generator: str = typer.Option("qwen_edit", help="qwen_edit for the Kaggle notebook, gemini_app for the manual route."),
 ) -> None:
     """Write the generation jobs: a zip for Kaggle and a checklist for the Gemini app."""
+    from driftcheck.dataset import list_product_ids, read_meta
     from driftcheck.register import export_jobs, make_jobs
 
     settings = load_settings()
+    missing = [pid for pid in list_product_ids(settings.data_dir) if read_meta(settings.data_dir, pid).category is None]
+    if missing:
+        typer.echo(f"Warning: no category for {' '.join(missing)}, so their prompts are generic. Run ingest first.", err=True)
     count = len(make_jobs(settings.data_dir, generator))
     out = export_jobs(settings.data_dir, generator)
     typer.echo(f"{count} jobs for {generator}.")

@@ -25,8 +25,13 @@ Torch is the CPU only build. Ollama does the GPU work.
 ```
 .venv\Scripts\driftcheck info
 .venv\Scripts\driftcheck ping
+.venv\Scripts\driftcheck ingest
+.venv\Scripts\driftcheck jobs --generator qwen_edit
+.venv\Scripts\driftcheck register
 .venv\Scripts\python -m pytest
 ```
+
+docs\make_outputs.md explains how to make the AI outputs with Kaggle or the free Gemini app.
 
 ## Vision provider
 
