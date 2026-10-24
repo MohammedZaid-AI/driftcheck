@@ -108,7 +108,11 @@ Core set, 2026-10-24
 6. jobs and split use core products by default. --include-extra adds the rest. 120 jobs for 40 products.
 7. download.png is skipped for good.
 8. Swaps on 2026-10-24: p052 out because it shows two jerseys, p025 in. p047 out, p022 in, p018 kept. p062 out because it is not an Indian shop, p068 in, an Indian tea shop with a Devanagari name. Logo or number items in core are now p008, p022, p025, p027, p041, p059, p067.
-9. easyocr now runs a third reader, English with Bengali, so every OCR call does three passes. On p045 it read রোস্ট, পাউডার and ইফাদ at 0.80 to 0.94 confidence, but not the large title রসুই. The Hindi reader also reads parts of the Bengali text as made up Devanagari words at 0.55 to 0.78 confidence, which become extra text items for that product.
+9. OCR by script, 2026-10-24. driftcheck scripts runs every reader once on each core original and saves text_scripts in meta.json. Checks then run English plus only that product's scripts, on both images, and drop readings in any other script. Readers are cached one by one, so detection and checks share results.
+10. The rule from the plan was: keep a script if its reader finds text at 0.7 or more. Alone it kept Hindi on p045, because the Hindi reader read Bengali as a made up word at 0.78. Added: a script must also win at least half as many boxes as the strongest script. On p045 Bengali wins 4 boxes and Hindi 1, so Hindi is dropped.
+11. Detection was still wrong on 5 of 40 core products: p017, p043, p049, p057, p068. easyocr reads real Hindi at 0.36 to 0.57 confidence, so it never reaches 0.7, and on p049 the Bengali reader read Hindi as made up Bengali at 0.74. A second rule tried, summing confidence per script, did not separate them either. These 5 are set by hand in config/selection.json, which wins over detection.
+12. Unsure text boxes at least 3 percent of the image tall are read again from a 2x crop. The reading that overlaps the box most replaces the first one if it is more confident. The first version took the most confident reading in the crop, which was a neighbouring word. On p045 the title went from রস্ুই at 0.3 to বসুই at 0.43, still one letter wrong. Logged in docs/limitations.md and left there.
+13. selection.json now refuses a product named twice. A duplicate p068 entry had silently dropped its storefront category.
 
 ## Next
 
@@ -124,6 +128,7 @@ py -3.12 -m venv .venv
 .venv\Scripts\driftcheck ping
 .venv\Scripts\driftcheck ingest
 .venv\Scripts\driftcheck select
+.venv\Scripts\driftcheck scripts
 .venv\Scripts\driftcheck jobs --generator qwen_edit
 .venv\Scripts\driftcheck jobs --generator gemini_app
 .venv\Scripts\driftcheck register --from data\jobs\qwen_edit\result

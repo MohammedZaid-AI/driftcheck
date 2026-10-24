@@ -40,6 +40,7 @@ class Report(BaseModel):
     vision_calls: int  # real calls only, cache hits are free
     models: dict[str, str]
     thresholds_tuned: bool
+    text_scripts: list[str]  # scripts OCR read on both images, besides English
     created: str
 
     def check(self, name: str) -> CheckResult:
@@ -56,8 +57,9 @@ class Checker:
     thresholds: Thresholds
     client: VisionClient
     mask_fn: Callable[[Image.Image], np.ndarray]
-    ocr_fn: Callable
+    ocr_fn: Callable  # (image, scripts) -> text boxes in English plus those scripts
     features_fn: Callable[[Image.Image], np.ndarray]
+    scripts_fn: Callable[[Image.Image], list[str]] = lambda image: ["en"]  # used when a product has no text_scripts
     card_cache: DiskCache | None = None
     pattern_model: str = ""
 
@@ -67,17 +69,26 @@ class Checker:
 
         settings = settings or load_settings()
         masks = DiskCache(settings.cache_dir, "masks")
+        ocr = OcrEngine(DiskCache(settings.cache_dir, "ocr"))
         return cls(
             thresholds=load_thresholds(settings.config_dir),
             client=get_vision_client(settings, vision_model),
             mask_fn=lambda image: product_mask(image, masks),
-            ocr_fn=OcrEngine(DiskCache(settings.cache_dir, "ocr")).read,
+            ocr_fn=ocr.read,
+            scripts_fn=ocr.detect_scripts,
             features_fn=PatchFeatures(settings.vision.pattern_model, DiskCache(settings.cache_dir, "features")),
             card_cache=DiskCache(settings.cache_dir, "cards"),
             pattern_model=settings.vision.pattern_model,
         )
 
-    def check(self, original: Path | str | Image.Image, output: Path | str | Image.Image) -> Report:
+    def check(
+        self,
+        original: Path | str | Image.Image,
+        output: Path | str | Image.Image,
+        text_scripts: list[str] | None = None,
+    ) -> Report:
+        """Run every check. text_scripts comes from the product's meta.json; without it
+        the scripts are detected from the original."""
         start = time.perf_counter()
         calls_before = len(self.client.calls)
         timings: dict[str, float] = {}
@@ -89,7 +100,10 @@ class Checker:
             return result
 
         original_image, output_image = load_image(original), load_image(output)
-        card = timed("card", lambda: build_card(original_image, self.client, self.mask_fn, self.ocr_fn, self.card_cache))
+        scripts = text_scripts if text_scripts is not None else timed("scripts", lambda: self.scripts_fn(original_image))
+        read_text = lambda image: self.ocr_fn(image, scripts)  # noqa: E731
+        card = timed("card", lambda: build_card(original_image, self.client, self.mask_fn, read_text,
+                                                self.card_cache, scripts))
         pair = timed("masks", lambda: Pair(original_image, output_image, self.mask_fn(original_image),
                                            self.mask_fn(output_image), card))
         t = self.thresholds
@@ -97,7 +111,7 @@ class Checker:
         results = [segmentation]
         if product_visible(segmentation):
             results.append(timed("colour", lambda: check_colour(pair, t.colour)))
-            results.append(timed("text", lambda: check_text(pair, t.text, self.ocr_fn, self.client)))
+            results.append(timed("text", lambda: check_text(pair, t.text, read_text, self.client)))
             results.append(timed("pattern", lambda: check_pattern(pair, t.pattern, self.features_fn)))
             results.extend(timed("shape_and_logo", lambda: check_shape_and_logo(pair, t.judge, self.client)))
         else:
@@ -121,5 +135,6 @@ class Checker:
                 "ocr": "easyocr/" + "+".join(READERS),
             },
             thresholds_tuned=t.tuned,
+            text_scripts=scripts,
             created=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         )

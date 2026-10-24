@@ -8,11 +8,20 @@ from pathlib import Path
 
 from driftcheck.dataset import ProductMeta, list_product_ids, product_dir, read_meta, write_json
 
-ALLOWED_OVERRIDES = {"category", "product_type", "worn"}
+ALLOWED_OVERRIDES = {"category", "product_type", "worn", "text_scripts"}
+
+
+def _no_duplicate_keys(pairs: list[tuple[str, object]]) -> dict:
+    keys = [key for key, _ in pairs]
+    repeated = sorted({key for key in keys if keys.count(key) > 1})
+    if repeated:
+        raise ValueError(f"selection.json names these more than once, so one entry would be lost: {repeated}")
+    return dict(pairs)
 
 
 def load_selection(config_dir: Path) -> dict:
-    return json.loads((config_dir / "selection.json").read_text(encoding="utf-8"))
+    """Read selection.json. A product named twice is an error, not a silent overwrite."""
+    return json.loads((config_dir / "selection.json").read_text(encoding="utf-8"), object_pairs_hook=_no_duplicate_keys)
 
 
 def apply_selection(data_dir: Path, selection: dict) -> Counter:

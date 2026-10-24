@@ -23,7 +23,7 @@ from driftcheck.vision import VisionClient, VisionError
 
 log = get_logger(__name__)
 
-CARD_VERSION = "1"  # bump when the prompt or schema changes, so old cached cards are not reused
+CARD_VERSION = "2"  # bump when the prompt, schema or OCR changes, so old cached cards are not reused
 MAX_TEXT_CROPS = 3
 
 SleeveLength = Literal["sleeveless", "short", "elbow", "three_quarter", "full", "not_applicable"]
@@ -109,11 +109,13 @@ def build_card(
     mask_fn: Callable[[Image.Image], np.ndarray],
     ocr_fn: Callable[[Image.Image], list[TextBox]],
     cache: DiskCache | None = None,
+    text_scripts: list[str] | None = None,
 ) -> ProductCard:
-    """Read the original once. A failed vision call leaves vision empty with the reason."""
+    """Read the original once. A failed vision call leaves vision empty with the reason.
+    text_scripts is what ocr_fn reads; it is part of the cache key."""
     image = image.convert("RGB")
     model_name = f"{client.provider.name}/{client.model}"
-    key = make_key("card", CARD_VERSION, model_name, _jpeg(image))
+    key = make_key("card", CARD_VERSION, model_name, ",".join(text_scripts or []), _jpeg(image))
     if cache and (stored := cache.get(key)) is not None:
         return ProductCard.model_validate(stored)
 

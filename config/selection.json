@@ -5,11 +5,15 @@
     "p029": {"category": "storefront", "product_type": "tea shop sign board"},
     "p055": {"category": "storefront", "product_type": "jewellery shop sign board"},
     "p062": {"category": "storefront", "product_type": "convenience store front"},
-    "p068": {"category": "storefront", "product_type": "tea shop front"},
+    "p068": {"category": "storefront", "product_type": "tea shop front", "text_scripts": ["hi"]},
     "p074": {"category": "storefront", "product_type": "jewellery shop sign board"},
     "p018": {"worn": false},
     "p047": {"worn": false},
-    "p075": {"worn": false}
+    "p075": {"worn": false},
+    "p017": {"text_scripts": ["hi"]},
+    "p043": {"text_scripts": ["en", "hi"]},
+    "p049": {"text_scripts": ["en", "hi"]},
+    "p057": {"text_scripts": ["en", "hi"]}
   },
   "core": {
     "p001": "clothing: sleeveless printed kurti, worn by a model",

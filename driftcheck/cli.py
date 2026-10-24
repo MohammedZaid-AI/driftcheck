@@ -211,14 +211,37 @@ def card(image: str = typer.Argument(..., help="Path to a product photo.")) -> N
 
     settings = load_settings()
     masks = DiskCache(settings.cache_dir, "masks")
+    ocr = OcrEngine(DiskCache(settings.cache_dir, "ocr"))
+    photo = Image.open(image)
+    scripts = ocr.detect_scripts(photo)
     result = build_card(
-        Image.open(image),
+        photo,
         get_vision_client(settings),
         lambda im: product_mask(im, masks),
-        OcrEngine(DiskCache(settings.cache_dir, "ocr")).read,
+        lambda im: ocr.read(im, scripts),
         DiskCache(settings.cache_dir, "cards"),
+        scripts,
     )
     typer.echo(result.model_dump_json(indent=2))
+
+
+@app.command()
+def scripts(
+    include_extra: bool = typer.Option(False, "--include-extra", help="Also detect for products tagged extra."),
+    refresh: bool = typer.Option(False, help="Detect again even where text_scripts is set. Hand set values stay."),
+) -> None:
+    """Detect the text scripts on each product's original and save them as text_scripts."""
+    from driftcheck.cache import DiskCache
+    from driftcheck.dataset import read_meta
+    from driftcheck.ocr import OcrEngine
+    from driftcheck.scripts import detect_product_scripts
+
+    settings = load_settings()
+    ocr = OcrEngine(DiskCache(settings.cache_dir, "ocr"))
+    found = detect_product_scripts(settings.data_dir, ocr.detect_scripts, include_extra, refresh)
+    for product_id, value in found.items():
+        hand = " (set by hand)" if "text_scripts" in read_meta(settings.data_dir, product_id).manual_fields else ""
+        typer.echo(f"  {product_id}  {', '.join(value) or 'no text'}{hand}")
 
 
 @app.command()
@@ -227,6 +250,7 @@ def check(
     output: str = typer.Option(..., help="Path to the AI output."),
     out: str = typer.Option("reports/check", help="Folder for report.json and heatmap.png."),
     model: str = typer.Option(None, help="Vision model to use instead of the configured one, for example qwen2.5vl:7b."),
+    text_scripts: str = typer.Option(None, "--scripts", help="Scripts on the product, for example en,hi. Detected if not given."),
 ) -> None:
     """Check one original against one output. Writes report.json and heatmap.png."""
     from pathlib import Path
@@ -240,7 +264,7 @@ def check(
         checker.client.ensure_ready()
     except VisionUnavailable as error:
         typer.echo(f"Vision model not ready, so shape, logo and the card will be unknown: {error}", err=True)
-    report = checker.check(original, output)
+    report = checker.check(original, output, text_scripts.split(",") if text_scripts else None)
     folder = Path(out)
     folder.mkdir(parents=True, exist_ok=True)
     (folder / "report.json").write_text(report.model_dump_json(indent=2), encoding="utf-8")

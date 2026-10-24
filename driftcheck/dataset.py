@@ -53,6 +53,7 @@ class ProductMeta(BaseModel):
     category: Category | None = None  # None until the vision model has filled it
     product_type: str | None = None
     worn: bool | None = None  # True if the original photo shows a person wearing the product
+    text_scripts: list[str] | None = None  # scripts on the product, for example ["en", "bn"]; None until detected
     notes: str = ""
     source_file: str
     sha256: str

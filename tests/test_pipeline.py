@@ -36,7 +36,7 @@ def _checker(replies: list) -> Checker:
     client = FakeVisionClient(replies)
     client.calls = []  # the pipeline counts real calls from this list
     return Checker(thresholds=thresholds(), client=client, mask_fn=simple_mask,
-                   ocr_fn=lambda image: text_boxes(), features_fn=fake_features, pattern_model="fake/dino")
+                   ocr_fn=lambda image, scripts=None: text_boxes(), features_fn=fake_features, pattern_model="fake/dino")
 
 
 def test_faithful_pair() -> None:

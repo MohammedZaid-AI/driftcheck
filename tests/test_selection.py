@@ -80,6 +80,21 @@ def test_storefront_gets_its_own_styles_and_prompts(tmp_path: Path) -> None:
     assert parse_output_id("reel_cover__gemini_app") == ("reel_cover", "gemini_app")
 
 
+def test_duplicate_product_in_selection_is_an_error(tmp_path: Path) -> None:
+    (tmp_path / "selection.json").write_text('{"overrides": {"p001": {"worn": false}, "p001": {"text_scripts": ["hi"]}}, "core": {}}')
+    with pytest.raises(ValueError, match="p001"):
+        load_selection(tmp_path)
+
+
+def test_text_scripts_can_be_set_by_hand(tmp_path: Path) -> None:
+    from driftcheck.scripts import detect_product_scripts
+
+    data = _three_products(tmp_path)
+    apply_selection(data, {"overrides": {"p001": {"text_scripts": ["en", "hi"]}}, "core": {"p001": "x", "p002": "y"}})
+    found = detect_product_scripts(data, lambda image: ["en", "bn"], refresh=True)
+    assert found == {"p001": ["en", "hi"], "p002": ["en", "bn"]}
+
+
 def test_project_selection_has_the_agreed_mix() -> None:
     selection = load_selection(PROJECT_ROOT / "config")
     core = selection["core"]

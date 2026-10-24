@@ -24,7 +24,7 @@ def _report(original: Image.Image, output: Image.Image):
     return _checker([CARD, SHIRT, SHIRT]).check(original, output)
 
 
-def ocr_if_text(image: Image.Image):
+def ocr_if_text(image: Image.Image, scripts: list[str] | None = None):
     """Fake OCR: finds SALE 50 only when there are dark text pixels in the text box."""
     x0, y0, x1, y1 = TEXT_BOX
     return text_boxes() if (np.asarray(image)[y0:y1, x0:x1] < 60).all(axis=2).any() else []
