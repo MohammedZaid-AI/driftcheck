@@ -2,34 +2,50 @@
 
 Goal: check if an AI generated product image changed the original product.
 
-Status: phase 0 done, next is phase 1 (ingest and generate).
+Status: phase 0 done, next is phase 1 (ingest, Kaggle notebook, manual route and register).
+
+## Plan changes from 2026-10-24
+
+These replace the matching parts of the original plan. CLAUDE.md has the short version.
+
+1. Vision model is local Ollama by default. qwen2.5vl:3b is the default. qwen2.5vl:7b is the option for the final overnight eval.
+2. All vision calls go through one interface in driftcheck/vision with three providers picked by VISION_PROVIDER: ollama, gemini and hf. Disk cache, retries and call logging apply to every provider.
+3. Images are resized to a max side of 1024. For text and logos, crop to the product with rembg and send zoomed crops. easyocr is the main text source, the vision model is the backup. Build this in phases 3 and 4.
+4. No API image generation. Phase 1 gives two routes: a Kaggle notebook with Qwen Image Edit, and a manual route with the free Gemini app. driftcheck register records both. The generate command is dropped.
+5. Wherever the plan says Gemini, use the selected vision provider: ingest category, product card, shape and logo judge, baseline 2.
+6. GEMINI_API_KEY is optional.
+7. Windows and PowerShell commands. CPU only torch.
+8. Phase 6 compares qwen2.5vl:3b and qwen2.5vl:7b on speed and accuracy.
 
 ## Done
 
 Phase 0: setup
-1. Package layout in driftcheck/ with pyproject.toml. Core deps install by default. Extras: vision, app, dev, all.
-2. Settings from .env and config/models.json in driftcheck/config.py.
+1. Package layout in driftcheck/ with pyproject.toml. Extras: vision, app, dev, all.
+2. Settings from .env and config/vision.json in driftcheck/config.py.
 3. Logging in driftcheck/log.py.
-4. Disk cache in driftcheck/cache.py. Keys are a SHA256 of model name, prompt and image bytes. Stored under cache/.
+4. Disk cache in driftcheck/cache.py, under cache/.
 5. Retry with backoff in driftcheck/retry.py. At most 4 tries on 408, 429, 5xx, timeouts and connection errors.
-6. CLI skeleton in driftcheck/cli.py. Commands info works. ingest, generate, register, synth, check and eval are stubs that name their phase.
-7. pytest setup with 16 tests. Tests blank out GEMINI_API_KEY.
+6. Vision interface in driftcheck/vision. VisionClient.ask(prompt, images, schema) resizes images, checks the provider once, uses the cache, retries, parses into the pydantic schema and logs every real call to cache/vision_calls.jsonl. Providers: ollama_provider.py, gemini_provider.py, hf_provider.py. A failed call raises VisionError so a check can return unknown.
+7. CLI: info and ping work. ingest, register, synth, check and eval are stubs that name their phase.
+8. Tests mock every provider. No test calls a real model.
 
-Model names in config/models.json, taken from https://ai.google.dev/gemini-api/docs/models on 2026-10-24:
-1. vision: gemini-3.8-flash
-2. fast: gemini-3.5-flash-lite
-3. image: gemini-3.1-flash-image
+Models in config/vision.json:
+1. ollama: qwen2.5vl:3b, compare with qwen2.5vl:7b. Both are pulled on this machine.
+2. gemini: gemini-3.8-flash, from https://ai.google.dev/gemini-api/docs/models on 2026-10-24.
+3. hf: Qwen/Qwen2.5-VL-3B-Instruct, from the Hugging Face image text to text docs on 2026-10-24.
 
 ## Next
 
-Phase 1: driftcheck ingest, driftcheck generate and driftcheck register.
+Phase 1: driftcheck ingest with the category from the vision provider, a Kaggle notebook with Qwen Image Edit, the manual Gemini app route, and driftcheck register.
 
 ## Commands
 
 ```
 py -3.12 -m venv .venv
+.venv\Scripts\python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 .venv\Scripts\python -m pip install -e ".[all]"
 .venv\Scripts\driftcheck info
+.venv\Scripts\driftcheck ping
 .venv\Scripts\python -m pytest
 ```
 
@@ -37,6 +53,6 @@ Use Python 3.12. The default python on this machine is 3.14, which torch and eas
 
 ## Waiting on me
 
-1. Copy .env.example to .env and add GEMINI_API_KEY.
-2. Put 30 to 40 product photos in data/inbox/.
-3. Decide on a public GitHub repo called driftcheck. The gh CLI is not installed on this machine yet.
+1. Put 30 to 40 product photos in data/inbox/.
+2. Decide on a public GitHub repo called driftcheck. The gh CLI is not installed on this machine yet.
+3. Say what test.jpg in the project root is. It is not committed.

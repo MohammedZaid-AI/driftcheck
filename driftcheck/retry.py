@@ -19,8 +19,10 @@ def is_retryable(error: BaseException) -> bool:
     """True for rate limits, timeouts and temporary server errors."""
     if isinstance(error, (TimeoutError, ConnectionError)):
         return True
-    # google-genai APIError has .code; httpx errors carry a response.
-    code = getattr(error, "code", None) or getattr(error, "status_code", None)
+    # google-genai APIError has .code, ollama ResponseError has .status_code,
+    # and Hugging Face HTTP errors carry a response.
+    response = getattr(error, "response", None)
+    code = getattr(error, "code", None) or getattr(error, "status_code", None) or getattr(response, "status_code", None)
     if isinstance(code, int) and code in RETRYABLE_CODES:
         return True
     return "Timeout" in type(error).__name__

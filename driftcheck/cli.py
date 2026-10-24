@@ -23,15 +23,29 @@ def _not_ready(phase: int) -> None:
 
 @app.command()
 def info() -> None:
-    """Show the version, model names and whether the API key is set."""
+    """Show the version, the vision provider and the folders in use."""
     settings = load_settings()
     typer.echo(f"driftcheck {__version__}")
-    typer.echo(f"vision model: {settings.models.vision}")
-    typer.echo(f"fast model:   {settings.models.fast}")
-    typer.echo(f"image model:  {settings.models.image}")
-    typer.echo(f"data dir:     {settings.data_dir}")
-    typer.echo(f"cache dir:    {settings.cache_dir}")
-    typer.echo(f"API key set:  {'yes' if settings.has_api_key else 'no'}")
+    typer.echo(f"vision provider: {settings.vision.provider}")
+    typer.echo(f"vision model:    {settings.vision.model}")
+    if settings.vision.provider == "ollama":
+        typer.echo(f"ollama host:     {settings.ollama_host}")
+    typer.echo(f"data dir:        {settings.data_dir}")
+    typer.echo(f"cache dir:       {settings.cache_dir}")
+
+
+@app.command()
+def ping() -> None:
+    """Check that the vision provider is running and the model is ready."""
+    from driftcheck.vision import VisionUnavailable, get_vision_client
+
+    try:
+        client = get_vision_client()
+        client.ensure_ready()
+    except VisionUnavailable as error:
+        typer.echo(f"Not ready: {error}", err=True)
+        raise typer.Exit(code=1)
+    typer.echo(f"Ready: {client.provider.name} {client.model}")
 
 
 @app.command()
@@ -41,14 +55,8 @@ def ingest() -> None:
 
 
 @app.command()
-def generate() -> None:
-    """Make AI outputs for every product."""
-    _not_ready(1)
-
-
-@app.command()
 def register() -> None:
-    """Record outputs saved by hand."""
+    """Record outputs made in Kaggle or the Gemini app."""
     _not_ready(1)
 
 
