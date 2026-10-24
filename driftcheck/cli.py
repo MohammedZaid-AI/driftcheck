@@ -52,6 +52,7 @@ def ping() -> None:
 @app.command()
 def ingest(
     no_vision: bool = typer.Option(False, help="Only move photos. Fill categories later with another ingest."),
+    refresh: bool = typer.Option(False, help="Ask again for the category and worn flag of every product."),
 ) -> None:
     """Move photos from data/inbox into product folders and fill the category."""
     from driftcheck.ingest import ingest_inbox
@@ -66,7 +67,7 @@ def ingest(
         except VisionUnavailable as error:
             typer.echo(f"Not ready: {error}", err=True)
             raise typer.Exit(code=1)
-    result = ingest_inbox(settings.data_dir, client)
+    result = ingest_inbox(settings.data_dir, client, refresh=refresh)
     typer.echo(f"Added {len(result.added)} products: {' '.join(result.added) or 'none'}")
     if result.categorised:
         typer.echo(f"Categorised {len(result.categorised)} products.")
@@ -74,6 +75,8 @@ def ingest(
         typer.echo(f"Skipped {len(result.duplicates)} duplicates: {' '.join(result.duplicates)}")
     if result.skipped:
         typer.echo(f"Skipped {len(result.skipped)} files that are not jpg, png, webp or avif: {' '.join(result.skipped)}")
+    if result.blank:
+        typer.echo(f"Skipped {len(result.blank)} blank images that are one flat colour: {' '.join(result.blank)}", err=True)
     if result.category_failed:
         typer.echo(f"No category yet for {' '.join(result.category_failed)}. Run ingest again to retry.", err=True)
     _print_category_summary(settings.data_dir)

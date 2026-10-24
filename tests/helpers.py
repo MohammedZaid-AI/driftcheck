@@ -13,8 +13,12 @@ from driftcheck.vision import VisionError
 
 
 def save_image(path: Path, colour: tuple[int, int, int] = (200, 40, 40), size: tuple[int, int] = (64, 48)) -> Path:
+    """A coloured block on white, so it is never mistaken for a blank image."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    Image.new("RGB", size, colour).save(path)
+    img = Image.new("RGB", size, "white")
+    w, h = size
+    img.paste(colour, (w // 4, h // 4, 3 * w // 4, 3 * h // 4))
+    img.save(path)
     return path
 
 

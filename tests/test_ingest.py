@@ -19,7 +19,9 @@ def test_moves_photos_and_fills_category(tmp_path: Path) -> None:
     result = ingest_inbox(tmp_path, FakeVisionClient([KURTI, SPICE]))
 
     assert result.added == ["p001", "p002"]
-    assert list(tmp_path.joinpath("inbox").iterdir()) == []
+    inbox = tmp_path / "inbox"
+    assert [p.name for p in inbox.iterdir()] == ["done"]
+    assert sorted(p.name for p in (inbox / "done").iterdir()) == ["p001_a.jpg", "p002_b.png"]
     meta = read_meta(tmp_path, "p001")
     assert meta.category == "clothing"
     assert meta.product_type == "sleeveless cotton kurti"
@@ -51,6 +53,39 @@ def test_avif_is_converted_to_jpg(tmp_path: Path) -> None:
     original = Image.open(tmp_path / "products" / "p001" / "original.jpg")
     assert original.format == "JPEG" and original.size == (80, 60)
     assert read_meta(tmp_path, "p001").worn is None  # unknown until the vision step runs
+
+
+def test_transparent_png_gets_white_background(tmp_path: Path) -> None:
+    (tmp_path / "inbox").mkdir()
+    img = Image.new("RGBA", (60, 60), (0, 0, 0, 0))  # transparent black, the usual PNG cut out
+    img.paste((200, 30, 40, 255), (20, 20, 40, 40))
+    img.save(tmp_path / "inbox" / "cutout.png")
+    assert ingest_inbox(tmp_path, None).added == ["p001"]
+    pixels = Image.open(tmp_path / "products" / "p001" / "original.jpg").convert("RGB")
+    assert min(pixels.getpixel((2, 2))) > 245  # white, not black
+    assert pixels.getpixel((30, 30))[0] > 150
+
+
+def test_blank_image_is_skipped_and_kept(tmp_path: Path) -> None:
+    (tmp_path / "inbox").mkdir()
+    Image.new("RGB", (300, 150), (0, 0, 0)).save(tmp_path / "inbox" / "black.png")
+    result = ingest_inbox(tmp_path, None)
+    assert result.added == [] and result.blank == ["black.png"]
+    assert (tmp_path / "inbox" / "black.png").exists()
+
+
+def test_held_product_is_not_worn(tmp_path: Path) -> None:
+    save_image(tmp_path / "inbox" / "juice.jpg")
+    held = {"category": "packaged_food", "product_type": "fruit juice", "worn": True}
+    ingest_inbox(tmp_path, FakeVisionClient([held]))
+    assert read_meta(tmp_path, "p001").worn is False
+
+
+def test_refresh_asks_again(tmp_path: Path) -> None:
+    save_image(tmp_path / "inbox" / "a.jpg")
+    ingest_inbox(tmp_path, FakeVisionClient([KURTI]))
+    ingest_inbox(tmp_path, FakeVisionClient([SPICE]), refresh=True)
+    assert read_meta(tmp_path, "p001").category == "packaged_food"
 
 
 def test_large_photo_is_capped(tmp_path: Path) -> None:

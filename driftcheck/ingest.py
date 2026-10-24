@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
+import numpy as np
 from PIL import Image, ImageOps
 from pydantic import BaseModel, Field
 
@@ -30,14 +31,20 @@ MAX_ORIGINAL_SIDE = 2048
 CATEGORY_PROMPT = (
     "This is a product photo from an Indian online seller. "
     "Pick the category of the main product and give a short product type of two to four words, "
-    "for example sleeveless cotton kurti, steel water bottle or masala spice pack."
+    "for example sleeveless cotton kurti, steel water bottle or masala spice pack. "
+    "Say if the product is worn: only when it is on a real person's body. "
+    "A hand holding a bottle or pack is not worn. A mannequin is not worn."
 )
+WEARABLE = {"clothing", "footwear", "bag", "jewellery", "accessory"}
 
 
 class CategoryGuess(BaseModel):
     category: Category
     product_type: str = Field(description="two to four words, for example sleeveless cotton kurti")
-    worn: bool = Field(description="true if a person or model is wearing the product in this photo, false if it is laid flat, on a hanger, on a mannequin or on its own")
+    worn: bool = Field(description=(
+        "true only if the product is on a real person's body, such as clothes on a model. "
+        "false if a hand is only holding it, and false for a mannequin, hanger, flat lay or the product alone"
+    ))
 
 
 @dataclass
@@ -45,6 +52,7 @@ class IngestResult:
     added: list[str] = field(default_factory=list)
     duplicates: list[str] = field(default_factory=list)
     skipped: list[str] = field(default_factory=list)
+    blank: list[str] = field(default_factory=list)
     categorised: list[str] = field(default_factory=list)
     category_failed: list[str] = field(default_factory=list)
 
@@ -53,21 +61,35 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _save_original(source: Path, target: Path) -> None:
+MIN_PIXEL_STD = 2.0  # below this the photo is one flat colour, for example all black
+
+
+def load_photo(source: Path) -> Image.Image:
+    """Open any supported photo as RGB. Transparent areas become white, not black."""
     with Image.open(source) as img:
-        img = ImageOps.exif_transpose(img).convert("RGB")
+        img = ImageOps.exif_transpose(img)
+        if img.mode in ("RGBA", "LA", "PA") or (img.mode == "P" and "transparency" in img.info):
+            rgba = img.convert("RGBA")
+            flat = Image.new("RGB", rgba.size, "white")
+            flat.paste(rgba, mask=rgba.getchannel("A"))
+            img = flat
+        img = img.convert("RGB")
         img.thumbnail((MAX_ORIGINAL_SIDE, MAX_ORIGINAL_SIDE), Image.Resampling.LANCZOS)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        img.save(target, format="JPEG", quality=95)
+        return img
+
+
+def is_blank(img: Image.Image) -> bool:
+    return float(np.asarray(img).std()) < MIN_PIXEL_STD
 
 
 def _known_hashes(data_dir: Path) -> set[str]:
     return {read_meta(data_dir, pid).sha256 for pid in list_product_ids(data_dir)}
 
 
-def ingest_inbox(data_dir: Path, client: VisionClient | None) -> IngestResult:
-    """Move every photo in data/inbox into its own product folder, then fill
-    missing categories. Pass client=None to skip the vision step."""
+def ingest_inbox(data_dir: Path, client: VisionClient | None, refresh: bool = False) -> IngestResult:
+    """Copy every photo in data/inbox into its own product folder as original.jpg,
+    move the source to data/inbox/done, then fill missing categories.
+    Pass client=None to skip the vision step, refresh=True to redo every category."""
     result = IngestResult()
     inbox = data_dir / "inbox"
     inbox.mkdir(parents=True, exist_ok=True)
@@ -84,10 +106,16 @@ def ingest_inbox(data_dir: Path, client: VisionClient | None) -> IngestResult:
             result.duplicates.append(source.name)
             continue
 
+        photo = load_photo(source)
+        if is_blank(photo):
+            log.warning("Skipping %s. The image is one flat colour, so there is no product to see.", source.name)
+            result.blank.append(source.name)
+            continue
+
         product_id = next_product_id(data_dir)
         folder = product_dir(data_dir, product_id)
-        _save_original(source, folder / "original.jpg")
-        (folder / "outputs").mkdir(exist_ok=True)
+        (folder / "outputs").mkdir(parents=True, exist_ok=True)
+        photo.save(folder / "original.jpg", format="JPEG", quality=95)
         meta = ProductMeta(
             product_id=product_id,
             source_file=source.name,
@@ -95,21 +123,24 @@ def ingest_inbox(data_dir: Path, client: VisionClient | None) -> IngestResult:
             ingested_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         )
         write_json(folder / "meta.json", meta)
-        source.unlink()
+        # Keep the untouched source, so nothing is lost if a conversion goes wrong.
+        done = inbox / "done"
+        done.mkdir(exist_ok=True)
+        source.replace(done / f"{product_id}_{source.name}")
         known.add(digest)
         result.added.append(product_id)
         log.info("%s -> %s", source.name, product_id)
 
     if client is not None:
-        fill_categories(data_dir, client, result)
+        fill_categories(data_dir, client, result, refresh)
     return result
 
 
-def fill_categories(data_dir: Path, client: VisionClient, result: IngestResult) -> None:
-    """Ask the vision model for the category of every product that has none yet."""
+def fill_categories(data_dir: Path, client: VisionClient, result: IngestResult, refresh: bool = False) -> None:
+    """Ask the vision model for the category of every product that has none yet, or of all with refresh."""
     for product_id in list_product_ids(data_dir):
         meta = read_meta(data_dir, product_id)
-        if meta.category is not None:
+        if meta.category is not None and not refresh:
             continue
         folder = product_dir(data_dir, product_id)
         try:
@@ -120,7 +151,8 @@ def fill_categories(data_dir: Path, client: VisionClient, result: IngestResult) 
             continue
         meta.category = guess.category
         meta.product_type = guess.product_type.strip().lower()
-        meta.worn = guess.worn
+        # A spice pack in someone's hand is held, not worn.
+        meta.worn = guess.worn and guess.category in WEARABLE
         meta.category_by = f"{client.provider.name}/{client.model}"
         write_json(folder / "meta.json", meta)
         result.categorised.append(product_id)
