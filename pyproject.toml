@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "driftcheck"
+version = "0.0.1"
+description = "Checks if an AI generated product image changed the original product."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "typer>=0.12",
+    "pydantic>=2.6",
+    "python-dotenv>=1.0",
+    "google-genai>=1.0",
+    "numpy>=1.26",
+    "pillow>=10.0",
+]
+
+[project.optional-dependencies]
+vision = [
+    "rembg[cpu]>=2.0.50",
+    "easyocr>=1.7",
+    "scikit-image>=0.22",
+    "scikit-learn>=1.4",
+    "rapidfuzz>=3.6",
+    "torch>=2.2",
+    "transformers>=4.40",
+]
+app = [
+    "gradio>=4.30",
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "python-multipart>=0.0.9",
+]
+dev = [
+    "pytest>=8.0",
+    "httpx>=0.27",
+]
+all = ["driftcheck[vision,app,dev]"]
+
+[project.scripts]
+driftcheck = "driftcheck.cli:app"
+
+[tool.setuptools.packages.find]
+include = ["driftcheck*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
