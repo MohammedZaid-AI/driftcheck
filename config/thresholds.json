@@ -1,0 +1,25 @@
+{
+  "tuned": false,
+  "note": "Starting values, not tuned. Phase 6 tunes them on the calibration split only, then sets tuned to true and freezes them.",
+  "segmentation": {
+    "missing_share": 0.01,
+    "small_share": 0.03
+  },
+  "colour": {
+    "max_weighted_delta_e": 12.0,
+    "white_balance": true
+  },
+  "text": {
+    "min_match": 80,
+    "min_item_length": 2,
+    "vision_backup": true
+  },
+  "pattern": {
+    "patch_similarity": 0.55,
+    "max_drift_share": 0.25,
+    "min_patches": 20
+  },
+  "judge": {
+    "min_confidence": 0.6
+  }
+}
