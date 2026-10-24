@@ -5,7 +5,7 @@ from __future__ import annotations
 import typer
 
 from driftcheck import __version__
-from driftcheck.config import load_settings
+from driftcheck.config import load_settings, use_system_certificates
 from driftcheck.log import setup_logging
 
 app = typer.Typer(help="Check if an AI generated product image changed the original product.", no_args_is_help=True)
@@ -13,6 +13,7 @@ app = typer.Typer(help="Check if an AI generated product image changed the origi
 
 @app.callback()
 def main() -> None:
+    use_system_certificates()
     setup_logging(load_settings().log_level)
 
 
@@ -145,9 +146,23 @@ def split(
 
 
 @app.command()
-def synth() -> None:
-    """Make synthetic drift with automatic labels."""
-    _not_ready(2)
+def synth(seed: int = typer.Option(42, help="Random seed for the drift parameters.")) -> None:
+    """Make synthetic drift with automatic labels in data/synthetic."""
+    from collections import Counter
+
+    from driftcheck.cache import DiskCache
+    from driftcheck.ocr import OcrEngine
+    from driftcheck.segment import product_mask
+    from driftcheck.synth import run_synth
+
+    settings = load_settings()
+    mask_cache = DiskCache(settings.cache_dir, "masks")
+    ocr = OcrEngine(DiskCache(settings.cache_dir, "ocr"))
+    rows = run_synth(settings.data_dir, lambda image: product_mask(image, mask_cache), ocr.read, seed=seed)
+    counts = Counter(row["output_id"] for row in rows)
+    typer.echo(f"Wrote {len(rows)} synthetic outputs to {settings.data_dir / 'synthetic'}")
+    for drift, count in sorted(counts.items()):
+        typer.echo(f"  {drift}: {count}")
 
 
 @app.command()

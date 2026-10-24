@@ -5,6 +5,10 @@ from pathlib import Path
 
 import pytest
 
+# No telemetry calls from gradio or huggingface_hub during tests.
+os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"
+os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
+
 SAMPLES = Path(__file__).resolve().parent.parent / "data" / "samples"
 
 

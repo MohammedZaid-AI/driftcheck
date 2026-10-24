@@ -39,6 +39,14 @@ class Settings(BaseModel):
     log_level: str
 
 
+def use_system_certificates() -> None:
+    """Trust the Windows certificate store, as pip does. Without this, model
+    downloads fail on machines where antivirus scans HTTPS traffic."""
+    import truststore
+
+    truststore.inject_into_ssl()
+
+
 def _resolve(root: Path, value: str) -> Path:
     path = Path(value)
     return path if path.is_absolute() else root / path

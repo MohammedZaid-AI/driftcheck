@@ -2,7 +2,7 @@
 
 Goal: check if an AI generated product image changed the original product.
 
-Status: phase 1 built and tested on synthetic images, waiting on real photos to run. Next is phase 2 (labelling tool, split, synthetic drift).
+Status: phase 2 done. Next is phase 3 (product card). Phases 3 to 5 do not need real photos. Phase 6 needs labels.
 
 ## Plan changes from 2026-10-24
 
@@ -41,9 +41,25 @@ Phase 1: ingest and outputs
 4. Manual route in docs/make_outputs.md.
 5. driftcheck register records outputs named <style>__<generator>.jpg, converts png and webp, keeps the notebook json, writes json for manual outputs, and lists files with bad names. --from imports an unzipped Kaggle result.
 
+Phase 2: labels, split and synthetic drift
+1. data/samples/plain_shirt.jpg is the plain control example and a test fixture. It is the 333 by 500 photo from test.jpg, already under 800 px so not resized.
+2. driftcheck label opens a Gradio app on port 7861: original and output side by side, yes, no or n/a for each attribute, notes, back and next, progress count. Every answer is saved to data/labels.json straight away. A missing key means not labelled yet, null means not applicable. Logic is in LabelSession so it is tested without the UI.
+3. driftcheck split writes data/split.json, 50 50 by product, dealt out per category so both halves get a similar mix. It refuses to overwrite without --force.
+4. driftcheck synth writes data/synthetic/<product_id>/<drift>.jpg and .json plus data/synthetic/labels.json. Drifts: colour_shift (Lab shift inside the mask), text_erase, text_replace (latin text only), pattern_blur and pattern_swap (only when texture score is at least 8), sleeve_erase (clothing only), product_erase, and three controls with no change: control_light, control_jpeg, control_shift. logo_changed is always null in this set.
+5. driftcheck/segment.py: rembg isnet-general-use masks, cached in cache/masks. driftcheck/ocr.py: easyocr with an English and Hindi reader and an English and Kannada reader, merged, cached in cache/ocr.
+6. Ran synth for real on the shirt sample: 6 outputs, checked by eye.
+
+Known limits of synth:
+1. rembg counts the hanger as product, so colour_shift recolours the hanger too.
+2. sleeve_erase paints out the outer upper bands of the garment. On the shirt it also cuts the shoulders. The label shape_changed is right but the edit is cruder than a real AI change.
+
+Fixes made on the way:
+1. normalise() used to drop Hindi and Kannada vowel signs. It now keeps combining marks.
+2. Model downloads failed with CERTIFICATE_VERIFY_FAILED because Python did not trust the Windows certificate store. The CLI now calls truststore at start, as pip does.
+
 ## Next
 
-Phase 2: labelling app, data/split.json and driftcheck synth.
+Phase 3: product card from the vision provider plus a pixel palette.
 
 ## Commands
 
@@ -57,6 +73,9 @@ py -3.12 -m venv .venv
 .venv\Scripts\driftcheck jobs --generator qwen_edit
 .venv\Scripts\driftcheck jobs --generator gemini_app
 .venv\Scripts\driftcheck register --from data\jobs\qwen_edit\result
+.venv\Scripts\driftcheck label
+.venv\Scripts\driftcheck split
+.venv\Scripts\driftcheck synth
 .venv\Scripts\python -m pytest
 ```
 
@@ -66,7 +85,7 @@ Use Python 3.12. The default python on this machine is 3.14, which torch and eas
 
 1. Put 30 to 40 product photos in data/inbox/, then run driftcheck ingest.
 2. Make outputs with the Kaggle notebook or the Gemini app, see docs/make_outputs.md, then run driftcheck register.
-3. Say what test.jpg in the project root is. It is not committed.
+3. Run driftcheck split once all products are ingested, then driftcheck label and label every output. Phase 6 needs this.
 
 ## GitHub
 
