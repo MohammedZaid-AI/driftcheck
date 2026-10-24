@@ -31,6 +31,16 @@ def test_moves_photos_and_fills_category(tmp_path: Path) -> None:
     assert (tmp_path / "products" / "p002" / "outputs").is_dir()
 
 
+def test_ingests_real_sample_photo(tmp_path: Path, plain_shirt: Path) -> None:
+    (tmp_path / "inbox").mkdir()
+    (tmp_path / "inbox" / "shirt.jpg").write_bytes(plain_shirt.read_bytes())
+    shirt = {"category": "clothing", "product_type": "black long sleeve shirt"}
+    result = ingest_inbox(tmp_path, FakeVisionClient([shirt]))
+    assert result.added == ["p001"]
+    assert Image.open(tmp_path / "products" / "p001" / "original.jpg").size == (333, 500)
+    assert plain_shirt.exists()  # the sample itself is never moved
+
+
 def test_large_photo_is_capped(tmp_path: Path) -> None:
     save_image(tmp_path / "inbox" / "big.jpg", size=(4000, 3000))
     ingest_inbox(tmp_path, None)
