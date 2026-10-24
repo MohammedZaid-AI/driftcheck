@@ -70,7 +70,8 @@ class VisionClient:
         """Ask the model about the images and parse the answer into schema."""
         prepared = [prepare_image(image, self.max_side) for image in images]
         schema_text = json.dumps(schema.model_json_schema(), sort_keys=True)
-        key = make_key(self.provider.name, self.provider.model, prompt, schema_text, *prepared)
+        version = getattr(self.provider, "version", "1")
+        key = make_key(self.provider.name, version, self.provider.model, prompt, schema_text, *prepared)
 
         cached = self.cache.get(key)
         if cached is not None:

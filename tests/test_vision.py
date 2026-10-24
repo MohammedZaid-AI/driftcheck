@@ -168,6 +168,8 @@ def test_ollama_sends_schema_and_images() -> None:
     assert json.loads(text)["main_colour"] == "red"
     assert fake.chat_kwargs["format"] == Garment.model_json_schema()
     assert fake.chat_kwargs["messages"][0]["images"] == [b"jpeg-bytes"]
+    content = fake.chat_kwargs["messages"][0]["content"]
+    assert content.startswith("describe") and '"sleeve_length"' in content
     assert fake.chat_kwargs["options"]["temperature"] == 0
 
 

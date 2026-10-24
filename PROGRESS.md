@@ -2,7 +2,7 @@
 
 Goal: check if an AI generated product image changed the original product.
 
-Status: phase 2 done. Next is phase 3 (product card). Phases 3 to 5 do not need real photos. Phase 6 needs labels.
+Status: phase 3 done. Next is phase 4 (checks). Phases 3 to 5 do not need real photos. Phase 6 needs labels.
 
 ## Plan changes from 2026-10-24
 
@@ -57,9 +57,19 @@ Fixes made on the way:
 1. normalise() used to drop Hindi and Kannada vowel signs. It now keeps combining marks.
 2. Model downloads failed with CERTIFICATE_VERIFY_FAILED because Python did not trust the Windows certificate store. The CLI now calls truststore at start, as pip does.
 
+Phase 3: product card
+1. driftcheck/card.py builds a ProductCard: VisionCard from the vision provider (product type, category, views, sleeve length, neckline, silhouette, length, closures, colours, pattern, embellishments, logos with position, text items with language and position, key features), easyocr text with boxes, the pixel palette, the product box and product share.
+2. The vision call gets the rembg product crop plus up to 3 zoomed crops of OCR text areas.
+3. driftcheck/palette.py: k means with k=5 in Lab on the eroded product mask, clusters under 2 percent dropped. grey_world() is the optional white balance for the colour check.
+4. Cards are cached in cache/cards. A card whose vision call failed is not cached, so the next run retries.
+5. driftcheck card PATH prints the card as JSON.
+6. Real run on the shirt sample with qwen2.5vl:3b: all fields right after the fix below, 8.7s with warm models.
+
+Fix made on the way: with only Ollama's format setting, qwen2.5vl:3b said the shirt was footwear with a cotton neckline and a zip. Constrained decoding fixes the JSON shape but the model never sees field descriptions or allowed values. The Ollama and Hugging Face providers now also put the schema in the prompt. Providers carry a version that is part of the cache key, so this change did not reuse old answers.
+
 ## Next
 
-Phase 3: product card from the vision provider plus a pixel palette.
+Phase 4: the checks in driftcheck/checks.
 
 ## Commands
 

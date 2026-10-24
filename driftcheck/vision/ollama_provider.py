@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from driftcheck.vision.base import VisionUnavailable
+from driftcheck.vision.base import VisionUnavailable, with_schema
 
 
 def _with_tag(name: str) -> str:
@@ -13,6 +13,7 @@ def _with_tag(name: str) -> str:
 
 class OllamaProvider:
     name = "ollama"
+    version = "2"  # 2: schema is also written into the prompt
 
     def __init__(self, model: str, host: str, timeout: float = 600) -> None:
         import ollama
@@ -35,7 +36,7 @@ class OllamaProvider:
     def generate(self, prompt: str, images: list[bytes], schema: type[BaseModel]) -> str:
         response = self._client.chat(
             model=self.model,
-            messages=[{"role": "user", "content": prompt, "images": images}],
+            messages=[{"role": "user", "content": with_schema(prompt, schema), "images": images}],
             format=schema.model_json_schema(),
             options={"temperature": 0},
         )

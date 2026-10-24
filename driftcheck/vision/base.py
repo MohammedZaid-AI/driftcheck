@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import json
 from pathlib import Path
 from typing import Protocol, Union
 
@@ -29,6 +30,12 @@ class Provider(Protocol):
 
     def generate(self, prompt: str, images: list[bytes], schema: type[BaseModel]) -> str:
         """Send JPEG images and a prompt. Return the raw JSON text."""
+
+
+def with_schema(prompt: str, schema: type[BaseModel]) -> str:
+    """Constrained decoding forces the JSON shape, but the model never sees the
+    field descriptions or allowed values unless they are in the prompt."""
+    return f"{prompt}\n\nAnswer with JSON that follows this schema. Use only the allowed values.\n{json.dumps(schema.model_json_schema())}"
 
 
 def prepare_image(image: ImageInput, max_side: int = 1024) -> bytes:

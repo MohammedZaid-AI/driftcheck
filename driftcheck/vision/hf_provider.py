@@ -6,11 +6,12 @@ import base64
 
 from pydantic import BaseModel
 
-from driftcheck.vision.base import VisionUnavailable
+from driftcheck.vision.base import VisionUnavailable, with_schema
 
 
 class HuggingFaceProvider:
     name = "hf"
+    version = "2"  # 2: schema is also written into the prompt
 
     def __init__(self, model: str, token: str | None, timeout: float = 600) -> None:
         if not token:
@@ -29,7 +30,7 @@ class HuggingFaceProvider:
             {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64," + base64.b64encode(image).decode()}}
             for image in images
         ]
-        content.append({"type": "text", "text": prompt})
+        content.append({"type": "text", "text": with_schema(prompt, schema)})
         response = self._client.chat_completion(
             model=self.model,
             messages=[{"role": "user", "content": content}],

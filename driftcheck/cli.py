@@ -166,6 +166,29 @@ def synth(seed: int = typer.Option(42, help="Random seed for the drift parameter
 
 
 @app.command()
+def card(image: str = typer.Argument(..., help="Path to a product photo.")) -> None:
+    """Print the product card for one photo as JSON."""
+    from PIL import Image
+
+    from driftcheck.cache import DiskCache
+    from driftcheck.card import build_card
+    from driftcheck.ocr import OcrEngine
+    from driftcheck.segment import product_mask
+    from driftcheck.vision import get_vision_client
+
+    settings = load_settings()
+    masks = DiskCache(settings.cache_dir, "masks")
+    result = build_card(
+        Image.open(image),
+        get_vision_client(settings),
+        lambda im: product_mask(im, masks),
+        OcrEngine(DiskCache(settings.cache_dir, "ocr")).read,
+        DiskCache(settings.cache_dir, "cards"),
+    )
+    typer.echo(result.model_dump_json(indent=2))
+
+
+@app.command()
 def check() -> None:
     """Check one original against one output."""
     _not_ready(5)
