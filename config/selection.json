@@ -24,14 +24,14 @@
     "p018": "clothing: close up of floral embroidery on a neckline",
     "p019": "clothing: shirt with small embroidered motifs",
     "p023": "clothing: embroidered kurti on a mannequin",
-    "p047": "clothing: close up of embroidered neckline",
+    "p022": "clothing: striped t-shirt with a small embroidered logo",
     "p010": "clothing: floral print shirt, worn by a model",
     "p024": "clothing: check jacket, worn",
     "p060": "clothing: elephant block print kurti, worn by a model",
     "p008": "clothing: sweatshirt with crest logo, script text and number 98",
     "p027": "clothing: polo shirt with a small embroidered logo",
     "p041": "clothing: jersey with NEYMAR JR, number 11 and unicef",
-    "p052": "clothing: two jerseys with MACK, WESTWOOD and number 32",
+    "p025": "clothing: sweatshirt with REVENULES and YOUNG FOR YOU print",
     "p059": "clothing: jersey with Nike, Spotify and club crest logos",
     "p067": "clothing: polo with large BROOKLYN print",
     "p015": "packaged_food: Nandini milk pack, Kannada text",
@@ -41,7 +41,7 @@
     "p049": "packaged_food: Amul Moti milk pack, Hindi text, held in a hand",
     "p057": "packaged_food: Guru Chela candy pack, Hindi text",
     "p035": "packaged_food: Parle-G biscuit pack, English text and the Parle-G girl",
-    "p045": "packaged_food: Rasoi masala box, Bengali text that easyocr cannot read, a known gap",
+    "p045": "packaged_food: Rasoi masala box, Bengali text",
     "p028": "beauty: Benefit benetint, script logo and small text",
     "p051": "beauty: Laneige lip sleeping mask, jar and box",
     "p053": "beauty: Dove hair mask jar, held in a hand",
@@ -51,6 +51,6 @@
     "p004": "storefront: Manohar Mishthan, English shop name and tagline",
     "p029": "storefront: Balaji Amruttulya, Marathi shop name in Devanagari",
     "p055": "storefront: Mahalaxmi Jewellers, Devanagari name, night photo",
-    "p062": "storefront: FamilyMart, English logo with Japanese text"
+    "p068": "storefront: Ashwini Amruttulya tea shop, Devanagari name and tagline"
   }
 }

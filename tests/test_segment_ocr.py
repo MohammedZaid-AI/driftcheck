@@ -43,6 +43,7 @@ def test_normalise() -> None:
     assert normalise("ＡＢＣ") == "abc"
     assert normalise("नमस्ते!") == "नमस्ते"
     assert normalise("ಹಾಲು,") == "ಹಾಲು"
+    assert normalise("রসুই!") == "রসুই"
 
 
 def test_merge_keeps_more_confident_duplicate() -> None:
@@ -68,14 +69,16 @@ class FakeReader:
 def test_ocr_engine_runs_both_readers_filters_and_caches(tmp_path: Path) -> None:
     hi = FakeReader([([[10, 10], [50, 10], [50, 20], [10, 20]], "SALE", 0.9), ([[0, 0], [5, 0], [5, 5], [0, 5]], "~", 0.2)])
     kn = FakeReader([([[60, 10], [80, 10], [80, 20], [60, 20]], "ಹಾಲು", 0.7)])
+    bn = FakeReader([([[10, 40], [50, 40], [50, 50], [10, 50]], "রসুই", 0.8)])
+    readers = {"en_hi": hi, "en_kn": kn, "en_bn": bn}
     engine = OcrEngine(DiskCache(tmp_path, "ocr"))
-    engine._readers = {"en_hi": hi, "en_kn": kn}
+    engine._readers = dict(readers)
     found = engine.read(garment())
-    assert [b.text for b in found] == ["SALE", "ಹಾಲು"]
+    assert [b.text for b in found] == ["SALE", "ಹಾಲು", "রসুই"]
     assert found[0].box == (10, 10, 50, 20)
 
     again = OcrEngine(DiskCache(tmp_path, "ocr"))
-    again._readers = {"en_hi": hi, "en_kn": kn}
-    assert [b.text for b in again.read(garment())] == ["SALE", "ಹಾಲು"]
-    assert hi.calls == 1 and kn.calls == 1
-    assert set(ocr.READERS) == {"en_hi", "en_kn"}
+    again._readers = dict(readers)
+    assert [b.text for b in again.read(garment())] == ["SALE", "ಹಾಲು", "রসুই"]
+    assert hi.calls == 1 and kn.calls == 1 and bn.calls == 1
+    assert ocr.READERS["en_bn"] == ["en", "bn"]

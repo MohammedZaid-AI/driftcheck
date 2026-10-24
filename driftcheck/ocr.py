@@ -1,7 +1,7 @@
 """Text reading with easyocr, the main source for text.
 
-easyocr cannot load every script in one reader, so two readers run:
-English with Hindi, and English with Kannada.
+easyocr cannot load every script in one reader, so three readers run:
+English with Hindi, English with Kannada, and English with Bengali.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from PIL import Image
 from driftcheck.cache import DiskCache, make_key
 from driftcheck.segment import Box
 
-READERS = {"en_hi": ["en", "hi"], "en_kn": ["en", "kn"]}
+READERS = {"en_hi": ["en", "hi"], "en_kn": ["en", "kn"], "en_bn": ["en", "bn"]}
 MIN_CONFIDENCE = 0.3  # below this easyocr is mostly reading noise
 
 

@@ -107,6 +107,8 @@ Core set, 2026-10-24
 5. The clothing rule asked for all sleeveless (6), all embroidered garments (7), all with a logo or number (12), 4 worn and 3 plain. Those add up to 28 distinct items, more than 22. Kept all sleeveless, all embroidered, all 4 worn and 3 plain (p031, p076, p077, which are also sleeveless), and 6 of the 12 logo or number items. Left out: p014, p022, p025, p050, p072, p073.
 6. jobs and split use core products by default. --include-extra adds the rest. 120 jobs for 40 products.
 7. download.png is skipped for good.
+8. Swaps on 2026-10-24: p052 out because it shows two jerseys, p025 in. p047 out, p022 in, p018 kept. p062 out because it is not an Indian shop, p068 in, an Indian tea shop with a Devanagari name. Logo or number items in core are now p008, p022, p025, p027, p041, p059, p067.
+9. easyocr now runs a third reader, English with Bengali, so every OCR call does three passes. On p045 it read রোস্ট, পাউডার and ইফাদ at 0.80 to 0.94 confidence, but not the large title রসুই. The Hindi reader also reads parts of the Bengali text as made up Devanagari words at 0.55 to 0.78 confidence, which become extra text items for that product.
 
 ## Next
 
