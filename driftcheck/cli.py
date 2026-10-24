@@ -118,6 +118,33 @@ def register(
 
 
 @app.command()
+def label(port: int = typer.Option(7861, help="Port for the labelling app.")) -> None:
+    """Open the labelling app in the browser. Every answer is saved to data/labels.json at once."""
+    from driftcheck.apps.label_app import build_app
+
+    build_app(load_settings().data_dir).launch(server_port=port, inbrowser=True)
+
+
+@app.command()
+def split(
+    seed: int = typer.Option(42, help="Random seed for the shuffle."),
+    force: bool = typer.Option(False, help="Overwrite an existing split. Thresholds must then be retuned."),
+) -> None:
+    """Split products 50 50 into calibration and test."""
+    from driftcheck.split import write_split
+
+    settings = load_settings()
+    try:
+        result = write_split(settings.data_dir, seed=seed, force=force)
+    except FileExistsError as error:
+        typer.echo(str(error), err=True)
+        raise typer.Exit(code=1)
+    if force:
+        typer.echo("Split replaced. Retune thresholds and say so in PROGRESS.md.", err=True)
+    typer.echo(f"calibration: {len(result['calibration'])} products, test: {len(result['test'])} products")
+
+
+@app.command()
 def synth() -> None:
     """Make synthetic drift with automatic labels."""
     _not_ready(2)

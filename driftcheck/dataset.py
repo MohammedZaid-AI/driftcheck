@@ -92,6 +92,20 @@ def next_product_id(data_dir: Path) -> str:
     return f"p{max(numbers, default=0) + 1:03d}"
 
 
+def list_outputs(data_dir: Path) -> list[tuple[str, str]]:
+    """Every registered output as (product_id, output_id). Registered means it has its json."""
+    found = []
+    for product_id in list_product_ids(data_dir):
+        outputs = product_dir(data_dir, product_id) / "outputs"
+        if outputs.exists():
+            found += [(product_id, p.stem) for p in sorted(outputs.glob("*.jpg")) if p.with_suffix(".json").exists()]
+    return found
+
+
+def output_image(data_dir: Path, product_id: str, output_id: str) -> Path:
+    return product_dir(data_dir, product_id) / "outputs" / f"{output_id}.jpg"
+
+
 def read_meta(data_dir: Path, product_id: str) -> ProductMeta:
     path = product_dir(data_dir, product_id) / "meta.json"
     return ProductMeta.model_validate_json(path.read_text(encoding="utf-8"))
