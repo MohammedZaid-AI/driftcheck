@@ -28,14 +28,23 @@ Category = Literal[
     "home",
     "electronics",
     "toy",
+    "storefront",
     "other",
 ]
 
-Style = Literal["model_shot", "studio", "lifestyle"]
+Style = Literal["model_shot", "studio", "lifestyle", "festival_poster", "instagram_post", "reel_cover"]
 STYLES: tuple[Style, ...] = ("model_shot", "studio", "lifestyle")
+STOREFRONT_STYLES: tuple[Style, ...] = ("festival_poster", "instagram_post", "reel_cover")
+
+
+def styles_for(category: str | None) -> tuple[Style, ...]:
+    return STOREFRONT_STYLES if category == "storefront" else STYLES
+
 
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
-_OUTPUT_ID = re.compile(r"^(model_shot|studio|lifestyle)__([a-z0-9][a-z0-9_]*)$")
+_OUTPUT_ID = re.compile(
+    r"^(model_shot|studio|lifestyle|festival_poster|instagram_post|reel_cover)__([a-z0-9][a-z0-9_]*)$"
+)
 _PRODUCT_ID = re.compile(r"^p\d{3,}$")
 
 
@@ -49,6 +58,9 @@ class ProductMeta(BaseModel):
     sha256: str
     ingested_at: str
     category_by: str | None = None  # provider/model that filled the category
+    manual_fields: list[str] = []  # fields set by hand in config/selection.json; ingest never overwrites them
+    subset: Literal["core", "extra"] | None = None  # core products get outputs and labels by default
+    subset_reason: str = ""
 
 
 class OutputMeta(BaseModel):
@@ -86,6 +98,14 @@ def list_product_ids(data_dir: Path) -> list[str]:
     if not root.exists():
         return []
     return sorted(p.name for p in root.iterdir() if p.is_dir() and _PRODUCT_ID.match(p.name))
+
+
+def selected_product_ids(data_dir: Path, include_extra: bool = False) -> list[str]:
+    """Products to make outputs for, split and label. Extras only when asked."""
+    ids = list_product_ids(data_dir)
+    if include_extra:
+        return ids
+    return [pid for pid in ids if read_meta(data_dir, pid).subset != "extra"]
 
 
 def next_product_id(data_dir: Path) -> str:

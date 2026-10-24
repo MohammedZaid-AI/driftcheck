@@ -8,15 +8,16 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-from driftcheck.dataset import list_product_ids, read_meta
+from driftcheck.dataset import read_meta, selected_product_ids
 from driftcheck.labels import write_json_atomic
 
 
-def make_split(data_dir: Path, seed: int = 42) -> dict:
+def make_split(data_dir: Path, seed: int = 42, include_extra: bool = False) -> dict:
     """Half the products go to calibration and half to test. Each category is
-    shuffled and dealt out in turn, so both halves get a similar mix."""
+    shuffled and dealt out in turn, so both halves get a similar mix.
+    Only core products unless include_extra is set."""
     by_category: dict[str, list[str]] = defaultdict(list)
-    for product_id in list_product_ids(data_dir):
+    for product_id in selected_product_ids(data_dir, include_extra):
         by_category[read_meta(data_dir, product_id).category or "unknown"].append(product_id)
 
     rng = random.Random(seed)
@@ -37,11 +38,11 @@ def make_split(data_dir: Path, seed: int = 42) -> dict:
     }
 
 
-def write_split(data_dir: Path, seed: int = 42, force: bool = False) -> dict:
+def write_split(data_dir: Path, seed: int = 42, force: bool = False, include_extra: bool = False) -> dict:
     path = data_dir / "split.json"
     if path.exists() and not force:
         raise FileExistsError(f"{path} already exists. Thresholds may be tuned on it. Use --force only if you will retune.")
-    split = make_split(data_dir, seed)
+    split = make_split(data_dir, seed, include_extra)
     write_json_atomic(path, split)
     return split
 

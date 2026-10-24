@@ -24,8 +24,23 @@ _OBJECT_STYLES: dict[Style, str] = {
 }
 
 
+KEEP_SHOP = (
+    "Keep the shop front exactly as it is in the photo: the shop name with every letter in its own script, "
+    "the sign's colours, logo and layout. Do not translate, respell or shorten the shop name."
+)
+
+_STOREFRONT_STYLES: dict[Style, str] = {
+    "festival_poster": "Make a Diwali festival offer poster featuring this shop, with the shop front clearly visible.",
+    "instagram_post": "Make a square Instagram post featuring this shop front, bright and inviting, shop sign clearly visible.",
+    "reel_cover": "Make a vertical Instagram Reel cover image with this shop front, shop sign clearly visible.",
+}
+
+
 def build_prompt(category: str | None, product_type: str | None, style: Style) -> str:
-    """Prompt for one product and style. Clothes go on a model, packaged goods go on a table."""
+    """Prompt for one product and style. Clothes go on a model, packaged goods go on a table,
+    shop fronts go into marketing posts where the shop name must stay exact."""
     thing = product_type or "product"
+    if category == "storefront":
+        return f"{_STOREFRONT_STYLES[style]} {KEEP_SHOP}"
     templates = _WEARABLE_STYLES if category in WEARABLE else _OBJECT_STYLES
     return f"{templates[style].format(thing=thing)} {KEEP_PRODUCT}"

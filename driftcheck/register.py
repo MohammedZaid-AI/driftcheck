@@ -19,13 +19,14 @@ from pydantic import BaseModel, ValidationError
 
 from driftcheck.dataset import (
     IMAGE_SUFFIXES,
-    STYLES,
     OutputMeta,
     list_product_ids,
     output_id,
     parse_output_id,
     product_dir,
     read_meta,
+    selected_product_ids,
+    styles_for,
     write_json,
 )
 from driftcheck.log import get_logger
@@ -44,13 +45,14 @@ class Job(BaseModel):
     prompt: str
 
 
-def make_jobs(data_dir: Path, generator: str) -> list[Job]:
-    """One job per product and style that has no output from this generator yet."""
+def make_jobs(data_dir: Path, generator: str, include_extra: bool = False) -> list[Job]:
+    """One job per product and style that has no output from this generator yet.
+    Only core products unless include_extra is set."""
     jobs = []
-    for product_id in list_product_ids(data_dir):
+    for product_id in selected_product_ids(data_dir, include_extra):
         meta = read_meta(data_dir, product_id)
         outputs = product_dir(data_dir, product_id) / "outputs"
-        for style in STYLES:
+        for style in styles_for(meta.category):
             oid = output_id(style, generator)
             if (outputs / f"{oid}.jpg").exists():
                 continue
@@ -59,9 +61,9 @@ def make_jobs(data_dir: Path, generator: str) -> list[Job]:
     return jobs
 
 
-def export_jobs(data_dir: Path, generator: str) -> Path:
+def export_jobs(data_dir: Path, generator: str, include_extra: bool = False) -> Path:
     """Write data/jobs/<generator>/ with jobs.json, a zip for Kaggle and a checklist for the manual route."""
-    jobs = make_jobs(data_dir, generator)
+    jobs = make_jobs(data_dir, generator, include_extra)
     out = data_dir / "jobs" / generator
     out.mkdir(parents=True, exist_ok=True)
     jobs_json = json.dumps([job.model_dump() for job in jobs], indent=2, ensure_ascii=False)

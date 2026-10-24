@@ -22,6 +22,7 @@ from driftcheck.dataset import (
     write_json,
 )
 from driftcheck.log import get_logger
+from driftcheck.prompts import WEARABLE
 from driftcheck.vision import VisionClient, VisionError
 
 log = get_logger(__name__)
@@ -32,18 +33,19 @@ CATEGORY_PROMPT = (
     "This is a product photo from an Indian online seller. "
     "Pick the category of the main product and give a short product type of two to four words, "
     "for example sleeveless cotton kurti, steel water bottle or masala spice pack. "
-    "Say if the product is worn: only when it is on a real person's body. "
-    "A hand holding a bottle or pack is not worn. A mannequin is not worn."
+    "Use storefront for a photo of a shop front or shop sign board. "
+    "Say if the product is worn: only when a person's body is visible wearing it. "
+    "A hand holding a bottle or pack is not worn. A mannequin or a close up with no body is not worn."
 )
-WEARABLE = {"clothing", "footwear", "bag", "jewellery", "accessory"}
 
 
 class CategoryGuess(BaseModel):
     category: Category
     product_type: str = Field(description="two to four words, for example sleeveless cotton kurti")
     worn: bool = Field(description=(
-        "true only if the product is on a real person's body, such as clothes on a model. "
-        "false if a hand is only holding it, and false for a mannequin, hanger, flat lay or the product alone"
+        "true only if a person's body is visible wearing the product. "
+        "false if a hand is only holding it, for a close up with no body visible, "
+        "and for a mannequin, hanger, flat lay or the product alone"
     ))
 
 
@@ -149,10 +151,14 @@ def fill_categories(data_dir: Path, client: VisionClient, result: IngestResult, 
             log.warning("No category for %s: %s", product_id, error)
             result.category_failed.append(product_id)
             continue
-        meta.category = guess.category
-        meta.product_type = guess.product_type.strip().lower()
-        # A spice pack in someone's hand is held, not worn.
-        meta.worn = guess.worn and guess.category in WEARABLE
+        # Fields fixed by hand in config/selection.json are never overwritten.
+        if "category" not in meta.manual_fields:
+            meta.category = guess.category
+        if "product_type" not in meta.manual_fields:
+            meta.product_type = guess.product_type.strip().lower()
+        if "worn" not in meta.manual_fields:
+            # A spice pack in someone's hand is held, not worn.
+            meta.worn = guess.worn and meta.category in WEARABLE
         meta.category_by = f"{client.provider.name}/{client.model}"
         write_json(folder / "meta.json", meta)
         result.categorised.append(product_id)

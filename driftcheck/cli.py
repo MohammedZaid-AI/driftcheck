@@ -88,29 +88,43 @@ def _print_category_summary(data_dir) -> None:
     from driftcheck.dataset import list_product_ids, read_meta
 
     metas = [read_meta(data_dir, pid) for pid in list_product_ids(data_dir)]
-    counts = Counter(meta.category or "no category yet" for meta in metas)
-    worn = Counter(meta.category or "no category yet" for meta in metas if meta.worn)
-    typer.echo(f"\n{len(metas)} products")
-    typer.echo(f"  {'category':16s} {'products':>8s} {'worn':>6s}")
+    name = lambda meta: meta.category or "no category yet"  # noqa: E731
+    counts = Counter(name(meta) for meta in metas)
+    worn = Counter(name(meta) for meta in metas if meta.worn)
+    core = Counter(name(meta) for meta in metas if meta.subset == "core")
+    typer.echo(f"\n{len(metas)} products, {sum(core.values())} core")
+    typer.echo(f"  {'category':16s} {'products':>8s} {'core':>6s} {'worn':>6s}")
     for category, count in counts.most_common():
-        typer.echo(f"  {category:16s} {count:8d} {worn[category]:6d}")
+        typer.echo(f"  {category:16s} {count:8d} {core[category]:6d} {worn[category]:6d}")
+
+
+@app.command()
+def select() -> None:
+    """Apply config/selection.json: hand fixes, and the core and extra tags."""
+    from driftcheck.selection import apply_selection, load_selection
+
+    settings = load_settings()
+    apply_selection(settings.data_dir, load_selection(settings.config_dir))
+    _print_category_summary(settings.data_dir)
 
 
 @app.command()
 def jobs(
     generator: str = typer.Option("qwen_edit", help="qwen_edit for the Kaggle notebook, gemini_app for the manual route."),
+    include_extra: bool = typer.Option(False, "--include-extra", help="Also make jobs for products tagged extra."),
 ) -> None:
-    """Write the generation jobs: a zip for Kaggle and a checklist for the Gemini app."""
-    from driftcheck.dataset import list_product_ids, read_meta
+    """Write the generation jobs for the core products: a zip for Kaggle and a checklist for the Gemini app."""
+    from driftcheck.dataset import read_meta, selected_product_ids
     from driftcheck.register import export_jobs, make_jobs
 
     settings = load_settings()
-    missing = [pid for pid in list_product_ids(settings.data_dir) if read_meta(settings.data_dir, pid).category is None]
+    products = selected_product_ids(settings.data_dir, include_extra)
+    missing = [pid for pid in products if read_meta(settings.data_dir, pid).category is None]
     if missing:
         typer.echo(f"Warning: no category for {' '.join(missing)}, so their prompts are generic. Run ingest first.", err=True)
-    count = len(make_jobs(settings.data_dir, generator))
-    out = export_jobs(settings.data_dir, generator)
-    typer.echo(f"{count} jobs for {generator}.")
+    count = len(make_jobs(settings.data_dir, generator, include_extra))
+    out = export_jobs(settings.data_dir, generator, include_extra)
+    typer.echo(f"{count} jobs for {generator} across {len(products)} products{' including extras' if include_extra else ''}.")
     typer.echo(f"Kaggle input: {out / 'kaggle_input.zip'}")
     typer.echo(f"Manual checklist: {out / 'manual_checklist.md'}")
 
@@ -148,13 +162,14 @@ def label(port: int = typer.Option(7861, help="Port for the labelling app.")) ->
 def split(
     seed: int = typer.Option(42, help="Random seed for the shuffle."),
     force: bool = typer.Option(False, help="Overwrite an existing split. Thresholds must then be retuned."),
+    include_extra: bool = typer.Option(False, "--include-extra", help="Also split products tagged extra."),
 ) -> None:
-    """Split products 50 50 into calibration and test."""
+    """Split the core products 50 50 into calibration and test."""
     from driftcheck.split import write_split
 
     settings = load_settings()
     try:
-        result = write_split(settings.data_dir, seed=seed, force=force)
+        result = write_split(settings.data_dir, seed=seed, force=force, include_extra=include_extra)
     except FileExistsError as error:
         typer.echo(str(error), err=True)
         raise typer.Exit(code=1)

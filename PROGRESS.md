@@ -99,6 +99,15 @@ Real data, 2026-10-24
 3. meta.json has worn: true when a person wears the product. The first prompt marked hands holding bottles and packs as worn. The fixed prompt plus a rule that only wearable categories can be worn left 7 worn, all clothing: p001, p010, p018, p024, p047, p060, p075. By eye, p001, p010, p024 and p060 are right, p075 is a flat lay, and p018 and p047 are close ups where no person is clearly visible.
 4. Six photos are shop fronts or sign boards, not products: p004, p029, p055, p062, p068, p074. The model filed them under packaged_food, other, jewellery and accessory. There is no storefront category yet.
 
+Core set, 2026-10-24
+1. config/selection.json holds the hand fixes and the 40 core products with a reason each. driftcheck select applies it to meta.json. Fields set by hand are listed in manual_fields and ingest --refresh never overwrites them.
+2. Worn means a person's body is visible wearing the item. p018, p047 and p075 set to not worn by hand. Worn now: p001, p010, p024, p060, all core.
+3. New category storefront for p004, p029, p055, p062, p068, p074. Their styles are festival_poster, instagram_post and reel_cover, and the prompt tells the generator to keep the shop name exact in its own script.
+4. Core mix: 22 clothing, 8 packaged food, 4 beauty, 2 accessory, 4 storefront. The other 36 are tagged extra.
+5. The clothing rule asked for all sleeveless (6), all embroidered garments (7), all with a logo or number (12), 4 worn and 3 plain. Those add up to 28 distinct items, more than 22. Kept all sleeveless, all embroidered, all 4 worn and 3 plain (p031, p076, p077, which are also sleeveless), and 6 of the 12 logo or number items. Left out: p014, p022, p025, p050, p072, p073.
+6. jobs and split use core products by default. --include-extra adds the rest. 120 jobs for 40 products.
+7. download.png is skipped for good.
+
 ## Next
 
 Phase 6: baselines and evaluation. Needs labels.
@@ -112,6 +121,7 @@ py -3.12 -m venv .venv
 .venv\Scripts\driftcheck info
 .venv\Scripts\driftcheck ping
 .venv\Scripts\driftcheck ingest
+.venv\Scripts\driftcheck select
 .venv\Scripts\driftcheck jobs --generator qwen_edit
 .venv\Scripts\driftcheck jobs --generator gemini_app
 .venv\Scripts\driftcheck register --from data\jobs\qwen_edit\result
@@ -127,7 +137,7 @@ Use Python 3.12. The default python on this machine is 3.14, which torch and eas
 
 ## Waiting on me
 
-1. Put 30 to 40 product photos in data/inbox/, then run driftcheck ingest.
+1. Done: photos ingested and the core set chosen.
 2. Make outputs with the Kaggle notebook or the Gemini app, see docs/make_outputs.md, then run driftcheck register.
 3. Run driftcheck split once all products are ingested, then driftcheck label and label every output. Phase 6 needs this.
 

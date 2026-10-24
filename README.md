@@ -26,6 +26,7 @@ Torch is the CPU only build. Ollama does the GPU work.
 .venv\Scripts\driftcheck info
 .venv\Scripts\driftcheck ping
 .venv\Scripts\driftcheck ingest
+.venv\Scripts\driftcheck select
 .venv\Scripts\driftcheck jobs --generator qwen_edit
 .venv\Scripts\driftcheck register
 .venv\Scripts\driftcheck label
