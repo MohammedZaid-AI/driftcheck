@@ -37,6 +37,16 @@ def normalise(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+def inside_mask(boxes: list, mask: np.ndarray) -> list:
+    """Boxes whose centre is on the product. Text on the background is not product text."""
+    inside = []
+    for box in boxes:
+        cx, cy = (box.box[0] + box.box[2]) // 2, (box.box[1] + box.box[3]) // 2
+        if 0 <= cy < mask.shape[0] and 0 <= cx < mask.shape[1] and mask[cy, cx]:
+            inside.append(box)
+    return inside
+
+
 def _iou(a: Box, b: Box) -> float:
     x0, y0 = max(a[0], b[0]), max(a[1], b[1])
     x1, y1 = min(a[2], b[2]), min(a[3], b[3])

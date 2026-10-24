@@ -19,7 +19,7 @@ from scipy.ndimage import binary_dilation, binary_erosion
 from driftcheck.dataset import list_product_ids, product_dir, read_meta
 from driftcheck.labels import ATTRIBUTES, write_json_atomic
 from driftcheck.log import get_logger
-from driftcheck.ocr import TextBox
+from driftcheck.ocr import TextBox, inside_mask
 from driftcheck.segment import mask_box
 
 log = get_logger(__name__)
@@ -73,15 +73,6 @@ def _background(arr: np.ndarray, mask: np.ndarray) -> np.ndarray:
 
 def _paste_where(base: Image.Image, top: Image.Image, mask: np.ndarray) -> Image.Image:
     return Image.composite(top, base, Image.fromarray((mask * 255).astype(np.uint8)))
-
-
-def text_in_product(boxes: list[TextBox], mask: np.ndarray) -> list[TextBox]:
-    inside = []
-    for box in boxes:
-        cx, cy = (box.box[0] + box.box[2]) // 2, (box.box[1] + box.box[3]) // 2
-        if 0 <= cy < mask.shape[0] and 0 <= cx < mask.shape[1] and mask[cy, cx]:
-            inside.append(box)
-    return inside
 
 
 def colour_shift(image: Image.Image, mask: np.ndarray, rng: random.Random) -> SynthItem:
@@ -228,7 +219,7 @@ def make_drifts(
 ) -> list[SynthItem]:
     """Every drift that applies to this product, each with its labels."""
     image = image.convert("RGB")
-    text = text_in_product(boxes, mask)
+    text = inside_mask(boxes, mask)
     has_text = bool(text)
     patterned = texture_score(image, mask) >= TEXTURE_MIN
     items: list[SynthItem] = []
