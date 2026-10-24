@@ -54,5 +54,8 @@ Use Python 3.12. The default python on this machine is 3.14, which torch and eas
 ## Waiting on me
 
 1. Put 30 to 40 product photos in data/inbox/.
-2. Decide on a public GitHub repo called driftcheck. The gh CLI is not installed on this machine yet.
-3. Say what test.jpg in the project root is. It is not committed.
+2. Say what test.jpg in the project root is. It is not committed.
+
+## GitHub
+
+Remote origin is https://github.com/MohammedZaid-AI/driftcheck.git. Push after every phase.
