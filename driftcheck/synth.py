@@ -169,13 +169,14 @@ def pattern_swap(image: Image.Image, mask: np.ndarray, rng: random.Random, grid:
 
 
 def sleeve_erase(image: Image.Image, mask: np.ndarray) -> SynthItem | None:
-    """Paint over the outer upper bands of a garment, where sleeves sit."""
+    """Cut long sleeves short: paint over the outer bands below the upper arm.
+    The shoulders and the top of the sleeves stay, as in a real short sleeve."""
     x0, y0, x1, y1 = mask_box(mask)  # type: ignore[misc]
-    band = int(0.22 * (x1 - x0))
+    band = int(0.2 * (x1 - x0))
     region = np.zeros_like(mask)
-    bottom = y0 + int(0.55 * (y1 - y0))
-    region[y0:bottom, x0 : x0 + band] = True
-    region[y0:bottom, x1 - band : x1] = True
+    top = y0 + int(0.38 * (y1 - y0))
+    region[top:y1, x0 : x0 + band] = True
+    region[top:y1, x1 - band : x1] = True
     region &= mask
     share = region.sum() / mask.sum()
     if share < SLEEVE_MIN_SHARE:

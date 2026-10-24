@@ -20,6 +20,8 @@
     "min_patches": 20
   },
   "judge": {
-    "min_confidence": 0.6
+    "min_ordinal_steps": 2,
+    "min_changed_parts": 1,
+    "use_silhouette": false
   }
 }

@@ -54,7 +54,9 @@ class PatternThresholds(BaseModel):
 
 
 class JudgeThresholds(BaseModel):
-    min_confidence: float
+    min_ordinal_steps: int  # sleeves and length must move this many steps to count
+    min_changed_parts: int  # this many changed parts fail the shape check
+    use_silhouette: bool
 
 
 class Thresholds(BaseModel):

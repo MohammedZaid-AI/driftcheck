@@ -13,14 +13,15 @@ TEXT_BOX = (55, 100, 105, 116)
 
 
 def garment(colour: tuple[int, int, int] = (190, 30, 40), stripes: bool = False, text: str | None = None,
-            sleeves: bool = True) -> Image.Image:
-    """A flat top: body, optional sleeves sticking out at the shoulders, optional stripes and text."""
+            sleeves: bool = True, long_sleeves: bool = False) -> Image.Image:
+    """A flat top: body, optional sleeves at the sides, optional stripes and text."""
     img = Image.new("RGB", SIZE, "white")
     draw = ImageDraw.Draw(img)
     draw.rectangle(BODY, fill=colour)
     if sleeves:
-        draw.rectangle((15, 50, 40, 110), fill=colour)
-        draw.rectangle((120, 50, 145, 110), fill=colour)
+        bottom = 175 if long_sleeves else 110
+        draw.rectangle((15, 50, 40, bottom), fill=colour)
+        draw.rectangle((120, 50, 145, bottom), fill=colour)
     if stripes:
         for x in range(BODY[0], BODY[2], 8):
             draw.rectangle((x, BODY[1], x + 3, BODY[3]), fill=(30, 40, 170))

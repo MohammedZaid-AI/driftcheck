@@ -9,7 +9,7 @@ from PIL import Image
 
 from driftcheck.dataset import ProductMeta, product_dir, write_json
 from driftcheck.labels import ATTRIBUTES
-from driftcheck.synth import TEXTURE_MIN, make_drifts, mutate_text, run_synth, texture_score
+from driftcheck.synth import TEXTURE_MIN, make_drifts, mutate_text, run_synth, sleeve_erase, texture_score
 from tests.synthetic import BODY, TEXT_BOX, garment, simple_mask, text_boxes
 
 
@@ -77,9 +77,13 @@ def test_drifts_change_the_right_pixels() -> None:
     assert erased[y0:y1, x0:x1].sum() > 0
     assert erased[:y0 - 3].sum() == 0
 
-    sleeves = _diff(image, items["sleeve_erase"].image)
-    assert sleeves[60:100, 20:35].mean() > 100  # left sleeve painted out
-    assert sleeves[150:175, 60:100].sum() == 0  # lower body untouched
+    long = garment(long_sleeves=True)
+    cut = sleeve_erase(long, simple_mask(long))
+    assert cut is not None
+    sleeves = _diff(long, cut.image)
+    assert sleeves[130:170, 18:32].mean() > 100  # lower left sleeve painted out
+    assert sleeves[52:90, 18:32].sum() == 0  # top of the sleeve stays, like a short sleeve
+    assert sleeves[150:175, 60:100].sum() == 0  # body untouched
 
     gone = np.asarray(items["product_erase"].image)
     assert gone[BODY[1] + 5 : BODY[3] - 5, BODY[0] + 5 : BODY[2] - 5].min() > 240
