@@ -23,6 +23,7 @@ class VisionConfig(BaseModel):
     model: str  # the model for the chosen provider, after overrides
     models: dict[str, str]
     compare_models: list[str]
+    pattern_model: str  # local DINOv2 model for the pattern check
     max_side: int
     timeout_seconds: float
 
@@ -61,6 +62,7 @@ def _load_vision(config_dir: Path) -> VisionConfig:
         model=model,
         models=raw["models"],
         compare_models=raw.get("compare_models", []),
+        pattern_model=raw.get("pattern_model", "facebook/dinov2-small"),
         max_side=raw.get("max_side", 1024),
         timeout_seconds=raw.get("timeout_seconds", 600),
     )

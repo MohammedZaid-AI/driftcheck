@@ -15,7 +15,7 @@
     "vision_backup": true
   },
   "pattern": {
-    "patch_similarity": 0.55,
+    "patch_similarity": 0.85,
     "max_drift_share": 0.25,
     "min_patches": 20
   },
