@@ -80,7 +80,7 @@ def _shape_result(parts: dict[str, PartChange], t: JudgeThresholds) -> CheckResu
     seen = [part for part in parts.values() if part.changed is not None]
     changed = [part for part in seen if part.changed]
     if not seen:
-        return unknown(SHAPE, "No shape part applies to this product.", **details)
+        return unknown(SHAPE, "No shape part applies to this product.", applicable=False, **details)
     if len(changed) >= t.min_changed_parts:
         return CheckResult(name=SHAPE, status="fail", score=len(changed), threshold=t.min_changed_parts,
                            reason="Shape changed: " + "; ".join(p.reason for p in changed) + ".", details=details)
@@ -92,7 +92,7 @@ def _logo_result(pair: Pair, original: ShapeDescription, output: ShapeDescriptio
     details = {"original_logo_visible": original.logo_visible, "output_logo_visible": output.logo_visible}
     card_logos = bool(pair.card.vision and pair.card.vision.logos)
     if not (card_logos or original.logo_visible):
-        return unknown(LOGO, "No logo on the original, so there is nothing to compare.", **details)
+        return unknown(LOGO, "No logo on the original, so there is nothing to compare.", applicable=False, **details)
     if not output.logo_visible:
         return CheckResult(name=LOGO, status="fail", score=1.0, threshold=1.0,
                            reason="The original has a logo but none is visible in the output.", details=details)

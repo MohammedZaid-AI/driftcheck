@@ -42,6 +42,7 @@ def test_fail_when_one_of_two_items_is_missing() -> None:
 def test_unknown_when_original_has_no_text() -> None:
     result = check_text(_pair(), T, _ocr("SALE 50"))
     assert result.status == "unknown" and "No text" in result.reason
+    assert result.applicable is False
 
 
 def test_hindi_and_kannada_items_match() -> None:

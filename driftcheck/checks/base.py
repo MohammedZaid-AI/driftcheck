@@ -25,10 +25,13 @@ class CheckResult(BaseModel):
     threshold: float | None = None
     reason: str
     details: dict[str, Any] = {}
+    # False when the attribute does not exist on the original, such as no logo.
+    # Matches a null label. Such a check is left out of the verdict.
+    applicable: bool = True
 
 
-def unknown(name: str, reason: str, **details: Any) -> CheckResult:
-    return CheckResult(name=name, status="unknown", reason=reason, details=details)
+def unknown(name: str, reason: str, applicable: bool = True, **details: Any) -> CheckResult:
+    return CheckResult(name=name, status="unknown", reason=reason, details=details, applicable=applicable)
 
 
 class SegmentationThresholds(BaseModel):

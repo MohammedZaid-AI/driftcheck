@@ -52,7 +52,7 @@ def check_text(
 ) -> CheckResult:
     items = [o for o in inside_mask(pair.card.ocr, pair.original_mask) if len(normalise(o.text)) >= t.min_item_length]
     if not items:
-        return unknown(NAME, "No text on the original product, so there is nothing to compare.")
+        return unknown(NAME, "No text on the original product, so there is nothing to compare.", applicable=False)
     if pair.output_crop is None:
         return unknown(NAME, "No product in the output.")
 

@@ -2,7 +2,7 @@
 
 Goal: check if an AI generated product image changed the original product.
 
-Status: phase 3 done. Next is phase 4 (checks). Phases 3 to 5 do not need real photos. Phase 6 needs labels.
+Status: phase 4 done. Next is phase 5 (heatmap and report). Phases 3 to 5 do not need real photos. Phase 6 needs labels.
 
 ## Plan changes from 2026-10-24
 
@@ -51,7 +51,7 @@ Phase 2: labels, split and synthetic drift
 
 Known limits of synth:
 1. rembg counts the hanger as product, so colour_shift recolours the hanger too.
-2. sleeve_erase paints out the outer upper bands of the garment. On the shirt it also cuts the shoulders. The label shape_changed is right but the edit is cruder than a real AI change.
+2. sleeve_erase paints straight bands, so the edges are cruder than a real AI change and a thin outline of the old sleeve can remain.
 
 Fixes made on the way:
 1. normalise() used to drop Hindi and Kannada vowel signs. It now keeps combining marks.
@@ -67,9 +67,30 @@ Phase 3: product card
 
 Fix made on the way: with only Ollama's format setting, qwen2.5vl:3b said the shirt was footwear with a cotton neckline and a zip. Constrained decoding fixes the JSON shape but the model never sees field descriptions or allowed values. The Ollama and Hugging Face providers now also put the schema in the prompt. Providers carry a version that is part of the cache key, so this change did not reuse old answers.
 
+Phase 4: checks
+Each check is its own module in driftcheck/checks and returns a CheckResult: name, status pass, fail or unknown, score, threshold, reason, details, applicable. Thresholds come from config/thresholds.json, which says tuned: false. All values there are starting values, not tuned. Phase 6 tunes them on the calibration split only.
+1. segmentation.py, check product_missing: rembg product share of the output. Fail below 1 percent, unknown below 3 percent. If it does not pass, every other check is skipped as unknown.
+2. colour.py: k means Lab palettes of both products after grey world white balance, each original colour matched to its nearest output colour with CIEDE2000, weighted by share. Extra output colours such as skin do not count.
+3. text.py: easyocr on the output, rapidfuzz match per original text item, partial match on joined text for long items. Items OCR misses go to the vision model as a backup reader with zoomed crops. The model only reads, the match is done in code. No text on the original gives unknown with applicable false.
+4. pattern.py: DINOv2 small patch features on 448 px square crops, 32 by 32 patches. For each output product patch, best cosine similarity to any original patch. Score is the share of patches below 0.85. The similarity grid is saved for the heatmap. Product under min_patches times 196 real pixels gives unknown.
+5. judge.py, checks shape and logo: the vision model describes the original and the output separately with fixed choices for sleeves, neckline, length and silhouette, plus whether a logo is visible. Code compares. Sleeves and length must move at least 2 steps. Silhouette is off. Logo fails when the original has one and the output shows none.
+6. verdict.py: any fail means drifted, all applicable checks pass means faithful, anything else is unknown. Checks with applicable false, like logo on a product without a logo, are left out of the verdict, matching a null label.
+7. pipeline.py: Checker runs everything on one pair and returns a Report with the card, every check, the verdict, time per step, real vision calls and model names.
+
+Starting threshold values, set from synthetic checks on the shirt sample on 2026-10-24. These are not results:
+1. colour 7.0: a Lab shift of about 35 scored 8 to 12 CIEDE2000, warm lighting about 5. 12 missed every synthetic colour shift.
+2. pattern patch similarity 0.85: with DINOv2 small, controls on the shirt scored 0.97 to 0.99 median similarity, synthetic pattern blur, swap and dots 0.75 to 0.89. At 0.55 nothing was flagged. At 0.85 all 5 shirt variants passed and all 3 pattern drifts failed.
+3. judge: on the shirt sample, qwen2.5vl:3b read full sleeves as three quarter every time and missed the synthetic full to short sleeve change, with no false alarms once silhouette was off. Silhouette flipped between fitted and straight on 2 of 3 controls. qwen2.5vl:7b read the sleeves right, caught the change and had no false alarms, at about 8 to 25 s per image. One sample only. Phase 6 measures this properly.
+
+Design changes from the plan, with reasons:
+1. The judge no longer asks the model to compare two images. Asked directly, qwen2.5vl:3b called a colour shift a change of all four shape parts, missed the sleeve change, and gave 0.9 confidence to every answer. Describing each image with the same prompt and comparing in code had no false alarms on the controls.
+2. Confidence is not used for shape because the 3b model gave the same confidence to every answer. The thresholds are step counts instead.
+3. Checks that do not apply are marked applicable false so the verdict can still be faithful for products with no logo or no text.
+4. synth sleeve_erase now cuts long sleeves short, by painting out the outer bands below the upper arm. The first version cut out the upper sleeves and shoulders, which left floating cuffs.
+
 ## Next
 
-Phase 4: the checks in driftcheck/checks.
+Phase 5: heatmap and driftcheck check.
 
 ## Commands
 
