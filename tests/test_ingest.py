@@ -9,8 +9,8 @@ from driftcheck.ingest import ingest_inbox
 from driftcheck.vision import VisionError
 from tests.helpers import FakeVisionClient, save_image
 
-KURTI = {"category": "clothing", "product_type": "Sleeveless Cotton Kurti"}
-SPICE = {"category": "packaged_food", "product_type": "masala spice pack"}
+KURTI = {"category": "clothing", "product_type": "Sleeveless Cotton Kurti", "worn": True}
+SPICE = {"category": "packaged_food", "product_type": "masala spice pack", "worn": False}
 
 
 def test_moves_photos_and_fills_category(tmp_path: Path) -> None:
@@ -25,6 +25,8 @@ def test_moves_photos_and_fills_category(tmp_path: Path) -> None:
     assert meta.product_type == "sleeveless cotton kurti"
     assert meta.source_file == "a.jpg"
     assert meta.category_by == "fake/fake-vl"
+    assert meta.worn is True
+    assert read_meta(tmp_path, "p002").worn is False
     assert read_meta(tmp_path, "p002").category == "packaged_food"
     original = Image.open(tmp_path / "products" / "p002" / "original.jpg")
     assert original.format == "JPEG"
@@ -34,11 +36,21 @@ def test_moves_photos_and_fills_category(tmp_path: Path) -> None:
 def test_ingests_real_sample_photo(tmp_path: Path, plain_shirt: Path) -> None:
     (tmp_path / "inbox").mkdir()
     (tmp_path / "inbox" / "shirt.jpg").write_bytes(plain_shirt.read_bytes())
-    shirt = {"category": "clothing", "product_type": "black long sleeve shirt"}
+    shirt = {"category": "clothing", "product_type": "black long sleeve shirt", "worn": False}
     result = ingest_inbox(tmp_path, FakeVisionClient([shirt]))
     assert result.added == ["p001"]
     assert Image.open(tmp_path / "products" / "p001" / "original.jpg").size == (333, 500)
     assert plain_shirt.exists()  # the sample itself is never moved
+
+
+def test_avif_is_converted_to_jpg(tmp_path: Path) -> None:
+    (tmp_path / "inbox").mkdir()
+    Image.new("RGB", (80, 60), (10, 120, 200)).save(tmp_path / "inbox" / "photo.avif", format="AVIF")
+    result = ingest_inbox(tmp_path, None)
+    assert result.added == ["p001"] and result.skipped == []
+    original = Image.open(tmp_path / "products" / "p001" / "original.jpg")
+    assert original.format == "JPEG" and original.size == (80, 60)
+    assert read_meta(tmp_path, "p001").worn is None  # unknown until the vision step runs
 
 
 def test_large_photo_is_capped(tmp_path: Path) -> None:

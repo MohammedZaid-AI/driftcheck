@@ -37,6 +37,7 @@ CATEGORY_PROMPT = (
 class CategoryGuess(BaseModel):
     category: Category
     product_type: str = Field(description="two to four words, for example sleeveless cotton kurti")
+    worn: bool = Field(description="true if a person or model is wearing the product in this photo, false if it is laid flat, on a hanger, on a mannequin or on its own")
 
 
 @dataclass
@@ -74,7 +75,7 @@ def ingest_inbox(data_dir: Path, client: VisionClient | None) -> IngestResult:
 
     for source in sorted(p for p in inbox.iterdir() if p.is_file()):
         if source.suffix.lower() not in IMAGE_SUFFIXES:
-            log.warning("Skipping %s. Use jpg, png or webp.", source.name)
+            log.warning("Skipping %s. Use jpg, png, webp or avif.", source.name)
             result.skipped.append(source.name)
             continue
         digest = _sha256(source)
@@ -119,6 +120,7 @@ def fill_categories(data_dir: Path, client: VisionClient, result: IngestResult) 
             continue
         meta.category = guess.category
         meta.product_type = guess.product_type.strip().lower()
+        meta.worn = guess.worn
         meta.category_by = f"{client.provider.name}/{client.model}"
         write_json(folder / "meta.json", meta)
         result.categorised.append(product_id)

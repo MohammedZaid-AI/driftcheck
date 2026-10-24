@@ -34,7 +34,7 @@ Category = Literal[
 Style = Literal["model_shot", "studio", "lifestyle"]
 STYLES: tuple[Style, ...] = ("model_shot", "studio", "lifestyle")
 
-IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp"}
+IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
 _OUTPUT_ID = re.compile(r"^(model_shot|studio|lifestyle)__([a-z0-9][a-z0-9_]*)$")
 _PRODUCT_ID = re.compile(r"^p\d{3,}$")
 
@@ -43,6 +43,7 @@ class ProductMeta(BaseModel):
     product_id: str
     category: Category | None = None  # None until the vision model has filled it
     product_type: str | None = None
+    worn: bool | None = None  # True if the original photo shows a person wearing the product
     notes: str = ""
     source_file: str
     sha256: str

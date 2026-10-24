@@ -15,7 +15,7 @@ from tests.helpers import FakeVisionClient, save_image
 def _dataset(tmp_path: Path, outputs_per_product: int = 2) -> Path:
     for i in range(2):
         save_image(tmp_path / "inbox" / f"{i}.jpg", (40 * i, 80, 120))
-    ingest_inbox(tmp_path, FakeVisionClient([{"category": "clothing", "product_type": "top"}] * 2))
+    ingest_inbox(tmp_path, FakeVisionClient([{"category": "clothing", "product_type": "top", "worn": False}] * 2))
     for pid in ("p001", "p002"):
         for style in ("studio", "lifestyle")[:outputs_per_product]:
             oid = f"{style}__gemini_app"

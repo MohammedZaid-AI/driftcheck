@@ -73,9 +73,24 @@ def ingest(
     if result.duplicates:
         typer.echo(f"Skipped {len(result.duplicates)} duplicates: {' '.join(result.duplicates)}")
     if result.skipped:
-        typer.echo(f"Skipped {len(result.skipped)} files that are not jpg, png or webp: {' '.join(result.skipped)}")
+        typer.echo(f"Skipped {len(result.skipped)} files that are not jpg, png, webp or avif: {' '.join(result.skipped)}")
     if result.category_failed:
         typer.echo(f"No category yet for {' '.join(result.category_failed)}. Run ingest again to retry.", err=True)
+    _print_category_summary(settings.data_dir)
+
+
+def _print_category_summary(data_dir) -> None:
+    from collections import Counter
+
+    from driftcheck.dataset import list_product_ids, read_meta
+
+    metas = [read_meta(data_dir, pid) for pid in list_product_ids(data_dir)]
+    counts = Counter(meta.category or "no category yet" for meta in metas)
+    worn = Counter(meta.category or "no category yet" for meta in metas if meta.worn)
+    typer.echo(f"\n{len(metas)} products")
+    typer.echo(f"  {'category':16s} {'products':>8s} {'worn':>6s}")
+    for category, count in counts.most_common():
+        typer.echo(f"  {category:16s} {count:8d} {worn[category]:6d}")
 
 
 @app.command()

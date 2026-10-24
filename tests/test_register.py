@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import zipfile
@@ -17,8 +17,8 @@ def _two_products(tmp_path: Path) -> None:
     ingest_inbox(
         tmp_path,
         FakeVisionClient([
-            {"category": "clothing", "product_type": "sleeveless top"},
-            {"category": "packaged_food", "product_type": "spice pack"},
+            {"category": "clothing", "product_type": "sleeveless top", "worn": False},
+            {"category": "packaged_food", "product_type": "spice pack", "worn": False},
         ]),
     )
 
