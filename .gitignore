@@ -26,6 +26,9 @@ weights/
 *.onnx
 *.h5
 
+# Single check output from driftcheck check
+reports/check/
+
 # Data: only data/samples is tracked
 data/*
 !data/samples/

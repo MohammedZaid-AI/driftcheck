@@ -189,9 +189,35 @@ def card(image: str = typer.Argument(..., help="Path to a product photo.")) -> N
 
 
 @app.command()
-def check() -> None:
-    """Check one original against one output."""
-    _not_ready(5)
+def check(
+    original: str = typer.Option(..., help="Path to the original product photo."),
+    output: str = typer.Option(..., help="Path to the AI output."),
+    out: str = typer.Option("reports/check", help="Folder for report.json and heatmap.png."),
+    model: str = typer.Option(None, help="Vision model to use instead of the configured one, for example qwen2.5vl:7b."),
+) -> None:
+    """Check one original against one output. Writes report.json and heatmap.png."""
+    from pathlib import Path
+
+    from driftcheck.heatmap import draw_heatmap
+    from driftcheck.pipeline import Checker, load_image
+    from driftcheck.vision import VisionUnavailable
+
+    checker = Checker.from_settings(vision_model=model)
+    try:
+        checker.client.ensure_ready()
+    except VisionUnavailable as error:
+        typer.echo(f"Vision model not ready, so shape, logo and the card will be unknown: {error}", err=True)
+    report = checker.check(original, output)
+    folder = Path(out)
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "report.json").write_text(report.model_dump_json(indent=2), encoding="utf-8")
+    draw_heatmap(load_image(original), load_image(output), report).save(folder / "heatmap.png")
+
+    typer.echo(f"Verdict: {report.verdict}  ({report.seconds:.1f}s, {report.vision_calls} vision calls)")
+    for result in report.checks:
+        note = "" if result.applicable else " (not applicable)"
+        typer.echo(f"  {result.name:16s} {result.status:8s}{note} {result.reason}")
+    typer.echo(f"Wrote {folder / 'report.json'} and {folder / 'heatmap.png'}")
 
 
 @app.command(name="eval")

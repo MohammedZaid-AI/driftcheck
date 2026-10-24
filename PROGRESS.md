@@ -2,7 +2,7 @@
 
 Goal: check if an AI generated product image changed the original product.
 
-Status: phase 4 done. Next is phase 5 (heatmap and report). Phases 3 to 5 do not need real photos. Phase 6 needs labels.
+Status: phase 5 done. Stopped before phase 6, which needs labels. Phases 3 to 5 do not need real photos. Phase 6 needs labels.
 
 ## Plan changes from 2026-10-24
 
@@ -88,9 +88,14 @@ Design changes from the plan, with reasons:
 3. Checks that do not apply are marked applicable false so the verdict can still be faithful for products with no logo or no text.
 4. synth sleeve_erase now cuts long sleeves short, by painting out the outer bands below the upper arm. The first version cut out the upper sleeves and shoulders, which left floating cuffs.
 
+Phase 5: heatmap and report
+1. driftcheck check --original A --output B --out DIR writes report.json and heatmap.png. --model picks another vision model, for example qwen2.5vl:7b. If Ollama is down it still runs, with the vision parts unknown.
+2. heatmap.png: verdict and every check status on top, the original with each original text item boxed green if found and red if missing, the output with patches that have no close pattern match painted red, and a strip pairing each original colour with its matched output colour and the CIEDE2000 distance. There is no pixel by pixel colour map because the photos are not aligned.
+3. Real runs on the shirt sample, all real models, warm caches: colour_shift gave drifted, colour 19.2 CIEDE2000 against a limit of 7, 44.3s with 3 vision calls. control_light gave faithful, colour 1.8, 18.8s with 1 vision call. These are two smoke tests, not results.
+
 ## Next
 
-Phase 5: heatmap and driftcheck check.
+Phase 6: baselines and evaluation. Needs labels.
 
 ## Commands
 
@@ -107,6 +112,8 @@ py -3.12 -m venv .venv
 .venv\Scripts\driftcheck label
 .venv\Scripts\driftcheck split
 .venv\Scripts\driftcheck synth
+.venv\Scripts\driftcheck card data\samples\plain_shirt.jpg
+.venv\Scripts\driftcheck check --original data\samples\plain_shirt.jpg --output OUTPUT.jpg --out reports\check
 .venv\Scripts\python -m pytest
 ```
 

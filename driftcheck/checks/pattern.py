@@ -46,6 +46,7 @@ def check_pattern(pair: Pair, t: PatternThresholds, features_fn: Callable[[Image
         "drift_share": round(drift_share, 4),
         "missing_share": round(missing_share, 4),
         "median_similarity": round(float(np.median(best)), 4),
+        "patch_similarity": t.patch_similarity,
         "similarity_grid": [[None if np.isnan(v) else round(float(v), 3) for v in row] for row in grid],
         "crop_box": list(pair.output_crop[2]),
         "square_side": side,
