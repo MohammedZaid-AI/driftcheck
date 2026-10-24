@@ -93,6 +93,12 @@ Phase 5: heatmap and report
 2. heatmap.png: verdict and every check status on top, the original with each original text item boxed green if found and red if missing, the output with patches that have no close pattern match painted red, and a strip pairing each original colour with its matched output colour and the CIEDE2000 distance. There is no pixel by pixel colour map because the photos are not aligned.
 3. Real runs on the shirt sample, all real models, warm caches: colour_shift gave drifted, colour 19.2 CIEDE2000 against a limit of 7, 44.3s with 3 vision calls. control_light gave faithful, colour 1.8, 18.8s with 1 vision call. These are two smoke tests, not results.
 
+Real data, 2026-10-24
+1. 77 photos in data/inbox: 74 jpg, 1 avif, 1 png, 1 webp. Ingest now reads avif, flattens transparent backgrounds onto white, skips blank images, and moves each source to data/inbox/done/ instead of deleting it.
+2. download.png became an all black p063. The first ingest had already deleted the source, so it could not be checked or redone. p063 was removed. 76 products remain, p001 to p077 without p063.
+3. meta.json has worn: true when a person wears the product. The first prompt marked hands holding bottles and packs as worn. The fixed prompt plus a rule that only wearable categories can be worn left 7 worn, all clothing: p001, p010, p018, p024, p047, p060, p075. By eye, p001, p010, p024 and p060 are right, p075 is a flat lay, and p018 and p047 are close ups where no person is clearly visible.
+4. Six photos are shop fronts or sign boards, not products: p004, p029, p055, p062, p068, p074. The model filed them under packaged_food, other, jewellery and accessory. There is no storefront category yet.
+
 ## Next
 
 Phase 6: baselines and evaluation. Needs labels.
