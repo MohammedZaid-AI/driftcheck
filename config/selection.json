@@ -13,7 +13,11 @@
     "p017": {"text_scripts": ["hi"]},
     "p043": {"text_scripts": ["en", "hi"]},
     "p049": {"text_scripts": ["en", "hi"]},
-    "p057": {"text_scripts": ["en", "hi"]}
+    "p057": {"text_scripts": ["en", "hi"], "product_type": "chatpati candy pack"},
+    "p001": {"product_type": "sleeveless printed kurti"},
+    "p060": {"product_type": "elephant block print kurti"},
+    "p071": {"product_type": "sleeveless printed strappy dress"},
+    "p025": {"product_type": "collared sweatshirt"}
   },
   "core": {
     "p001": "clothing: sleeveless printed kurti, worn by a model",

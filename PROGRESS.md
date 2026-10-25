@@ -114,6 +114,12 @@ Core set, 2026-10-24
 12. Unsure text boxes at least 3 percent of the image tall are read again from a 2x crop. The reading that overlaps the box most replaces the first one if it is more confident. The first version took the most confident reading in the crop, which was a neighbouring word. On p045 the title went from রস্ুই at 0.3 to বসুই at 0.43, still one letter wrong. Logged in docs/limitations.md and left there.
 13. selection.json now refuses a product named twice. A duplicate p068 entry had silently dropped its storefront category.
 
+Outputs, 2026-10-25
+1. Kaggle failed. The 4 bit Qwen Image Edit 2511 loaded across both T4s, 11.8 GB on GPU 0 and 5.1 GB on GPU 1, and every generation ran out of memory on GPU 0, even at 768 by 768. No outputs made. The notebook is kept unchanged. Logged in docs/limitations.md.
+2. Switched to the Gemini app route. driftcheck jobs now defaults to generator gemini_app and two styles per product: model_shot and studio for wearables, lifestyle and studio for other goods, festival_poster and instagram_post for storefronts, which have no studio shot. --all-styles gives three. 80 jobs for the 40 core products.
+3. data/jobs/gemini_app/manual_checklist.md has one line per image with a tick box, the photo path, the exact prompt and the exact file name to save, all relative to the project folder.
+4. Five product types from the vision model would have put wrong details into the prompts and could cause drift the test then blames on Gemini. Fixed by hand in config/selection.json: p001 sleeveless printed kurti, was embroidered; p060 elephant block print kurti, was embroidered; p071 sleeveless printed strappy dress, was embroidered silk; p025 collared sweatshirt, was hooded; p057 chatpati candy pack, was masala spice pack.
+
 ## Next
 
 Phase 6: baselines and evaluation. Needs labels.
@@ -145,7 +151,7 @@ Use Python 3.12. The default python on this machine is 3.14, which torch and eas
 ## Waiting on me
 
 1. Done: photos ingested and the core set chosen.
-2. Make outputs with the Kaggle notebook or the Gemini app, see docs/make_outputs.md, then run driftcheck register.
+2. Make the 80 outputs in the Gemini app by following data/jobs/gemini_app/manual_checklist.md, then run driftcheck register.
 3. Run driftcheck split once all products are ingested, then driftcheck label and label every output. Phase 6 needs this.
 
 ## GitHub

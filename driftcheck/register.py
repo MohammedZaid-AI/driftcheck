@@ -45,14 +45,14 @@ class Job(BaseModel):
     prompt: str
 
 
-def make_jobs(data_dir: Path, generator: str, include_extra: bool = False) -> list[Job]:
+def make_jobs(data_dir: Path, generator: str, include_extra: bool = False, all_styles: bool = False) -> list[Job]:
     """One job per product and style that has no output from this generator yet.
-    Only core products unless include_extra is set."""
+    Only core products unless include_extra is set. Two styles each unless all_styles is set."""
     jobs = []
     for product_id in selected_product_ids(data_dir, include_extra):
         meta = read_meta(data_dir, product_id)
         outputs = product_dir(data_dir, product_id) / "outputs"
-        for style in styles_for(meta.category):
+        for style in styles_for(meta.category, all_styles):
             oid = output_id(style, generator)
             if (outputs / f"{oid}.jpg").exists():
                 continue
@@ -61,9 +61,31 @@ def make_jobs(data_dir: Path, generator: str, include_extra: bool = False) -> li
     return jobs
 
 
-def export_jobs(data_dir: Path, generator: str, include_extra: bool = False) -> Path:
+def checklist_line(number: int, job: Job, data_dir: Path) -> str:
+    """One line per image: the photo to upload, the prompt to paste, the file to save."""
+    folder = product_dir(data_dir, job.product_id)
+    root = data_dir.parent
+    photo = (folder / "original.jpg").relative_to(root)
+    save_as = (folder / "outputs" / f"{job.output_id}.jpg").relative_to(root)
+    return f"{number}. [ ] Photo: `{photo}` | Prompt: `{job.prompt}` | Save as: `{save_as}`"
+
+
+def write_checklist(path: Path, jobs: list[Job], data_dir: Path, generator: str) -> None:
+    lines = [
+        f"# Checklist for {generator}: {len(jobs)} images",
+        "",
+        "For each line: start a new chat in the Gemini app, upload the photo, paste the prompt, "
+        "download the image and save it with the exact name. A .png with the same name is fine. "
+        "Paths start in the project folder. Tick the box when done. Run driftcheck register at the end.",
+        "",
+    ]
+    lines += [checklist_line(i, job, data_dir) for i, job in enumerate(jobs, 1)]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def export_jobs(data_dir: Path, generator: str, include_extra: bool = False, all_styles: bool = False) -> Path:
     """Write data/jobs/<generator>/ with jobs.json, a zip for Kaggle and a checklist for the manual route."""
-    jobs = make_jobs(data_dir, generator, include_extra)
+    jobs = make_jobs(data_dir, generator, include_extra, all_styles)
     out = data_dir / "jobs" / generator
     out.mkdir(parents=True, exist_ok=True)
     jobs_json = json.dumps([job.model_dump() for job in jobs], indent=2, ensure_ascii=False)
@@ -75,20 +97,7 @@ def export_jobs(data_dir: Path, generator: str, include_extra: bool = False) -> 
             original = product_dir(data_dir, product_id) / "original.jpg"
             archive.write(original, f"products/{product_id}/original.jpg")
 
-    lines = [f"# Manual route checklist for {generator}", ""]
-    lines.append("For each item: open the original in the Gemini app, paste the prompt, download the result and save it with the exact name shown.")
-    lines.append("")
-    for job in jobs:
-        folder = product_dir(data_dir, job.product_id)
-        lines += [
-            f"## {job.product_id} {job.style}",
-            f"Original: {folder / 'original.jpg'}",
-            f"Save as: {folder / 'outputs' / (job.output_id + '.jpg')}",
-            "",
-            job.prompt,
-            "",
-        ]
-    (out / "manual_checklist.md").write_text("\n".join(lines), encoding="utf-8")
+    write_checklist(out / "manual_checklist.md", jobs, data_dir, generator)
     log.info("Wrote %d jobs to %s", len(jobs), out)
     return out
 

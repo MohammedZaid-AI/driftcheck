@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from driftcheck.dataset import Style
-
-WEARABLE = {"clothing", "footwear", "bag", "jewellery", "accessory"}
+from driftcheck.dataset import WEARABLE, Style
 
 KEEP_PRODUCT = (
     "Keep the product exactly as it is in the photo: same shape, cut, sleeves, neckline, length, "

@@ -1,45 +1,20 @@
 # How to make the AI outputs
 
-DriftCheck needs 3 AI outputs per product: model_shot, studio and lifestyle. There is no API image generation. Use one of two routes. Both end with driftcheck register.
+DriftCheck needs AI outputs of the core products. There is no API image generation. The outputs are made by hand in the free Gemini app.
 
-## Naming rule
-
-Every output is saved as:
+## Steps
 
 ```
-data\products\<product_id>\outputs\<style>__<generator>.jpg
+.venv\Scripts\driftcheck jobs
 ```
 
-Style is model_shot, studio or lifestyle. Generator is qwen_edit for the Kaggle route and gemini_app for the manual route. Example: data\products\p003\outputs\studio__gemini_app.jpg
+This writes data\jobs\gemini_app\manual_checklist.md with one line per image. Each line has the photo to upload, the prompt to paste and the file name to save. There are two images per product, so 80 for the 40 core products.
 
-PNG and WEBP are fine. register turns them into JPG.
-
-## Route 1: Kaggle with Qwen Image Edit
-
-```
-.venv\Scripts\driftcheck jobs --generator qwen_edit
-```
-
-This writes data\jobs\qwen_edit\kaggle_input.zip. Then follow the steps at the top of notebooks\kaggle_qwen_image_edit.ipynb. When you have downloaded qwen_edit_outputs.zip from Kaggle:
-
-```
-Expand-Archive qwen_edit_outputs.zip -DestinationPath data\jobs\qwen_edit\result
-.venv\Scripts\driftcheck register --from data\jobs\qwen_edit\result
-```
-
-The notebook writes its own json next to each image with the model name, steps, seed and time.
-
-## Route 2: by hand in the free Gemini app
-
-```
-.venv\Scripts\driftcheck jobs --generator gemini_app
-```
-
-Open data\jobs\gemini_app\manual_checklist.md. For each item:
-1. Start a new chat in the Gemini app so earlier images do not leak in.
-2. Upload the original shown in the checklist.
+For each line:
+1. Start a new chat in the Gemini app, so earlier images do not leak in.
+2. Upload the photo.
 3. Paste the prompt.
-4. Download the image and save it with the exact Save as path.
+4. Download the image and save it with the exact name. A .png with the same name is fine.
 
 Then:
 
@@ -47,8 +22,16 @@ Then:
 .venv\Scripts\driftcheck register
 ```
 
-register writes the json with the prompt, generator gemini_app, model Gemini app, free tier, and the file date. To record a more exact model name, add --model.
+register writes a json next to each image with the prompt, generator gemini_app and the file date. It lists any file that breaks the naming rule. Rename it and run register again.
 
-## Check
+## Naming rule
 
-register lists any file that breaks the naming rule. Rename it and run register again.
+```
+data\products\<product_id>\outputs\<style>__<generator>.jpg
+```
+
+The styles are model_shot and studio for clothes and accessories, lifestyle and studio for other goods, and festival_poster and instagram_post for shop fronts. driftcheck jobs --all-styles adds a third style for each.
+
+## Kaggle route
+
+notebooks\kaggle_qwen_image_edit.ipynb runs Qwen Image Edit with driftcheck jobs --generator qwen_edit. It ran out of GPU memory on free Kaggle T4s, see docs\limitations.md.

@@ -65,7 +65,7 @@ def test_jobs_and_split_use_core_by_default(tmp_path: Path) -> None:
     apply_selection(data, SELECTION)
     jobs = make_jobs(data, "qwen_edit")
     assert {job.product_id for job in jobs} == {"p001", "p002"}
-    assert len(make_jobs(data, "qwen_edit", include_extra=True)) == 9
+    assert len(make_jobs(data, "qwen_edit", include_extra=True)) == 6
     split = make_split(data)
     assert sorted(split["calibration"] + split["test"]) == ["p001", "p002"]
 
@@ -74,7 +74,7 @@ def test_storefront_gets_its_own_styles_and_prompts(tmp_path: Path) -> None:
     data = _three_products(tmp_path)
     apply_selection(data, SELECTION)
     shop_jobs = [job for job in make_jobs(data, "gemini_app") if job.product_id == "p002"]
-    assert [job.style for job in shop_jobs] == ["festival_poster", "instagram_post", "reel_cover"]
+    assert [job.style for job in shop_jobs] == ["festival_poster", "instagram_post"]
     assert all(KEEP_SHOP in job.prompt for job in shop_jobs)
     assert "Diwali" in build_prompt("storefront", "shop", "festival_poster")
     assert parse_output_id("reel_cover__gemini_app") == ("reel_cover", "gemini_app")

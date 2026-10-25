@@ -110,10 +110,11 @@ def select() -> None:
 
 @app.command()
 def jobs(
-    generator: str = typer.Option("qwen_edit", help="qwen_edit for the Kaggle notebook, gemini_app for the manual route."),
+    generator: str = typer.Option("gemini_app", help="gemini_app for the manual route, qwen_edit for the Kaggle notebook."),
     include_extra: bool = typer.Option(False, "--include-extra", help="Also make jobs for products tagged extra."),
+    all_styles: bool = typer.Option(False, "--all-styles", help="Three styles per product instead of two."),
 ) -> None:
-    """Write the generation jobs for the core products: a zip for Kaggle and a checklist for the Gemini app."""
+    """Write the generation jobs for the core products: a checklist for the Gemini app and a zip for Kaggle."""
     from driftcheck.dataset import read_meta, selected_product_ids
     from driftcheck.register import export_jobs, make_jobs
 
@@ -122,11 +123,11 @@ def jobs(
     missing = [pid for pid in products if read_meta(settings.data_dir, pid).category is None]
     if missing:
         typer.echo(f"Warning: no category for {' '.join(missing)}, so their prompts are generic. Run ingest first.", err=True)
-    count = len(make_jobs(settings.data_dir, generator, include_extra))
-    out = export_jobs(settings.data_dir, generator, include_extra)
+    count = len(make_jobs(settings.data_dir, generator, include_extra, all_styles))
+    out = export_jobs(settings.data_dir, generator, include_extra, all_styles)
     typer.echo(f"{count} jobs for {generator} across {len(products)} products{' including extras' if include_extra else ''}.")
-    typer.echo(f"Kaggle input: {out / 'kaggle_input.zip'}")
     typer.echo(f"Manual checklist: {out / 'manual_checklist.md'}")
+    typer.echo(f"Kaggle input: {out / 'kaggle_input.zip'}")
 
 
 @app.command()

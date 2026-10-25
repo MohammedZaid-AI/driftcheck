@@ -44,26 +44,45 @@ def test_output_id_rule() -> None:
     assert parse_output_id("Studio__Gemini") is None
 
 
-def test_jobs_cover_every_product_and_style(tmp_path: Path) -> None:
+def test_two_styles_per_product_by_default(tmp_path: Path) -> None:
     _two_products(tmp_path)
-    jobs = make_jobs(tmp_path, "qwen_edit")
-    assert len(jobs) == 6
-    assert {job.output_id for job in jobs} == {"model_shot__qwen_edit", "studio__qwen_edit", "lifestyle__qwen_edit"}
+    jobs = make_jobs(tmp_path, "gemini_app")
+    assert [(job.product_id, job.style) for job in jobs] == [
+        ("p001", "model_shot"), ("p001", "studio"),  # clothing goes on a model
+        ("p002", "lifestyle"), ("p002", "studio"),  # a spice pack goes in a scene
+    ]
+    assert len(make_jobs(tmp_path, "gemini_app", all_styles=True)) == 6
 
-    out = export_jobs(tmp_path, "qwen_edit")
+
+def test_storefront_gets_poster_and_post() -> None:
+    from driftcheck.dataset import styles_for
+
+    assert styles_for("storefront") == ("festival_poster", "instagram_post")
+    assert styles_for("storefront", all_styles=True) == ("festival_poster", "instagram_post", "reel_cover")
+
+
+def test_checklist_has_one_line_per_image(tmp_path: Path) -> None:
+    data = tmp_path / "data"
+    _two_products(data)
+    out = export_jobs(data, "gemini_app")
+    lines = (out / "manual_checklist.md").read_text(encoding="utf-8").splitlines()
+    items = [line for line in lines if line[:1].isdigit()]
+    assert len(items) == 4 and lines[0].endswith("4 images")
+    first = items[0]
+    assert first.startswith("1. [ ] Photo: `data")
+    assert "original.jpg" in first and "model_shot__gemini_app.jpg" in first
+    assert build_prompt("clothing", "sleeveless top", "model_shot") in first
+
     with zipfile.ZipFile(out / "kaggle_input.zip") as archive:
-        names = set(archive.namelist())
-        assert len(json.loads(archive.read("jobs.json"))) == 6
-    assert names == {"jobs.json", "products/p001/original.jpg", "products/p002/original.jpg"}
-    checklist = (out / "manual_checklist.md").read_text(encoding="utf-8")
-    assert "studio__qwen_edit.jpg" in checklist
+        assert len(json.loads(archive.read("jobs.json"))) == 4
+        assert set(archive.namelist()) == {"jobs.json", "products/p001/original.jpg", "products/p002/original.jpg"}
 
 
 def test_done_outputs_drop_out_of_jobs(tmp_path: Path) -> None:
     _two_products(tmp_path)
-    save_image(tmp_path / "products" / "p001" / "outputs" / "studio__qwen_edit.jpg")
-    assert len(make_jobs(tmp_path, "qwen_edit")) == 5
-    assert len(make_jobs(tmp_path, "gemini_app")) == 6
+    save_image(tmp_path / "products" / "p001" / "outputs" / "studio__gemini_app.jpg")
+    assert len(make_jobs(tmp_path, "gemini_app")) == 3
+    assert len(make_jobs(tmp_path, "qwen_edit")) == 4
 
 
 def test_register_manual_outputs(tmp_path: Path) -> None:

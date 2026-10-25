@@ -2,6 +2,14 @@
 
 This file lists where DriftCheck is known to fail. It grows as the evaluation finds more.
 
+## Making outputs
+
+### Qwen Image Edit did not run on free Kaggle GPUs
+
+The Kaggle notebook loads the 4 bit build of Qwen Image Edit 2511 across both T4 GPUs. It used 11.8 GB on GPU 0 and 5.1 GB on GPU 1. Every generation then ran out of memory on GPU 0, even at 768 by 768 pixels. No outputs were made this way. The notebook is kept as it is in notebooks/kaggle_qwen_image_edit.ipynb.
+
+All outputs for the evaluation come from the free Gemini app instead, made by hand. So the results describe one generator only.
+
 ## Text
 
 ### Large stylised titles can be misread

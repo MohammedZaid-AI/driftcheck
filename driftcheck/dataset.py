@@ -37,8 +37,17 @@ STYLES: tuple[Style, ...] = ("model_shot", "studio", "lifestyle")
 STOREFRONT_STYLES: tuple[Style, ...] = ("festival_poster", "instagram_post", "reel_cover")
 
 
-def styles_for(category: str | None) -> tuple[Style, ...]:
-    return STOREFRONT_STYLES if category == "storefront" else STYLES
+WEARABLE = {"clothing", "footwear", "bag", "jewellery", "accessory"}
+
+
+def styles_for(category: str | None, all_styles: bool = False) -> tuple[Style, ...]:
+    """Styles to generate. By default two: a model or scene shot, and a studio shot.
+    Shop fronts have no studio shot, so they get the festival poster and the Instagram post."""
+    if category == "storefront":
+        return STOREFRONT_STYLES if all_styles else ("festival_poster", "instagram_post")
+    if all_styles:
+        return STYLES
+    return ("model_shot", "studio") if category in WEARABLE else ("lifestyle", "studio")
 
 
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
