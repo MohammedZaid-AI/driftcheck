@@ -103,6 +103,15 @@ def test_tune_picks_best_recall_within_wrong_flag_cap() -> None:
     assert notes["shape"]["tuned"] is False and "no shape_changed positives" in notes["shape"]["reason"]
 
 
+def test_tune_says_when_no_setting_meets_the_cap() -> None:
+    # Every good image has text that never matches, so any min_match flags all of them.
+    items = [item(f"g{i}", text_changed=False) for i in range(10)] + [item("d", text_changed=True)]
+    raws = {i.key: raw(text_score=10) for i in items}
+    _, notes = tune(items, raws, T)
+    assert notes["text"]["tuned"] is False
+    assert "no setting kept the text_changed wrong flag rate" in notes["text"]["reason"]
+
+
 def test_baselines_scored_on_overall_drift() -> None:
     items = [item("g", split="test"), item("d", split="test", colour_changed=True)]
     raws = {items[0].key: raw(b1=0.97, b2=False), items[1].key: raw(b1=0.80, b2=None)}

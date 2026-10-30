@@ -1,27 +1,31 @@
 {
-  "tuned": false,
-  "note": "Starting values, not tuned. Phase 6 tunes them on the calibration split only, then sets tuned to true and freezes them.",
+  "tuned": true,
+  "tuned_on": "calibration split, 207 pairs, vision model qwen2.5vl:7b",
+  "note": "Frozen. Do not change after tuning unless the split changes; then retune and say so in PROGRESS.md.",
   "segmentation": {
-    "missing_share": 0.01,
-    "small_share": 0.03
+    "missing_share": 0.02,
+    "small_share": 0.06
   },
   "colour": {
-    "max_weighted_delta_e": 7.0,
+    "max_weighted_delta_e": 11.75,
     "white_balance": true
   },
   "text": {
-    "min_match": 80,
+    "min_match": 80.0,
     "min_item_length": 2,
     "vision_backup": true
   },
   "pattern": {
-    "patch_similarity": 0.85,
-    "max_drift_share": 0.25,
+    "patch_similarity": 0.78,
+    "max_drift_share": 0.45,
     "min_patches": 20
   },
   "judge": {
-    "min_ordinal_steps": 2,
+    "min_ordinal_steps": 3,
     "min_changed_parts": 1,
     "use_silhouette": false
+  },
+  "baseline_1": {
+    "similarity": 0.5782696018682251
   }
 }

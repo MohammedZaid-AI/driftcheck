@@ -9,14 +9,18 @@ from PIL import Image
 
 from driftcheck.card import OcrItem, ProductCard, VisionCard
 from driftcheck.checks.base import Pair, Thresholds, load_thresholds
-from driftcheck.config import PROJECT_ROOT
 from driftcheck.ocr import TextBox
 from driftcheck.palette import palette
 from tests.synthetic import simple_mask
 
 
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
+
+
 def thresholds() -> Thresholds:
-    return load_thresholds(PROJECT_ROOT / "config")
+    """The starting, untuned thresholds. Tests use a fixed copy, so tuning the real
+    config/thresholds.json never changes what the tests expect."""
+    return load_thresholds(FIXTURES)
 
 
 def make_card(image: Image.Image, vision: dict | None = None, ocr: list[TextBox] | None = None) -> ProductCard:

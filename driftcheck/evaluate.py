@@ -379,7 +379,10 @@ def tune(items: list[Item], raws: dict[str, dict], start: Thresholds) -> tuple[T
         positives = result.get("positives", 0)
         notes[name] = {"tuned": bool(positives), "calibration": result,
                        "values": getattr(chosen, section).model_dump()}
-        if not positives:
+        if not result:
+            notes[name]["reason"] = (f"no setting kept the {attribute} wrong flag rate at or under "
+                                     f"{MAX_WRONG_FLAG_RATE:.0%} on calibration, starting values kept")
+        elif not positives:
             notes[name]["reason"] = f"no {attribute} positives in calibration, starting values kept"
 
     # Segmentation first, because every other check depends on it.
