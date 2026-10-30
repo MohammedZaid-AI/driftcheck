@@ -1,0 +1,1171 @@
+{
+ "date": "2026-10-30T22:43:45+00:00",
+ "git_commit": "96cf374eef69a6c1f30b1920831044bd730ab951",
+ "models": {
+  "vision": "ollama/qwen2.5vl:7b",
+  "compared vision models": "qwen2.5vl:7b",
+  "pattern and baseline 1": "facebook/dinov2-small",
+  "segmentation": "rembg/isnet-general-use",
+  "ocr": "easyocr readers en, en_hi, en_kn, en_bn",
+  "outputs": "Gemini app, model 3.6 Flash, made by hand"
+ },
+ "thresholds": {
+  "tuned": true,
+  "segmentation": {
+   "missing_share": 0.02,
+   "small_share": 0.06
+  },
+  "colour": {
+   "max_weighted_delta_e": 11.75,
+   "white_balance": true
+  },
+  "text": {
+   "min_match": 80.0,
+   "min_item_length": 2,
+   "vision_backup": true
+  },
+  "pattern": {
+   "patch_similarity": 0.78,
+   "max_drift_share": 0.45,
+   "min_patches": 20
+  },
+  "judge": {
+   "min_ordinal_steps": 3,
+   "min_changed_parts": 1,
+   "use_silhouette": false
+  }
+ },
+ "tuning": {
+  "split": "calibration",
+  "max_wrong_flag_rate": 0.1,
+  "checks": {
+   "product_missing": {
+    "tuned": true,
+    "calibration": {
+     "n": 207,
+     "positives": 20,
+     "negatives": 187,
+     "tp": 3,
+     "fp": 2,
+     "tn": 176,
+     "fn": 16,
+     "unknown_positive": 1,
+     "unknown_negative": 9,
+     "precision": 0.6,
+     "recall": 0.15,
+     "f1": 0.24,
+     "wrong_flag_rate": 0.0106951871657754,
+     "unknown_rate": 0.04830917874396135
+    },
+    "values": {
+     "missing_share": 0.02,
+     "small_share": 0.06
+    }
+   },
+   "colour": {
+    "tuned": true,
+    "calibration": {
+     "n": 187,
+     "positives": 20,
+     "negatives": 167,
+     "tp": 14,
+     "fp": 16,
+     "tn": 141,
+     "fn": 5,
+     "unknown_positive": 1,
+     "unknown_negative": 10,
+     "precision": 0.4666666666666667,
+     "recall": 0.7,
+     "f1": 0.56,
+     "wrong_flag_rate": 0.09580838323353294,
+     "unknown_rate": 0.058823529411764705
+    },
+    "values": {
+     "max_weighted_delta_e": 11.75,
+     "white_balance": true
+    }
+   },
+   "text": {
+    "tuned": false,
+    "calibration": {},
+    "values": {
+     "min_match": 80.0,
+     "min_item_length": 2,
+     "vision_backup": true
+    },
+    "reason": "no setting kept the text_changed wrong flag rate at or under 10% on calibration, starting values kept"
+   },
+   "pattern": {
+    "tuned": true,
+    "calibration": {
+     "n": 187,
+     "positives": 36,
+     "negatives": 151,
+     "tp": 25,
+     "fp": 13,
+     "tn": 131,
+     "fn": 7,
+     "unknown_positive": 4,
+     "unknown_negative": 7,
+     "precision": 0.6578947368421053,
+     "recall": 0.6944444444444444,
+     "f1": 0.6756756756756757,
+     "wrong_flag_rate": 0.08609271523178808,
+     "unknown_rate": 0.058823529411764705
+    },
+    "values": {
+     "patch_similarity": 0.78,
+     "max_drift_share": 0.45,
+     "min_patches": 20
+    }
+   },
+   "shape": {
+    "tuned": true,
+    "calibration": {
+     "n": 187,
+     "positives": 11,
+     "negatives": 176,
+     "tp": 2,
+     "fp": 14,
+     "tn": 151,
+     "fn": 9,
+     "unknown_positive": 0,
+     "unknown_negative": 11,
+     "precision": 0.125,
+     "recall": 0.18181818181818182,
+     "f1": 0.14814814814814814,
+     "wrong_flag_rate": 0.07954545454545454,
+     "unknown_rate": 0.058823529411764705
+    },
+    "values": {
+     "min_ordinal_steps": 3,
+     "min_changed_parts": 1,
+     "use_silhouette": false
+    }
+   }
+  },
+  "baseline_1": {
+   "threshold": 0.5782696018682251,
+   "calibration": {
+    "n": 207,
+    "positives": 107,
+    "negatives": 100,
+    "tp": 4,
+    "fp": 9,
+    "tn": 91,
+    "fn": 103,
+    "unknown_positive": 0,
+    "unknown_negative": 0,
+    "precision": 0.3076923076923077,
+    "recall": 0.037383177570093455,
+    "f1": 0.06666666666666667,
+    "wrong_flag_rate": 0.09,
+    "unknown_rate": 0.0
+   }
+  }
+ },
+ "dataset_sizes": {
+  "real_calibration": {
+   "images": 40,
+   "products": 20,
+   "drifted_images": 0,
+   "positives": {
+    "shape_changed": 0,
+    "colour_changed": 0,
+    "pattern_changed": 0,
+    "logo_changed": 0,
+    "text_changed": 0,
+    "product_missing": 0
+   }
+  },
+  "real_test": {
+   "images": 40,
+   "products": 20,
+   "drifted_images": 0,
+   "positives": {
+    "shape_changed": 0,
+    "colour_changed": 0,
+    "pattern_changed": 0,
+    "logo_changed": 0,
+    "text_changed": 0,
+    "product_missing": 0
+   }
+  },
+  "synthetic_calibration": {
+   "images": 167,
+   "products": 20,
+   "drifted_images": 107,
+   "positives": {
+    "shape_changed": 11,
+    "colour_changed": 20,
+    "pattern_changed": 36,
+    "logo_changed": 0,
+    "text_changed": 42,
+    "product_missing": 20
+   }
+  },
+  "synthetic_test": {
+   "images": 159,
+   "products": 20,
+   "drifted_images": 99,
+   "positives": {
+    "shape_changed": 11,
+    "colour_changed": 20,
+    "pattern_changed": 30,
+    "logo_changed": 0,
+    "text_changed": 32,
+    "product_missing": 20
+   }
+  }
+ },
+ "results": {
+  "real": {
+   "images": 40,
+   "evaluated": 40,
+   "driftcheck": {
+    "attributes": {
+     "shape_changed": {
+      "n": 40,
+      "positives": 0,
+      "negatives": 40,
+      "tp": 0,
+      "fp": 4,
+      "tn": 35,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 1,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.1,
+      "unknown_rate": 0.025
+     },
+     "colour_changed": {
+      "n": 40,
+      "positives": 0,
+      "negatives": 40,
+      "tp": 0,
+      "fp": 5,
+      "tn": 34,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 1,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.125,
+      "unknown_rate": 0.025
+     },
+     "pattern_changed": {
+      "n": 40,
+      "positives": 0,
+      "negatives": 40,
+      "tp": 0,
+      "fp": 17,
+      "tn": 22,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 1,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.425,
+      "unknown_rate": 0.025
+     },
+     "logo_changed": {
+      "n": 35,
+      "positives": 0,
+      "negatives": 35,
+      "tp": 0,
+      "fp": 5,
+      "tn": 29,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 1,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.14285714285714285,
+      "unknown_rate": 0.02857142857142857
+     },
+     "text_changed": {
+      "n": 35,
+      "positives": 0,
+      "negatives": 35,
+      "tp": 0,
+      "fp": 8,
+      "tn": 26,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 1,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.22857142857142856,
+      "unknown_rate": 0.02857142857142857
+     },
+     "product_missing": {
+      "n": 40,
+      "positives": 0,
+      "negatives": 40,
+      "tp": 0,
+      "fp": 1,
+      "tn": 39,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 0,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.025,
+      "unknown_rate": 0.0
+     }
+    },
+    "overall": {
+     "n": 40,
+     "positives": 0,
+     "negatives": 40,
+     "tp": 0,
+     "fp": 27,
+     "tn": 13,
+     "fn": 0,
+     "unknown_positive": 0,
+     "unknown_negative": 0,
+     "precision": 0.0,
+     "recall": null,
+     "f1": null,
+     "wrong_flag_rate": 0.675,
+     "unknown_rate": 0.0
+    }
+   },
+   "baseline_1": {
+    "n": 40,
+    "positives": 0,
+    "negatives": 40,
+    "tp": 0,
+    "fp": 10,
+    "tn": 30,
+    "fn": 0,
+    "unknown_positive": 0,
+    "unknown_negative": 0,
+    "precision": 0.0,
+    "recall": null,
+    "f1": null,
+    "wrong_flag_rate": 0.25,
+    "unknown_rate": 0.0
+   },
+   "baseline_2": {
+    "n": 40,
+    "positives": 0,
+    "negatives": 40,
+    "tp": 0,
+    "fp": 0,
+    "tn": 40,
+    "fn": 0,
+    "unknown_positive": 0,
+    "unknown_negative": 0,
+    "precision": null,
+    "recall": null,
+    "f1": null,
+    "wrong_flag_rate": 0.0,
+    "unknown_rate": 0.0
+   },
+   "timing": {
+    "driftcheck": {
+     "median_seconds": 51.21,
+     "p90_seconds": 145.82,
+     "n": 40,
+     "vision_calls_per_image": 2.42
+    },
+    "baseline_1": {
+     "median_seconds": 0.56,
+     "p90_seconds": 1.03,
+     "n": 40
+    },
+    "baseline_2": {
+     "median_seconds": 7.31,
+     "p90_seconds": 10.15,
+     "n": 40,
+     "vision_calls_per_image": 1.0
+    },
+    "rate_limit_wait_seconds_total": 0.0
+   }
+  },
+  "synthetic": {
+   "images": 159,
+   "evaluated": 159,
+   "driftcheck": {
+    "attributes": {
+     "shape_changed": {
+      "n": 139,
+      "positives": 11,
+      "negatives": 128,
+      "tp": 1,
+      "fp": 6,
+      "tn": 114,
+      "fn": 10,
+      "unknown_positive": 0,
+      "unknown_negative": 8,
+      "precision": 0.14285714285714285,
+      "recall": 0.09090909090909091,
+      "f1": 0.1111111111111111,
+      "wrong_flag_rate": 0.046875,
+      "unknown_rate": 0.05755395683453238
+     },
+     "colour_changed": {
+      "n": 139,
+      "positives": 20,
+      "negatives": 119,
+      "tp": 13,
+      "fp": 2,
+      "tn": 109,
+      "fn": 7,
+      "unknown_positive": 0,
+      "unknown_negative": 8,
+      "precision": 0.8666666666666667,
+      "recall": 0.65,
+      "f1": 0.7428571428571429,
+      "wrong_flag_rate": 0.01680672268907563,
+      "unknown_rate": 0.05755395683453238
+     },
+     "pattern_changed": {
+      "n": 139,
+      "positives": 30,
+      "negatives": 109,
+      "tp": 22,
+      "fp": 0,
+      "tn": 109,
+      "fn": 0,
+      "unknown_positive": 8,
+      "unknown_negative": 0,
+      "precision": 1.0,
+      "recall": 0.7333333333333333,
+      "f1": 0.846153846153846,
+      "wrong_flag_rate": 0.0,
+      "unknown_rate": 0.05755395683453238
+     },
+     "logo_changed": {
+      "n": 0,
+      "positives": 0,
+      "negatives": 0,
+      "tp": 0,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": null,
+      "unknown_rate": null
+     },
+     "text_changed": {
+      "n": 79,
+      "positives": 32,
+      "negatives": 47,
+      "tp": 27,
+      "fp": 17,
+      "tn": 30,
+      "fn": 0,
+      "unknown_positive": 5,
+      "unknown_negative": 0,
+      "precision": 0.6136363636363636,
+      "recall": 0.84375,
+      "f1": 0.7105263157894737,
+      "wrong_flag_rate": 0.3617021276595745,
+      "unknown_rate": 0.06329113924050633
+     },
+     "product_missing": {
+      "n": 159,
+      "positives": 20,
+      "negatives": 139,
+      "tp": 2,
+      "fp": 4,
+      "tn": 131,
+      "fn": 17,
+      "unknown_positive": 1,
+      "unknown_negative": 4,
+      "precision": 0.3333333333333333,
+      "recall": 0.1,
+      "f1": 0.15384615384615383,
+      "wrong_flag_rate": 0.02877697841726619,
+      "unknown_rate": 0.031446540880503145
+     }
+    },
+    "overall": {
+     "n": 159,
+     "positives": 99,
+     "negatives": 60,
+     "tp": 80,
+     "fp": 27,
+     "tn": 33,
+     "fn": 14,
+     "unknown_positive": 5,
+     "unknown_negative": 0,
+     "precision": 0.7476635514018691,
+     "recall": 0.8080808080808081,
+     "f1": 0.7766990291262135,
+     "wrong_flag_rate": 0.45,
+     "unknown_rate": 0.031446540880503145
+    }
+   },
+   "baseline_1": {
+    "n": 159,
+    "positives": 99,
+    "negatives": 60,
+    "tp": 2,
+    "fp": 0,
+    "tn": 60,
+    "fn": 97,
+    "unknown_positive": 0,
+    "unknown_negative": 0,
+    "precision": 1.0,
+    "recall": 0.020202020202020204,
+    "f1": 0.03960396039603961,
+    "wrong_flag_rate": 0.0,
+    "unknown_rate": 0.0
+   },
+   "baseline_2": {
+    "n": 159,
+    "positives": 99,
+    "negatives": 60,
+    "tp": 5,
+    "fp": 0,
+    "tn": 60,
+    "fn": 94,
+    "unknown_positive": 0,
+    "unknown_negative": 0,
+    "precision": 1.0,
+    "recall": 0.050505050505050504,
+    "f1": 0.09615384615384615,
+    "wrong_flag_rate": 0.0,
+    "unknown_rate": 0.0
+   },
+   "timing": {
+    "driftcheck": {
+     "median_seconds": 17.74,
+     "p90_seconds": 33.59,
+     "n": 159,
+     "vision_calls_per_image": 1.45
+    },
+    "baseline_1": {
+     "median_seconds": 0.51,
+     "p90_seconds": 0.55,
+     "n": 159
+    },
+    "baseline_2": {
+     "median_seconds": 6.52,
+     "p90_seconds": 8.8,
+     "n": 159,
+     "vision_calls_per_image": 1.0
+    },
+    "rate_limit_wait_seconds_total": 0.0
+   }
+  }
+ },
+ "model_comparison": {
+  "qwen2.5vl:7b": {
+   "real": {
+    "images": 40,
+    "evaluated": 40,
+    "driftcheck": {
+     "attributes": {
+      "shape_changed": {
+       "n": 40,
+       "positives": 0,
+       "negatives": 40,
+       "tp": 0,
+       "fp": 4,
+       "tn": 35,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 1,
+       "precision": 0.0,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.1,
+       "unknown_rate": 0.025
+      },
+      "colour_changed": {
+       "n": 40,
+       "positives": 0,
+       "negatives": 40,
+       "tp": 0,
+       "fp": 5,
+       "tn": 34,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 1,
+       "precision": 0.0,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.125,
+       "unknown_rate": 0.025
+      },
+      "pattern_changed": {
+       "n": 40,
+       "positives": 0,
+       "negatives": 40,
+       "tp": 0,
+       "fp": 17,
+       "tn": 22,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 1,
+       "precision": 0.0,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.425,
+       "unknown_rate": 0.025
+      },
+      "logo_changed": {
+       "n": 35,
+       "positives": 0,
+       "negatives": 35,
+       "tp": 0,
+       "fp": 5,
+       "tn": 29,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 1,
+       "precision": 0.0,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.14285714285714285,
+       "unknown_rate": 0.02857142857142857
+      },
+      "text_changed": {
+       "n": 35,
+       "positives": 0,
+       "negatives": 35,
+       "tp": 0,
+       "fp": 8,
+       "tn": 26,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 1,
+       "precision": 0.0,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.22857142857142856,
+       "unknown_rate": 0.02857142857142857
+      },
+      "product_missing": {
+       "n": 40,
+       "positives": 0,
+       "negatives": 40,
+       "tp": 0,
+       "fp": 1,
+       "tn": 39,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 0,
+       "precision": 0.0,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.025,
+       "unknown_rate": 0.0
+      }
+     },
+     "overall": {
+      "n": 40,
+      "positives": 0,
+      "negatives": 40,
+      "tp": 0,
+      "fp": 27,
+      "tn": 13,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 0,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.675,
+      "unknown_rate": 0.0
+     }
+    },
+    "baseline_1": {
+     "n": 40,
+     "positives": 0,
+     "negatives": 40,
+     "tp": 0,
+     "fp": 10,
+     "tn": 30,
+     "fn": 0,
+     "unknown_positive": 0,
+     "unknown_negative": 0,
+     "precision": 0.0,
+     "recall": null,
+     "f1": null,
+     "wrong_flag_rate": 0.25,
+     "unknown_rate": 0.0
+    },
+    "baseline_2": {
+     "n": 40,
+     "positives": 0,
+     "negatives": 40,
+     "tp": 0,
+     "fp": 0,
+     "tn": 40,
+     "fn": 0,
+     "unknown_positive": 0,
+     "unknown_negative": 0,
+     "precision": null,
+     "recall": null,
+     "f1": null,
+     "wrong_flag_rate": 0.0,
+     "unknown_rate": 0.0
+    },
+    "timing": {
+     "driftcheck": {
+      "median_seconds": 51.21,
+      "p90_seconds": 145.82,
+      "n": 40,
+      "vision_calls_per_image": 2.42
+     },
+     "baseline_1": {
+      "median_seconds": 0.56,
+      "p90_seconds": 1.03,
+      "n": 40
+     },
+     "baseline_2": {
+      "median_seconds": 7.31,
+      "p90_seconds": 10.15,
+      "n": 40,
+      "vision_calls_per_image": 1.0
+     },
+     "rate_limit_wait_seconds_total": 0.0
+    }
+   },
+   "synthetic": {
+    "images": 159,
+    "evaluated": 159,
+    "driftcheck": {
+     "attributes": {
+      "shape_changed": {
+       "n": 139,
+       "positives": 11,
+       "negatives": 128,
+       "tp": 1,
+       "fp": 6,
+       "tn": 114,
+       "fn": 10,
+       "unknown_positive": 0,
+       "unknown_negative": 8,
+       "precision": 0.14285714285714285,
+       "recall": 0.09090909090909091,
+       "f1": 0.1111111111111111,
+       "wrong_flag_rate": 0.046875,
+       "unknown_rate": 0.05755395683453238
+      },
+      "colour_changed": {
+       "n": 139,
+       "positives": 20,
+       "negatives": 119,
+       "tp": 13,
+       "fp": 2,
+       "tn": 109,
+       "fn": 7,
+       "unknown_positive": 0,
+       "unknown_negative": 8,
+       "precision": 0.8666666666666667,
+       "recall": 0.65,
+       "f1": 0.7428571428571429,
+       "wrong_flag_rate": 0.01680672268907563,
+       "unknown_rate": 0.05755395683453238
+      },
+      "pattern_changed": {
+       "n": 139,
+       "positives": 30,
+       "negatives": 109,
+       "tp": 22,
+       "fp": 0,
+       "tn": 109,
+       "fn": 0,
+       "unknown_positive": 8,
+       "unknown_negative": 0,
+       "precision": 1.0,
+       "recall": 0.7333333333333333,
+       "f1": 0.846153846153846,
+       "wrong_flag_rate": 0.0,
+       "unknown_rate": 0.05755395683453238
+      },
+      "logo_changed": {
+       "n": 0,
+       "positives": 0,
+       "negatives": 0,
+       "tp": 0,
+       "fp": 0,
+       "tn": 0,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 0,
+       "precision": null,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": null,
+       "unknown_rate": null
+      },
+      "text_changed": {
+       "n": 79,
+       "positives": 32,
+       "negatives": 47,
+       "tp": 27,
+       "fp": 17,
+       "tn": 30,
+       "fn": 0,
+       "unknown_positive": 5,
+       "unknown_negative": 0,
+       "precision": 0.6136363636363636,
+       "recall": 0.84375,
+       "f1": 0.7105263157894737,
+       "wrong_flag_rate": 0.3617021276595745,
+       "unknown_rate": 0.06329113924050633
+      },
+      "product_missing": {
+       "n": 159,
+       "positives": 20,
+       "negatives": 139,
+       "tp": 2,
+       "fp": 4,
+       "tn": 131,
+       "fn": 17,
+       "unknown_positive": 1,
+       "unknown_negative": 4,
+       "precision": 0.3333333333333333,
+       "recall": 0.1,
+       "f1": 0.15384615384615383,
+       "wrong_flag_rate": 0.02877697841726619,
+       "unknown_rate": 0.031446540880503145
+      }
+     },
+     "overall": {
+      "n": 159,
+      "positives": 99,
+      "negatives": 60,
+      "tp": 80,
+      "fp": 27,
+      "tn": 33,
+      "fn": 14,
+      "unknown_positive": 5,
+      "unknown_negative": 0,
+      "precision": 0.7476635514018691,
+      "recall": 0.8080808080808081,
+      "f1": 0.7766990291262135,
+      "wrong_flag_rate": 0.45,
+      "unknown_rate": 0.031446540880503145
+     }
+    },
+    "baseline_1": {
+     "n": 159,
+     "positives": 99,
+     "negatives": 60,
+     "tp": 2,
+     "fp": 0,
+     "tn": 60,
+     "fn": 97,
+     "unknown_positive": 0,
+     "unknown_negative": 0,
+     "precision": 1.0,
+     "recall": 0.020202020202020204,
+     "f1": 0.03960396039603961,
+     "wrong_flag_rate": 0.0,
+     "unknown_rate": 0.0
+    },
+    "baseline_2": {
+     "n": 159,
+     "positives": 99,
+     "negatives": 60,
+     "tp": 5,
+     "fp": 0,
+     "tn": 60,
+     "fn": 94,
+     "unknown_positive": 0,
+     "unknown_negative": 0,
+     "precision": 1.0,
+     "recall": 0.050505050505050504,
+     "f1": 0.09615384615384615,
+     "wrong_flag_rate": 0.0,
+     "unknown_rate": 0.0
+    },
+    "timing": {
+     "driftcheck": {
+      "median_seconds": 17.74,
+      "p90_seconds": 33.59,
+      "n": 159,
+      "vision_calls_per_image": 1.45
+     },
+     "baseline_1": {
+      "median_seconds": 0.51,
+      "p90_seconds": 0.55,
+      "n": 159
+     },
+     "baseline_2": {
+      "median_seconds": 6.52,
+      "p90_seconds": 8.8,
+      "n": 159,
+      "vision_calls_per_image": 1.0
+     },
+     "rate_limit_wait_seconds_total": 0.0
+    }
+   }
+  }
+ },
+ "api_cost": "Vision calls run on a local Ollama model, so there is no API charge. Calls per image are in the tables.",
+ "scalio_examples": "No images in data/scalio_examples, so this part was not run.",
+ "failure_gallery": [
+  {
+   "kind": "missed",
+   "item": "synthetic/p015__pattern_blur",
+   "attributes": [
+    "text_changed",
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p015__pattern_blur.png",
+   "reasons_from_recorded_run": {
+    "text": "9 of 9 text items not found or changed: fresh, Pure, nqndini, PASTEUaISEO TONED, QUALITY EXCELLENCE FROTT COw T0, CONSUNILR, ಾದೂ, ಶದ್ದ, ಹಾಗೂ",
+    "pattern": "The product has fewer than 3920 pixels. Too small to compare patterns."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p029__pattern_swap",
+   "attributes": [
+    "text_changed",
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p029__pattern_swap.png",
+   "reasons_from_recorded_run": {
+    "text": "1 of 1 text items not found or changed: अमृततुल्थ",
+    "pattern": "97% of the output product has no close match in the original pattern, above 25%."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p043__pattern_swap",
+   "attributes": [
+    "text_changed",
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p043__pattern_swap.png",
+   "reasons_from_recorded_run": {
+    "text": "1 of 1 text items not found or changed: @पारी",
+    "pattern": "100% of the output product has no close match in the original pattern, above 25%."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p068__pattern_blur",
+   "attributes": [
+    "text_changed",
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p068__pattern_blur.png",
+   "reasons_from_recorded_run": {
+    "text": "1 of 1 text items not found or changed: अमृततुल्य",
+    "pattern": "79% of the output product has no close match in the original pattern, above 25%."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p068__pattern_swap",
+   "attributes": [
+    "text_changed",
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p068__pattern_swap.png",
+   "reasons_from_recorded_run": {
+    "text": "1 of 1 text items not found or changed: अमृततुल्य",
+    "pattern": "The product has fewer than 3920 pixels. Too small to compare patterns."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p010__product_erase",
+   "attributes": [
+    "product_missing"
+   ],
+   "file": "missed_synthetic_p010__product_erase.png",
+   "reasons_from_recorded_run": {
+    "product_missing": "The product covers 64.2% of the output."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p010__sleeve_erase",
+   "attributes": [
+    "shape_changed"
+   ],
+   "file": "missed_synthetic_p010__sleeve_erase.png",
+   "reasons_from_recorded_run": {
+    "shape": "Shape changed: silhouette straight to boxy."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p015__colour_shift",
+   "attributes": [
+    "colour_changed"
+   ],
+   "file": "missed_synthetic_p015__colour_shift.png",
+   "reasons_from_recorded_run": {
+    "colour": "Colours moved by 8.1 CIEDE2000 on average, above 7. Biggest change: #076588 became #425f7a."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p018__pattern_blur",
+   "attributes": [
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p018__pattern_blur.png",
+   "reasons_from_recorded_run": {
+    "pattern": "Skipped because the product is not visible in the output. The product covers 0.1% of the output, below 0%. It is missing."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p018__sleeve_erase",
+   "attributes": [
+    "shape_changed"
+   ],
+   "file": "missed_synthetic_p018__sleeve_erase.png",
+   "reasons_from_recorded_run": {
+    "shape": "No shape part applies to this product."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p029__festival_poster__gemini_app",
+   "attributes": [
+    "colour_changed",
+    "pattern_changed",
+    "logo_changed"
+   ],
+   "file": "false_alarm_real_p029__festival_poster__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "colour": "Colours moved by 16.2 CIEDE2000 on average, above 7. Biggest change: #d9f7fb became #91effb.",
+    "pattern": "71% of the output product has no close match in the original pattern, above 25%.",
+    "logo": "The original has a logo but none is visible in the output."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p018__model_shot__gemini_app",
+   "attributes": [
+    "pattern_changed",
+    "shape_changed"
+   ],
+   "file": "false_alarm_real_p018__model_shot__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "pattern": "100% of the output product has no close match in the original pattern, above 25%.",
+    "shape": "Shape changed: sleeves sleeveless to three_quarter."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p018__studio__gemini_app",
+   "attributes": [
+    "pattern_changed",
+    "shape_changed"
+   ],
+   "file": "false_alarm_real_p018__studio__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "pattern": "93% of the output product has no close match in the original pattern, above 25%.",
+    "shape": "Shape changed: sleeves sleeveless to three_quarter."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p021__lifestyle__gemini_app",
+   "attributes": [
+    "colour_changed",
+    "pattern_changed"
+   ],
+   "file": "false_alarm_real_p021__lifestyle__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "colour": "Colours moved by 19.0 CIEDE2000 on average, above 7. Biggest change: #e1bc31 became #977b2b.",
+    "pattern": "78% of the output product has no close match in the original pattern, above 25%."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p027__model_shot__gemini_app",
+   "attributes": [
+    "text_changed",
+    "pattern_changed"
+   ],
+   "file": "false_alarm_real_p027__model_shot__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "text": "1 of 1 text items not found or changed: olo]",
+    "pattern": "96% of the output product has no close match in the original pattern, above 25%."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p031__model_shot__gemini_app",
+   "attributes": [
+    "colour_changed",
+    "pattern_changed"
+   ],
+   "file": "false_alarm_real_p031__model_shot__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "colour": "Colours moved by 12.0 CIEDE2000 on average, above 7. Biggest change: #dee7f4 became #b6c7e8.",
+    "pattern": "100% of the output product has no close match in the original pattern, above 25%."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p035__lifestyle__gemini_app",
+   "attributes": [
+    "colour_changed",
+    "pattern_changed"
+   ],
+   "file": "false_alarm_real_p035__lifestyle__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "colour": "Colours moved by 16.7 CIEDE2000 on average, above 7. Biggest change: #d3e0e5 became #a0a19e.",
+    "pattern": "71% of the output product has no close match in the original pattern, above 25%."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p043__lifestyle__gemini_app",
+   "attributes": [
+    "colour_changed",
+    "text_changed"
+   ],
+   "file": "false_alarm_real_p043__lifestyle__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "colour": "Colours moved by 11.9 CIEDE2000 on average, above 7. Biggest change: #523b3b became #391e26.",
+    "text": "1 of 1 text items not found or changed: @पारी"
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p067__model_shot__gemini_app",
+   "attributes": [
+    "text_changed",
+    "pattern_changed"
+   ],
+   "file": "false_alarm_real_p067__model_shot__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "text": "4 of 8 text items not found or changed: C A LTF 0 R N [ A, BROOKLYH, Pegendary Tean, STRTVE FO R",
+    "pattern": "96% of the output product has no close match in the original pattern, above 25%."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p068__instagram_post__gemini_app",
+   "attributes": [
+    "pattern_changed",
+    "logo_changed"
+   ],
+   "file": "false_alarm_real_p068__instagram_post__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "pattern": "59% of the output product has no close match in the original pattern, above 25%.",
+    "logo": "The original has a logo but none is visible in the output."
+   }
+  }
+ ]
+}
