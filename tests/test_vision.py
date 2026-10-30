@@ -96,6 +96,13 @@ def test_cache_key_changes_with_prompt_and_image(tmp_path: Path) -> None:
     assert provider.replies == []
 
 
+def test_max_images_keeps_the_first_ones(tmp_path: Path) -> None:
+    provider = FakeProvider([GOOD])
+    client = VisionClient(provider, DiskCache(tmp_path, "vision"), max_images=2, sleep=lambda _: None)
+    client.ask("x", [_png(32, 32, (255, 0, 0)), _png(32, 32, (0, 255, 0)), _png(32, 32, (0, 0, 255))], Garment)
+    assert len(provider.seen_images[0]) == 2
+
+
 def test_strips_code_fences(tmp_path: Path) -> None:
     provider = FakeProvider([f"```json\n{GOOD}\n```"])
     assert _client(tmp_path, provider).ask("x", [_png(32, 32)], Garment).sleeve_length == "sleeveless"

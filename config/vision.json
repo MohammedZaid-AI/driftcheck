@@ -9,6 +9,7 @@
   "compare_models": ["qwen2.5vl:3b", "qwen2.5vl:7b"],
   "pattern_model": "facebook/dinov2-small",
   "max_side": 1024,
+  "max_images": {"groq": 2},
   "ollama_num_ctx": 16384,
   "timeout_seconds": 600,
   "sources": {

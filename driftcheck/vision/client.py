@@ -47,10 +47,12 @@ class VisionClient:
         max_side: int = 1024,
         log_path: Path | None = None,
         sleep: Callable[[float], None] = time.sleep,
+        max_images: int | None = None,
     ) -> None:
         self.provider = provider
         self.cache = cache
         self.max_side = max_side
+        self.max_images = max_images
         self.log_path = log_path
         self.calls: list[CallRecord] = []
         self._sleep = sleep
@@ -67,7 +69,10 @@ class VisionClient:
             self._ready = True
 
     def ask(self, prompt: str, images: Sequence[ImageInput], schema: type[T]) -> T:
-        """Ask the model about the images and parse the answer into schema."""
+        """Ask the model about the images and parse the answer into schema.
+        Callers put the most important image first, so a provider limit drops the extras at the end."""
+        if self.max_images is not None:
+            images = list(images)[: self.max_images]
         prepared = [prepare_image(image, self.max_side) for image in images]
         schema_text = json.dumps(schema.model_json_schema(), sort_keys=True)
         version = getattr(self.provider, "version", "1")
@@ -137,4 +142,5 @@ def get_vision_client(settings: Settings | None = None, model: str | None = None
         DiskCache(settings.cache_dir, "vision"),
         max_side=settings.vision.max_side,
         log_path=settings.cache_dir / "vision_calls.jsonl",
+        max_images=settings.vision.max_images,
     )

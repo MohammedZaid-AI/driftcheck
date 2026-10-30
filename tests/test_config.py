@@ -60,6 +60,17 @@ def test_paths_and_env_overrides(tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     assert settings.ollama_host == "http://gpu-box:11434"
 
 
+def test_max_images_is_per_provider(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root = _make_root(tmp_path)
+    raw = json.loads((root / "config" / "vision.json").read_text())
+    raw["max_images"] = {"groq": 2}
+    raw["models"]["groq"] = "g"
+    (root / "config" / "vision.json").write_text(json.dumps(raw))
+    assert load_settings(root).vision.max_images is None
+    monkeypatch.setenv("VISION_PROVIDER", "groq")
+    assert load_settings(root).vision.max_images == 2
+
+
 def test_keys_are_optional(tmp_path: Path) -> None:
     settings = load_settings(_make_root(tmp_path))
     assert settings.gemini_api_key is None

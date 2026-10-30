@@ -51,7 +51,9 @@ class GroqProvider:
                 return response
             wait = float(response.headers.get("retry-after", "10") or 10)
             if wait > MAX_WAIT_SECONDS:
-                raise QuotaExhausted(f"Groq asks to wait {wait:.0f}s, likely the daily request cap. Resume later.")
+                raise QuotaExhausted(
+                    f"Groq asks to wait {wait:.0f}s. Either the daily cap is reached or one request is bigger than "
+                    f"the per minute token budget. Error from Groq: {response.text[:300]}")
             self._sleep(wait + 0.5)
             self.waited_seconds += wait + 0.5
         return response
