@@ -18,7 +18,6 @@ from pathlib import Path
 from typing import Callable, Iterable
 
 import numpy as np
-from PIL import Image
 
 from driftcheck.baselines import ask_changed, whole_image_similarity
 from driftcheck.checks.base import Thresholds
@@ -26,6 +25,7 @@ from driftcheck.checks.verdict import CHECK_ATTRIBUTE
 from driftcheck.dataset import list_outputs, output_image, product_dir, read_meta
 from driftcheck.labels import ATTRIBUTES, LabelStore
 from driftcheck.log import get_logger
+from driftcheck.pipeline import load_image
 from driftcheck.split import read_split
 
 log = get_logger(__name__)
@@ -108,7 +108,7 @@ def run_item(item: Item, checker, features_fn: Callable) -> dict:
     waited_before = _waited(checker)
     report = checker.check(item.original, item.output, item.text_scripts)
     report_wait = _waited(checker) - waited_before
-    original, output = Image.open(item.original).convert("RGB"), Image.open(item.output).convert("RGB")
+    original, output = load_image(item.original), load_image(item.output)
 
     began = time.perf_counter()
     similarity = whole_image_similarity(original, output, features_fn)

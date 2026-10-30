@@ -68,7 +68,7 @@ def _load_vision(config_dir: Path) -> VisionConfig:
         pattern_model=raw.get("pattern_model", "facebook/dinov2-small"),
         max_side=raw.get("max_side", 1024),
         timeout_seconds=raw.get("timeout_seconds", 600),
-        ollama_num_ctx=raw.get("ollama_num_ctx", 16384),
+        ollama_num_ctx=raw.get("ollama_num_ctx", 8192),
         max_images=raw.get("max_images", {}).get(provider),
     )
 

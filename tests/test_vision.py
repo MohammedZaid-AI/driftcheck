@@ -178,7 +178,7 @@ def test_ollama_sends_schema_and_images() -> None:
     content = fake.chat_kwargs["messages"][0]["content"]
     assert content.startswith("describe") and '"sleeve_length"' in content
     assert fake.chat_kwargs["options"]["temperature"] == 0
-    assert fake.chat_kwargs["options"]["num_ctx"] == 16384
+    assert fake.chat_kwargs["options"]["num_ctx"] == 8192
     assert fake.chat_kwargs["options"]["num_predict"] == 1024
 
 

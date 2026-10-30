@@ -19,9 +19,10 @@ class OllamaProvider:
     # 4: answers capped at num_predict tokens. Once, qwen2.5vl:3b kept generating until
     #    the 16384 token context was full, which took over 3 minutes and was not valid JSON.
     # 5: an empty reply in schema mode also falls back to plain JSON.
-    version = "5"
+    # 6: num_ctx 8192 with at most 3 images, so qwen2.5vl:7b fits next to the checks in 12 GB RAM.
+    version = "6"
 
-    def __init__(self, model: str, host: str, timeout: float = 600, num_ctx: int = 16384, num_predict: int = 1024) -> None:
+    def __init__(self, model: str, host: str, timeout: float = 600, num_ctx: int = 8192, num_predict: int = 1024) -> None:
         import ollama
 
         self.model = model

@@ -182,7 +182,7 @@ def test_baseline_2_runs_on_test_split_only(monkeypatch: pytest.MonkeyPatch) -> 
     asked = []
     monkeypatch.setattr(evaluate, "ask_changed", lambda o, u, client: asked.append(1) or (False, "same"))
     monkeypatch.setattr(evaluate, "whole_image_similarity", lambda o, u, f: 0.9)
-    monkeypatch.setattr(evaluate.Image, "open", lambda path: garment())
+    monkeypatch.setattr(evaluate, "load_image", lambda path: garment())
     checker = SimpleNamespace(check=lambda *a: FakeReport(), client=SimpleNamespace(calls=[], provider=SimpleNamespace()))
 
     calibration = evaluate.run_item(item("c", split="calibration"), checker, None)

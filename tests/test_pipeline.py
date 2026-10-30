@@ -71,6 +71,18 @@ def test_missing_product_skips_other_checks() -> None:
     assert checker.client.asked == [checker.client.asked[0]]  # only the card call
 
 
+def test_large_images_are_capped_on_load() -> None:
+    from PIL import Image
+
+    from driftcheck.pipeline import MAX_CHECK_SIDE, load_image
+
+    big = Image.new("RGB", (3000, 4500), "white")
+    assert max(load_image(big).size) == MAX_CHECK_SIDE
+    assert big.size == (3000, 4500)  # the caller's image is not changed
+    small = Image.new("RGB", (400, 300), "white")
+    assert load_image(small).size == (400, 300)
+
+
 def test_vision_failure_gives_unknown_not_crash() -> None:
     image = garment(stripes=True)
     report = _checker([VisionError("down"), VisionError("down")]).check(image, image.copy())

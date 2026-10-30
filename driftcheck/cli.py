@@ -301,7 +301,7 @@ def eval_run(
         checker.client.ensure_ready()
     except VisionUnavailable as error:
         typer.echo(f"Not ready: {error}", err=True)
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=4)  # not 1, so a restart loop can tell setup errors from crashes
     from driftcheck.vision import QuotaExhausted
 
     typer.echo(f"{len(items)} pairs with {checker.client.model}")

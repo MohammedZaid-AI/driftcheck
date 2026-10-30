@@ -47,9 +47,16 @@ class Report(BaseModel):
         return next(result for result in self.checks if result.name == name)
 
 
+MAX_CHECK_SIDE = 2048  # same cap as originals at ingest; full size AI outputs ran a 12 GB laptop out of memory in OCR
+
+
 def load_image(source: Path | str | Image.Image) -> Image.Image:
     image = source if isinstance(source, Image.Image) else Image.open(source)
-    return ImageOps.exif_transpose(image).convert("RGB")
+    image = ImageOps.exif_transpose(image).convert("RGB")
+    if max(image.size) > MAX_CHECK_SIDE:
+        image = image.copy()
+        image.thumbnail((MAX_CHECK_SIDE, MAX_CHECK_SIDE), Image.Resampling.LANCZOS)
+    return image
 
 
 @dataclass

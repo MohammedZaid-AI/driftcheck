@@ -13,7 +13,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
 
 from driftcheck.checks.base import Thresholds
 from driftcheck.checks.verdict import CHECK_ATTRIBUTE
@@ -209,7 +208,7 @@ def failures(items: list[Item], raws: dict, t: Thresholds) -> tuple[list, list]:
 
 def write_gallery(out_dir: Path, items: list[Item], raws: dict, t: Thresholds) -> list[dict]:
     from driftcheck.heatmap import draw_heatmap
-    from driftcheck.pipeline import Report
+    from driftcheck.pipeline import Report, load_image
 
     out_dir.mkdir(parents=True, exist_ok=True)
     entries = []
@@ -221,7 +220,8 @@ def write_gallery(out_dir: Path, items: list[Item], raws: dict, t: Thresholds) -
                 check.status, check.applicable = decisions[check.name]
             report.verdict = verdict(decisions)
             name = f"{kind}_{item.set_name}_{item.product_id}__{item.output_id}.png"
-            draw_heatmap(Image.open(item.original), Image.open(item.output), report).save(out_dir / name)
+            # The same capped images the checks saw, so boxes and patches line up.
+            draw_heatmap(load_image(item.original), load_image(item.output), report).save(out_dir / name)
             reasons = {c.name: c.reason for c in report.checks if CHECK_ATTRIBUTE[c.name] in attributes}
             entries.append({"kind": kind, "item": item.key, "attributes": attributes, "file": name,
                             "reasons_from_recorded_run": reasons})
