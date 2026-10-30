@@ -53,8 +53,10 @@ def timing(raws: list[dict]) -> dict:
         "driftcheck": {**stats([r["report"]["seconds"] for r in raws]),
                        "vision_calls_per_image": round(float(np.mean([r["report"]["vision_calls"] for r in raws])), 2) if raws else None},
         "baseline_1": stats([r["b1"]["seconds"] for r in raws]),
-        "baseline_2": {**stats([r["b2"]["seconds"] for r in raws]),
+        "baseline_2": {**stats([r["b2"]["seconds"] for r in raws if r["b2"]["seconds"] is not None]),
                        "vision_calls_per_image": round(float(np.mean([r["b2"]["vision_calls"] for r in raws])), 2) if raws else None},
+        "rate_limit_wait_seconds_total": round(sum(r["report"].get("rate_limit_wait_seconds", 0)
+                                                   + (r["b2"].get("rate_limit_wait_seconds") or 0) for r in raws), 1),
     }
 
 

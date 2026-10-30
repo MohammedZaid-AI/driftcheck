@@ -167,6 +167,31 @@ def test_collect_items_reads_labels_and_synthetic(tmp_path: Path) -> None:
     assert items[1].label["colour_changed"] is True
 
 
+def test_baseline_2_runs_on_test_split_only(monkeypatch: pytest.MonkeyPatch) -> None:
+    from types import SimpleNamespace
+
+    from driftcheck import evaluate
+    from tests.synthetic import garment
+
+    class FakeReport:
+        seconds = 4.0
+
+        def model_dump(self, mode: str = "json") -> dict:
+            return {"checks": [], "verdict": "faithful", "seconds": 4.0, "vision_calls": 1}
+
+    asked = []
+    monkeypatch.setattr(evaluate, "ask_changed", lambda o, u, client: asked.append(1) or (False, "same"))
+    monkeypatch.setattr(evaluate, "whole_image_similarity", lambda o, u, f: 0.9)
+    monkeypatch.setattr(evaluate.Image, "open", lambda path: garment())
+    checker = SimpleNamespace(check=lambda *a: FakeReport(), client=SimpleNamespace(calls=[], provider=SimpleNamespace()))
+
+    calibration = evaluate.run_item(item("c", split="calibration"), checker, None)
+    test = evaluate.run_item(item("t", split="test"), checker, None)
+    assert calibration["b2"]["skipped"] is True and calibration["b2"]["changed"] is None
+    assert test["b2"]["changed"] is False and len(asked) == 1
+    assert test["report"]["rate_limit_wait_seconds"] == 0
+
+
 def test_run_all_saves_and_skips(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     from driftcheck import evaluate
 

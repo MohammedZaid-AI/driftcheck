@@ -7,7 +7,7 @@ import time
 
 from pydantic import BaseModel
 
-from driftcheck.vision.base import VisionUnavailable, with_schema
+from driftcheck.vision.base import QuotaExhausted, VisionUnavailable, with_schema
 
 BASE_URL = "https://api.groq.com/openai/v1"
 MAX_RATE_LIMIT_WAITS = 5
@@ -26,6 +26,7 @@ class GroqProvider:
 
         self.model = model
         self.max_tokens = max_tokens
+        self.waited_seconds = 0.0  # time spent waiting on rate limits, kept out of speed figures
         self._sleep = sleep
         self._http = httpx.Client(base_url=BASE_URL, headers={"Authorization": f"Bearer {api_key}"}, timeout=timeout)
 
@@ -42,13 +43,17 @@ class GroqProvider:
             raise VisionUnavailable(f"Groq has no model {self.model}. Set VISION_MODEL to one of: {', '.join(sorted(models))}")
 
     def _post(self, body: dict):
-        """POST, waiting out rate limits for as long as Groq asks, a few times at most."""
+        """POST, waiting out short rate limits for as long as Groq asks. A wait longer than
+        MAX_WAIT_SECONDS means a daily cap, so the run stops instead of waiting for hours."""
         for _ in range(MAX_RATE_LIMIT_WAITS):
             response = self._http.post("/chat/completions", json=body)
             if response.status_code != 429:
                 return response
             wait = float(response.headers.get("retry-after", "10") or 10)
-            self._sleep(min(MAX_WAIT_SECONDS, wait + 0.5))
+            if wait > MAX_WAIT_SECONDS:
+                raise QuotaExhausted(f"Groq asks to wait {wait:.0f}s, likely the daily request cap. Resume later.")
+            self._sleep(wait + 0.5)
+            self.waited_seconds += wait + 0.5
         return response
 
     def generate(self, prompt: str, images: list[bytes], schema: type[BaseModel]) -> str:

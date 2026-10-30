@@ -97,25 +97,41 @@ def raw_path(cache_dir: Path, model: str, item: Item) -> Path:
     return cache_dir / "eval" / model_tag(model) / item.set_name / f"{item.product_id}__{item.output_id}.json"
 
 
+def _waited(checker) -> float:
+    """Seconds the provider has spent waiting on rate limits so far. Kept out of speed figures."""
+    return getattr(checker.client.provider, "waited_seconds", 0.0)
+
+
 def run_item(item: Item, checker, features_fn: Callable) -> dict:
-    """One recorded run of DriftCheck and both baselines on one pair."""
+    """One recorded run of DriftCheck and both baselines on one pair.
+    Baseline 2 runs on the test split only: it is reported there and never tuned."""
+    waited_before = _waited(checker)
     report = checker.check(item.original, item.output, item.text_scripts)
+    report_wait = _waited(checker) - waited_before
     original, output = Image.open(item.original).convert("RGB"), Image.open(item.output).convert("RGB")
 
     began = time.perf_counter()
     similarity = whole_image_similarity(original, output, features_fn)
     b1_seconds = time.perf_counter() - began
 
-    calls_before = len(checker.client.calls)
-    began = time.perf_counter()
-    changed, reason = ask_changed(original, output, checker.client)
-    b2_seconds = time.perf_counter() - began
-    b2_calls = sum(not call.cached for call in checker.client.calls[calls_before:])
+    b2 = {"changed": None, "reason": "not run on the calibration split", "seconds": None, "vision_calls": 0, "skipped": True}
+    if item.split == "test":
+        calls_before, waited_before = len(checker.client.calls), _waited(checker)
+        began = time.perf_counter()
+        changed, reason = ask_changed(original, output, checker.client)
+        b2_wait = _waited(checker) - waited_before
+        b2 = {"changed": changed, "reason": reason,
+              "seconds": round(time.perf_counter() - began - b2_wait, 3),
+              "rate_limit_wait_seconds": round(b2_wait, 3),
+              "vision_calls": sum(not call.cached for call in checker.client.calls[calls_before:])}
 
+    report_json = report.model_dump(mode="json")
+    report_json["rate_limit_wait_seconds"] = round(report_wait, 3)
+    report_json["seconds"] = round(report.seconds - report_wait, 3)  # DriftCheck's own time, without waiting
     return {
-        "report": report.model_dump(mode="json"),
+        "report": report_json,
         "b1": {"similarity": similarity, "seconds": round(b1_seconds, 3)},
-        "b2": {"changed": changed, "reason": reason, "seconds": round(b2_seconds, 3), "vision_calls": b2_calls},
+        "b2": b2,
     }
 
 

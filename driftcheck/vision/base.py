@@ -21,6 +21,11 @@ class VisionUnavailable(VisionError):
     """The provider is not running or not set up."""
 
 
+class QuotaExhausted(Exception):
+    """The provider's rate limit needs a long wait, such as a daily cap.
+    Not a VisionError on purpose: it stops a run instead of turning checks into unknown."""
+
+
 class Provider(Protocol):
     name: str
     model: str

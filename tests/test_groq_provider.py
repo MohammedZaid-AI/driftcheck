@@ -75,6 +75,16 @@ def test_waits_out_rate_limits() -> None:
     provider, waits = _provider(handler)
     provider.generate("x", [b"j"], Garment)
     assert waits == [7.5, 7.5]
+    assert provider.waited_seconds == 15.0
+
+
+def test_daily_cap_stops_instead_of_waiting_hours() -> None:
+    from driftcheck.vision import QuotaExhausted
+
+    provider, waits = _provider(lambda request: httpx.Response(429, headers={"retry-after": "5400"}))
+    with pytest.raises(QuotaExhausted, match="5400"):
+        provider.generate("x", [b"j"], Garment)
+    assert waits == []
 
 
 def test_server_errors_are_raised_for_the_client_to_retry() -> None:

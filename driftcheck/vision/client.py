@@ -15,7 +15,7 @@ from driftcheck.cache import DiskCache, make_key
 from driftcheck.config import Settings, load_settings
 from driftcheck.log import get_logger
 from driftcheck.retry import retry_call
-from driftcheck.vision.base import ImageInput, Provider, VisionError, VisionUnavailable, prepare_image
+from driftcheck.vision.base import ImageInput, Provider, QuotaExhausted, VisionError, VisionUnavailable, prepare_image
 
 T = TypeVar("T", bound=BaseModel)
 log = get_logger(__name__)
@@ -83,7 +83,7 @@ class VisionClient:
         try:
             text = retry_call(lambda: self.provider.generate(prompt, prepared, schema), sleep=self._sleep)
             result = schema.model_validate_json(_strip_fences(text))
-        except VisionError:
+        except (VisionError, QuotaExhausted):
             self._record(time.perf_counter() - start, cached=False, ok=False)
             raise
         except Exception as error:

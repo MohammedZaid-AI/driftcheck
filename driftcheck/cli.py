@@ -302,8 +302,14 @@ def eval_run(
     except VisionUnavailable as error:
         typer.echo(f"Not ready: {error}", err=True)
         raise typer.Exit(code=1)
+    from driftcheck.vision import QuotaExhausted
+
     typer.echo(f"{len(items)} pairs with {checker.client.model}")
-    run_all(items, checker, checker.features_fn, settings.cache_dir, checker.client.model)
+    try:
+        run_all(items, checker, checker.features_fn, settings.cache_dir, checker.client.model)
+    except QuotaExhausted as error:
+        typer.echo(f"Stopped: {error} Finished pairs are saved; run eval-run again later to continue.", err=True)
+        raise typer.Exit(code=3)
     typer.echo("Done. Run driftcheck eval to tune and write the report.")
 
 
