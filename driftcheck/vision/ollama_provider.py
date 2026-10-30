@@ -13,13 +13,17 @@ def _with_tag(name: str) -> str:
 
 class OllamaProvider:
     name = "ollama"
-    version = "2"  # 2: schema is also written into the prompt
+    # 2: schema is also written into the prompt.
+    # 3: num_ctx raised from Ollama's 4096, which cut off prompts with several images,
+    #    and plain JSON fallback for the grammar error.
+    version = "3"
 
-    def __init__(self, model: str, host: str, timeout: float = 600) -> None:
+    def __init__(self, model: str, host: str, timeout: float = 600, num_ctx: int = 16384) -> None:
         import ollama
 
         self.model = model
         self.host = host
+        self.num_ctx = num_ctx
         self._client = ollama.Client(host=host, timeout=timeout)
 
     def check(self) -> None:
@@ -34,10 +38,15 @@ class OllamaProvider:
             raise VisionUnavailable(f"Ollama model {self.model} is not pulled. Run: ollama pull {self.model}")
 
     def generate(self, prompt: str, images: list[bytes], schema: type[BaseModel]) -> str:
-        response = self._client.chat(
-            model=self.model,
-            messages=[{"role": "user", "content": with_schema(prompt, schema), "images": images}],
-            format=schema.model_json_schema(),
-            options={"temperature": 0},
-        )
+        messages = [{"role": "user", "content": with_schema(prompt, schema), "images": images}]
+        options = {"temperature": 0, "num_ctx": self.num_ctx}
+        try:
+            response = self._client.chat(model=self.model, messages=messages, format=schema.model_json_schema(), options=options)
+        except Exception as error:
+            # llama.cpp sometimes fails schema constrained decoding with "empty grammar stack".
+            # At temperature 0 a retry fails the same way, so fall back to plain JSON mode.
+            # The schema is still in the prompt and the answer is still validated by the client.
+            if "grammar" not in str(error):
+                raise
+            response = self._client.chat(model=self.model, messages=messages, format="json", options=options)
         return response.message.content or ""

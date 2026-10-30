@@ -114,7 +114,7 @@ def make_provider(settings: Settings, model: str | None = None) -> Provider:
     if vision.provider == "ollama":
         from driftcheck.vision.ollama_provider import OllamaProvider
 
-        return OllamaProvider(model, settings.ollama_host, vision.timeout_seconds)
+        return OllamaProvider(model, settings.ollama_host, vision.timeout_seconds, vision.ollama_num_ctx)
     if vision.provider == "gemini":
         from driftcheck.vision.gemini_provider import GeminiProvider
 

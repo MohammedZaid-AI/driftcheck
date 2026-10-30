@@ -8,6 +8,7 @@
   "compare_models": ["qwen2.5vl:3b", "qwen2.5vl:7b"],
   "pattern_model": "facebook/dinov2-small",
   "max_side": 1024,
+  "ollama_num_ctx": 16384,
   "timeout_seconds": 600,
   "sources": {
     "ollama": "qwen2.5vl:3b runs fully on a 6 GB RTX 3050 in about 15s per image. qwen2.5vl:7b splits CPU and GPU, about 2 minutes. Use 7b for the final overnight eval.",

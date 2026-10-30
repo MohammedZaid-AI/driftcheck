@@ -26,6 +26,7 @@ class VisionConfig(BaseModel):
     pattern_model: str  # local DINOv2 model for the pattern check
     max_side: int
     timeout_seconds: float
+    ollama_num_ctx: int  # Ollama's default 4096 is too small for several images plus the schema
 
 
 class Settings(BaseModel):
@@ -65,6 +66,7 @@ def _load_vision(config_dir: Path) -> VisionConfig:
         pattern_model=raw.get("pattern_model", "facebook/dinov2-small"),
         max_side=raw.get("max_side", 1024),
         timeout_seconds=raw.get("timeout_seconds", 600),
+        ollama_num_ctx=raw.get("ollama_num_ctx", 16384),
     )
 
 

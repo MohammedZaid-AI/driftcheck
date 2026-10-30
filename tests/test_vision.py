@@ -171,6 +171,29 @@ def test_ollama_sends_schema_and_images() -> None:
     content = fake.chat_kwargs["messages"][0]["content"]
     assert content.startswith("describe") and '"sleeve_length"' in content
     assert fake.chat_kwargs["options"]["temperature"] == 0
+    assert fake.chat_kwargs["options"]["num_ctx"] == 16384
+
+
+def test_ollama_falls_back_to_plain_json_on_grammar_error() -> None:
+    class GrammarBug(FakeOllama):
+        def chat(self, **kwargs):
+            if kwargs["format"] != "json":
+                raise RuntimeError("got exception: Unexpected empty grammar stack after accepting piece: 8 (23)")
+            return super().chat(**kwargs)
+
+    fake = GrammarBug(["qwen2.5vl:3b"])
+    assert json.loads(_ollama(fake).generate("describe", [b"x"], Garment))["main_colour"] == "red"
+    assert fake.chat_kwargs["format"] == "json"
+    assert '"sleeve_length"' in fake.chat_kwargs["messages"][0]["content"]  # schema still in the prompt
+
+
+def test_ollama_other_errors_are_not_hidden() -> None:
+    class Down(FakeOllama):
+        def chat(self, **kwargs):
+            raise RuntimeError("model not found")
+
+    with pytest.raises(RuntimeError, match="model not found"):
+        _ollama(Down(["qwen2.5vl:3b"])).generate("describe", [b"x"], Garment)
 
 
 def test_optional_providers_need_their_keys() -> None:
