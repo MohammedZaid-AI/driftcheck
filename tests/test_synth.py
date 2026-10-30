@@ -101,7 +101,7 @@ def test_run_synth_writes_images_json_and_labels(tmp_path: Path) -> None:
     write_json(folder / "meta.json", ProductMeta(
         product_id="p001", category="clothing", source_file="x.jpg", sha256="1", ingested_at="2026-10-24",
     ))
-    rows = run_synth(tmp_path, simple_mask, lambda image: [])
+    rows = run_synth(tmp_path, simple_mask, lambda image, scripts: [])
     assert {row["output_id"] for row in rows} >= {"colour_shift", "pattern_swap", "control_jpeg"}
     labels = json.loads((tmp_path / "synthetic" / "labels.json").read_text())
     assert labels == rows

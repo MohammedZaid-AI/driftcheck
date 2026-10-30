@@ -27,7 +27,16 @@ def test_ping_reports_clear_error(monkeypatch: pytest.MonkeyPatch) -> None:
     assert "Ollama is not running" in result.output
 
 
-def test_unbuilt_command_says_which_phase() -> None:
+def test_eval_refuses_with_nothing_to_tune_and_writes_nothing(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import json
+
+    from driftcheck.config import PROJECT_ROOT
+
+    thresholds = PROJECT_ROOT / "config" / "thresholds.json"
+    before = thresholds.read_bytes()
+    monkeypatch.setenv("DRIFTCHECK_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("DRIFTCHECK_CACHE_DIR", str(tmp_path / "cache"))
+    (tmp_path / "split.json").write_text(json.dumps({"calibration": [], "test": []}))
     result = runner.invoke(app, ["eval"])
-    assert result.exit_code == 2
-    assert "phase 6" in result.output
+    assert result.exit_code == 1 and "Nothing was tuned" in result.output
+    assert thresholds.read_bytes() == before

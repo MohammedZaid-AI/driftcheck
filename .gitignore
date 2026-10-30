@@ -26,8 +26,9 @@ weights/
 *.onnx
 *.h5
 
-# Single check output from driftcheck check
+# Single check output from driftcheck check, and the failure gallery, which shows the user's photos
 reports/check/
+reports/gallery/
 
 # Data: only data/samples is tracked
 data/*

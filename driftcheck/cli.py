@@ -180,8 +180,11 @@ def split(
 
 
 @app.command()
-def synth(seed: int = typer.Option(42, help="Random seed for the drift parameters.")) -> None:
-    """Make synthetic drift with automatic labels in data/synthetic."""
+def synth(
+    seed: int = typer.Option(42, help="Random seed for the drift parameters."),
+    include_extra: bool = typer.Option(False, "--include-extra", help="Also make drift for products tagged extra."),
+) -> None:
+    """Make synthetic drift with automatic labels in data/synthetic, for the core products."""
     from collections import Counter
 
     from driftcheck.cache import DiskCache
@@ -192,7 +195,8 @@ def synth(seed: int = typer.Option(42, help="Random seed for the drift parameter
     settings = load_settings()
     mask_cache = DiskCache(settings.cache_dir, "masks")
     ocr = OcrEngine(DiskCache(settings.cache_dir, "ocr"))
-    rows = run_synth(settings.data_dir, lambda image: product_mask(image, mask_cache), ocr.read, seed=seed)
+    rows = run_synth(settings.data_dir, lambda image: product_mask(image, mask_cache), ocr.read, seed=seed,
+                     include_extra=include_extra)
     counts = Counter(row["output_id"] for row in rows)
     typer.echo(f"Wrote {len(rows)} synthetic outputs to {settings.data_dir / 'synthetic'}")
     for drift, count in sorted(counts.items()):
@@ -278,10 +282,102 @@ def check(
     typer.echo(f"Wrote {folder / 'report.json'} and {folder / 'heatmap.png'}")
 
 
+@app.command(name="eval-run")
+def eval_run(
+    model: str = typer.Option(None, help="Vision model, for example qwen2.5vl:7b. Default is the configured one."),
+    test_only: bool = typer.Option(False, "--test-only", help="Only the test split, for a model comparison run."),
+) -> None:
+    """Run every check and both baselines once on every labelled and synthetic pair, saving raw results.
+    Pairs already run are skipped, so it can be stopped and started again."""
+    from driftcheck.evaluate import collect_items, recording_thresholds, run_all
+    from driftcheck.pipeline import Checker
+    from driftcheck.vision import VisionUnavailable
+
+    settings = load_settings()
+    items = [i for i in collect_items(settings.data_dir) if not test_only or i.split == "test"]
+    checker = Checker.from_settings(settings, vision_model=model)
+    checker.thresholds = recording_thresholds(checker.thresholds)
+    try:
+        checker.client.ensure_ready()
+    except VisionUnavailable as error:
+        typer.echo(f"Not ready: {error}", err=True)
+        raise typer.Exit(code=1)
+    typer.echo(f"{len(items)} pairs with {checker.client.model}")
+    run_all(items, checker, checker.features_fn, settings.cache_dir, checker.client.model)
+    typer.echo("Done. Run driftcheck eval to tune and write the report.")
+
+
 @app.command(name="eval")
-def evaluate() -> None:
-    """Run the full evaluation."""
-    _not_ready(6)
+def evaluate(
+    retune: bool = typer.Option(False, help="Tune again on the calibration split even though thresholds are frozen."),
+) -> None:
+    """Tune on the calibration split if not done yet, then write reports/eval_report.md and .json."""
+    import json
+
+    from driftcheck.checks.base import load_thresholds
+    from driftcheck.eval_report import build_report, gallery_markdown, render_markdown, write_gallery
+    from driftcheck.evaluate import collect_items, load_raw, tune, tune_baseline_1
+    from driftcheck.ocr import READERS
+    from driftcheck.segment import REMBG_MODEL
+
+    settings = load_settings()
+    items = collect_items(settings.data_dir)
+    if not any(i.split == "calibration" for i in items) or not any(i.split == "test" for i in items):
+        typer.echo("Need labelled or synthetic pairs in both the calibration and test split. Nothing was tuned or written.", err=True)
+        raise typer.Exit(code=1)
+    primary = settings.vision.model
+    raws = load_raw(items, settings.cache_dir, primary)
+    missing = [i.key for i in items if i.key not in raws]
+    if missing:
+        typer.echo(f"{len(missing)} of {len(items)} pairs have no saved run for {primary}. Run driftcheck eval-run first.", err=True)
+        raise typer.Exit(code=1)
+
+    thresholds_path = settings.config_dir / "thresholds.json"
+    notes_path = settings.root / "reports" / "tuning.json"
+    t = load_thresholds(settings.config_dir)
+    if not t.tuned or retune:
+        if t.tuned:
+            typer.echo("Retuning frozen thresholds. Say so in PROGRESS.md.", err=True)
+        calibration = [i for i in items if i.split == "calibration"]
+        t, notes = tune(calibration, raws, t)
+        b1_threshold, b1_note = tune_baseline_1(calibration, raws)
+        frozen = {"tuned": True, "tuned_on": f"calibration split, {len(calibration)} pairs, vision model {primary}",
+                  "note": "Frozen. Do not change after tuning unless the split changes; then retune and say so in PROGRESS.md.",
+                  **{k: v for k, v in t.model_dump().items() if k != "tuned"},
+                  "baseline_1": {"similarity": b1_threshold}}
+        thresholds_path.write_text(json.dumps(frozen, indent=2) + "\n", encoding="utf-8")
+        notes_path.parent.mkdir(exist_ok=True)
+        notes_path.write_text(json.dumps({"checks": notes, "baseline_1": b1_note}, indent=1), encoding="utf-8")
+        typer.echo(f"Tuned on {len(calibration)} calibration pairs and froze config/thresholds.json")
+    saved = json.loads(thresholds_path.read_text(encoding="utf-8"))
+    tuning = json.loads(notes_path.read_text(encoding="utf-8"))
+
+    raws_by_model = {primary: raws}
+    for model in settings.vision.compare_models:
+        if model != primary:
+            other = load_raw([i for i in items if i.split == "test"], settings.cache_dir, model)
+            if other:
+                raws_by_model[model] = other
+    scalio = settings.data_dir / "scalio_examples"
+    scalio_note = ("No images in data/scalio_examples, so this part was not run."
+                   if not scalio.exists() or not any(scalio.iterdir()) else "Scalio examples are present but not evaluated yet.")
+    cost = ("Vision calls run on a local Ollama model, so there is no API charge. Calls per image are in the tables."
+            if settings.vision.provider == "ollama" else "Not estimated: no pricing is set in the config.")
+    models = {"vision": f"{settings.vision.provider}/{primary}",
+              "compared vision models": ", ".join(raws_by_model) or primary,
+              "pattern and baseline 1": settings.vision.pattern_model,
+              "segmentation": f"rembg/{REMBG_MODEL}", "ocr": "easyocr readers " + ", ".join(READERS),
+              "outputs": "Gemini app, model 3.6 Flash, made by hand"}
+    report = build_report(settings.root, items, raws_by_model, primary, t, tuning["checks"],
+                          saved["baseline_1"]["similarity"], tuning["baseline_1"], models, cost, scalio_note)
+
+    out = settings.root / "reports"
+    entries = write_gallery(out / "gallery", items, raws, t)
+    report["failure_gallery"] = entries
+    (out / "eval_report.json").write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding="utf-8")
+    markdown = render_markdown(report) + "\n## Failure gallery\n\n" + gallery_markdown(entries)
+    (out / "eval_report.md").write_text(markdown, encoding="utf-8")
+    typer.echo(f"Wrote {out / 'eval_report.md'} and {out / 'eval_report.json'}")
 
 
 if __name__ == "__main__":

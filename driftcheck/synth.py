@@ -16,7 +16,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 from scipy.ndimage import binary_dilation, binary_erosion
 
-from driftcheck.dataset import list_product_ids, product_dir, read_meta
+from driftcheck.dataset import product_dir, read_meta, selected_product_ids
 from driftcheck.labels import ATTRIBUTES, write_json_atomic
 from driftcheck.log import get_logger
 from driftcheck.ocr import TextBox, inside_mask
@@ -250,13 +250,15 @@ def make_drifts(
 def run_synth(
     data_dir: Path,
     mask_fn: Callable[[Image.Image], np.ndarray],
-    ocr_fn: Callable[[Image.Image], list[TextBox]],
+    ocr_fn: Callable[[Image.Image, list[str] | None], list[TextBox]],
     seed: int = 42,
+    include_extra: bool = False,
 ) -> list[dict[str, Any]]:
-    """Write data/synthetic/<product_id>/<drift>.jpg and .json, plus data/synthetic/labels.json."""
+    """Write data/synthetic/<product_id>/<drift>.jpg and .json, plus data/synthetic/labels.json.
+    Core products only unless include_extra. Text is read with each product's text_scripts."""
     out_root = data_dir / "synthetic"
     rows: list[dict[str, Any]] = []
-    for product_id in list_product_ids(data_dir):
+    for product_id in selected_product_ids(data_dir, include_extra):
         meta = read_meta(data_dir, product_id)
         image = Image.open(product_dir(data_dir, product_id) / "original.jpg").convert("RGB")
         mask = mask_fn(image)
@@ -264,7 +266,7 @@ def run_synth(
             log.warning("Skipping %s. No product found in the original.", product_id)
             continue
         rng = random.Random(f"{seed}-{product_id}")
-        for item in make_drifts(image, mask, ocr_fn(image), meta.category, rng):
+        for item in make_drifts(image, mask, ocr_fn(image, meta.text_scripts), meta.category, rng):
             folder = out_root / product_id
             folder.mkdir(parents=True, exist_ok=True)
             item.image.save(folder / f"{item.drift}.jpg", quality=95)
