@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Callable, Iterable
 
 import numpy as np
+from PIL import Image
 
 from driftcheck.baselines import ask_changed, whole_image_similarity
 from driftcheck.checks.base import Thresholds
@@ -135,10 +136,23 @@ def run_item(item: Item, checker, features_fn: Callable) -> dict:
     }
 
 
+def warm_up(checker, features_fn: Callable) -> None:
+    """Load rembg, DINOv2 and the English OCR reader before the first timed pair, so a
+    restart after a crash does not put model loading into one pair's time."""
+    blank = Image.new("RGB", (64, 64), "white")
+    checker.mask_fn(blank)
+    from driftcheck.features import SIDE
+
+    features_fn(Image.new("RGB", (SIDE, SIDE), "white"))
+    checker.ocr_fn(blank, ["en"])
+
+
 def run_all(items: Iterable[Item], checker, features_fn: Callable, cache_dir: Path, model: str) -> dict[str, dict]:
     """Run every item that has no saved result yet. Returns item key to raw result."""
     items = list(items)
     results = {}
+    if any(not raw_path(cache_dir, model, item).exists() for item in items):
+        warm_up(checker, features_fn)
     for number, item in enumerate(items, 1):
         path = raw_path(cache_dir, model, item)
         if path.exists():

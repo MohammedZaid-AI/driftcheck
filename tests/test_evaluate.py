@@ -197,9 +197,10 @@ def test_run_all_saves_and_skips(tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 
     calls = []
     monkeypatch.setattr(evaluate, "run_item", lambda i, checker, f: calls.append(i.key) or raw())
+    monkeypatch.setattr(evaluate, "warm_up", lambda checker, f: calls.append("warm"))
     items = [item("a"), item("b")]
     run_all(items, None, None, tmp_path, "qwen2.5vl:3b")
     again = run_all(items, None, None, tmp_path, "qwen2.5vl:3b")
-    assert calls == ["synthetic/a__x", "synthetic/b__x"]
+    assert calls == ["warm", "synthetic/a__x", "synthetic/b__x"]  # no warm up on the second run, all saved
     assert set(again) == {"synthetic/a__x", "synthetic/b__x"}
     assert (tmp_path / "eval" / "qwen2.5vl_3b" / "synthetic" / "a__x.json").exists()
