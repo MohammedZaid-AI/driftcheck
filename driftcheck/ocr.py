@@ -24,6 +24,10 @@ NATIVE_READERS = {"hi": "en_hi", "kn": "en_kn", "bn": "en_bn"}  # script code to
 MIN_CONFIDENCE = 0.3  # below this easyocr is mostly reading noise
 SCRIPT_CONFIDENCE = 0.7  # a reading this sure counts as proof the script is there
 TITLE_MIN_HEIGHT = 0.03  # unsure boxes at least this share of the image height are read again at 2x
+# easyocr's text detector works on a canvas of up to 2560 px by default. On a 12 GB laptop
+# running qwen2.5vl:7b alongside, its torch convolution crashed with an access violation
+# every few pairs. 1600 px cuts that memory by about 60 percent.
+CANVAS_SIZE = 1600
 
 
 @dataclass
@@ -135,11 +139,11 @@ class OcrEngine:
 
     def _run(self, name: str, image: Image.Image) -> list[TextBox]:
         """One reader on one image, cached per reader so detection and checks share results."""
-        key = make_key("easyocr", name, _png(image))
+        key = make_key("easyocr", name, str(CANVAS_SIZE), _png(image))
         if self.cache and (stored := self.cache.get(key)) is not None:
             return [TextBox(r["text"], r["confidence"], tuple(r["box"]), r["reader"]) for r in stored]
         found = []
-        for points, text, confidence in self._reader(name).readtext(np.asarray(image)):
+        for points, text, confidence in self._reader(name).readtext(np.asarray(image), canvas_size=CANVAS_SIZE):
             xs = [int(p[0]) for p in points]
             ys = [int(p[1]) for p in points]
             found.append(TextBox(text, float(confidence), (min(xs), min(ys), max(xs), max(ys)), name))

@@ -71,8 +71,9 @@ class FakeReader:
         self.full_size = full_size
         self.calls = 0
 
-    def readtext(self, arr):
+    def readtext(self, arr, canvas_size=None):
         self.calls += 1
+        self.canvas_size = canvas_size
         rows = self.rows if (arr.shape[1], arr.shape[0]) == self.full_size else self.crop_rows
         return [(_quad(box), text, conf) for box, text, conf in rows]
 
@@ -120,6 +121,7 @@ def test_read_uses_only_the_product_scripts(tmp_path: Path) -> None:
     assert [b.text for b in found] == ["নতুণ", "ইফাদ", "রোস্ট", "ROAST MASALA", "কোরি"]
     assert all(b.reader == "en_bn" for b in found)
     assert engine._readers["en_hi"].calls == 0 and engine._readers["en_kn"].calls == 0
+    assert engine._readers["en_bn"].canvas_size == ocr.CANVAS_SIZE
 
 
 def test_read_without_native_script_uses_english_reader(tmp_path: Path) -> None:
