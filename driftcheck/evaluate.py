@@ -128,6 +128,8 @@ def run_all(items: Iterable[Item], checker, features_fn: Callable, cache_dir: Pa
         if path.exists():
             results[item.key] = json.loads(path.read_text(encoding="utf-8"))
             continue
+        # Logged before the work, so a native crash shows which pair it was on.
+        log.info("starting %d/%d %s", number, len(items), item.key)
         raw = run_item(item, checker, features_fn)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(raw), encoding="utf-8")

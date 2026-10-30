@@ -188,6 +188,19 @@ def test_ollama_falls_back_to_plain_json_on_grammar_error() -> None:
     assert '"sleeve_length"' in fake.chat_kwargs["messages"][0]["content"]  # schema still in the prompt
 
 
+def test_ollama_empty_schema_reply_falls_back_to_plain_json() -> None:
+    class EmptyReply(FakeOllama):
+        def chat(self, **kwargs):
+            reply = super().chat(**kwargs)
+            if kwargs["format"] != "json":
+                reply.message.content = ""
+            return reply
+
+    fake = EmptyReply(["qwen2.5vl:3b"])
+    assert json.loads(_ollama(fake).generate("describe", [b"x"], Garment))["main_colour"] == "red"
+    assert fake.chat_kwargs["format"] == "json"
+
+
 def test_ollama_other_errors_are_not_hidden() -> None:
     class Down(FakeOllama):
         def chat(self, **kwargs):

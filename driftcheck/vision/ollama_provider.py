@@ -18,7 +18,8 @@ class OllamaProvider:
     #    and plain JSON fallback for the grammar error.
     # 4: answers capped at num_predict tokens. Once, qwen2.5vl:3b kept generating until
     #    the 16384 token context was full, which took over 3 minutes and was not valid JSON.
-    version = "4"
+    # 5: an empty reply in schema mode also falls back to plain JSON.
+    version = "5"
 
     def __init__(self, model: str, host: str, timeout: float = 600, num_ctx: int = 16384, num_predict: int = 1024) -> None:
         import ollama
@@ -43,13 +44,19 @@ class OllamaProvider:
     def generate(self, prompt: str, images: list[bytes], schema: type[BaseModel]) -> str:
         messages = [{"role": "user", "content": with_schema(prompt, schema), "images": images}]
         options = {"temperature": 0, "num_ctx": self.num_ctx, "num_predict": self.num_predict}
+        # llama.cpp sometimes fails schema constrained decoding with "empty grammar stack".
+        # The error either comes back as an exception or, when the reply has already
+        # started, as an empty reply. At temperature 0 a retry fails the same way, so both
+        # fall back to plain JSON mode. The schema is still in the prompt and the client
+        # still validates the answer.
         try:
             response = self._client.chat(model=self.model, messages=messages, format=schema.model_json_schema(), options=options)
+            content = response.message.content or ""
         except Exception as error:
-            # llama.cpp sometimes fails schema constrained decoding with "empty grammar stack".
-            # At temperature 0 a retry fails the same way, so fall back to plain JSON mode.
-            # The schema is still in the prompt and the answer is still validated by the client.
             if "grammar" not in str(error):
                 raise
+            content = ""
+        if not content.strip():
             response = self._client.chat(model=self.model, messages=messages, format="json", options=options)
-        return response.message.content or ""
+            content = response.message.content or ""
+        return content
