@@ -206,6 +206,19 @@ def failures(items: list[Item], raws: dict, t: Thresholds) -> tuple[list, list]:
     return sorted(missed, key=order)[:GALLERY_SIZE], sorted(false_alarms, key=order)[:GALLERY_SIZE]
 
 
+def show_tuned_thresholds(report, t: Thresholds) -> None:
+    """The raw run used recording thresholds. Redraw limits, patch cut off and found text
+    with the frozen ones, so the gallery pictures match the reported decisions."""
+    colour = report.check("colour")
+    if colour.threshold is not None:
+        colour.threshold = t.colour.max_weighted_delta_e
+    pattern = report.check("pattern")
+    if "patch_similarity" in pattern.details:
+        pattern.details["patch_similarity"] = t.pattern.patch_similarity
+    for row in report.check("text").details.get("items", []):
+        row["found_by"] = row["found_by"] if row["score"] >= t.text.min_match else None
+
+
 def write_gallery(out_dir: Path, items: list[Item], raws: dict, t: Thresholds) -> list[dict]:
     from driftcheck.heatmap import draw_heatmap
     from driftcheck.pipeline import Report, load_image
@@ -218,6 +231,7 @@ def write_gallery(out_dir: Path, items: list[Item], raws: dict, t: Thresholds) -
             report = Report.model_validate(raws[item.key]["report"])
             for check in report.checks:  # show the tuned decision, not the recording run's
                 check.status, check.applicable = decisions[check.name]
+            show_tuned_thresholds(report, t)
             report.verdict = verdict(decisions)
             name = f"{kind}_{item.set_name}_{item.product_id}__{item.output_id}.png"
             # The same capped images the checks saw, so boxes and patches line up.

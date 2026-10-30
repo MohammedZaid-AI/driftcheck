@@ -138,6 +138,29 @@ def test_report_says_not_measurable_without_drift() -> None:
     assert "not measurable" in text and "Real test set" in text and "Synthetic test set" in text
 
 
+def test_gallery_draws_with_tuned_thresholds() -> None:
+    from driftcheck.eval_report import show_tuned_thresholds
+    from driftcheck.pipeline import Report
+
+    r = raw(colour=9.0, text_score=85)["report"]
+    r["checks"][1]["threshold"] = 7.0
+    r["checks"][3]["details"]["patch_similarity"] = 0.85
+    r["checks"][2]["details"]["items"][0]["found_by"] = None  # missed at the recording run's 95
+    report = Report.model_validate({**r, "original": "o", "output": "u", "card": {
+        "vision": None, "vision_model": "m", "palette": [], "ocr": [], "product_box": None, "product_share": 0.4},
+        "check_seconds": {}, "models": {}, "thresholds_tuned": True, "text_scripts": ["en"], "created": "x"})
+    tuned = T.model_copy(deep=True)
+    tuned.colour.max_weighted_delta_e = 11.75
+    tuned.pattern.patch_similarity = 0.78
+    show_tuned_thresholds(report, tuned)
+    assert report.check("colour").threshold == 11.75
+    assert report.check("pattern").details["patch_similarity"] == 0.78
+    assert report.check("text").details["items"][0]["found_by"] is None  # stays: never found by any reader
+    report.check("text").details["items"][0]["found_by"] = "ocr"
+    show_tuned_thresholds(report, tuned)
+    assert report.check("text").details["items"][0]["found_by"] == "ocr"  # 85 is over the tuned 80
+
+
 def test_driftcheck_scores_count_per_attribute() -> None:
     items = [item("a", split="test", colour_changed=True), item("b", split="test")]
     raws = {items[0].key: raw(colour=20), items[1].key: raw(colour=1)}
