@@ -16,14 +16,17 @@ class OllamaProvider:
     # 2: schema is also written into the prompt.
     # 3: num_ctx raised from Ollama's 4096, which cut off prompts with several images,
     #    and plain JSON fallback for the grammar error.
-    version = "3"
+    # 4: answers capped at num_predict tokens. Once, qwen2.5vl:3b kept generating until
+    #    the 16384 token context was full, which took over 3 minutes and was not valid JSON.
+    version = "4"
 
-    def __init__(self, model: str, host: str, timeout: float = 600, num_ctx: int = 16384) -> None:
+    def __init__(self, model: str, host: str, timeout: float = 600, num_ctx: int = 16384, num_predict: int = 1024) -> None:
         import ollama
 
         self.model = model
         self.host = host
         self.num_ctx = num_ctx
+        self.num_predict = num_predict
         self._client = ollama.Client(host=host, timeout=timeout)
 
     def check(self) -> None:
@@ -39,7 +42,7 @@ class OllamaProvider:
 
     def generate(self, prompt: str, images: list[bytes], schema: type[BaseModel]) -> str:
         messages = [{"role": "user", "content": with_schema(prompt, schema), "images": images}]
-        options = {"temperature": 0, "num_ctx": self.num_ctx}
+        options = {"temperature": 0, "num_ctx": self.num_ctx, "num_predict": self.num_predict}
         try:
             response = self._client.chat(model=self.model, messages=messages, format=schema.model_json_schema(), options=options)
         except Exception as error:

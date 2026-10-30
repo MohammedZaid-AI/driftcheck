@@ -23,7 +23,7 @@ from driftcheck.vision import VisionClient, VisionError
 
 log = get_logger(__name__)
 
-CARD_VERSION = "3"  # bump when the prompt, schema, OCR or provider changes, so old cached cards are not reused
+CARD_VERSION = "4"  # bump when the prompt, schema, OCR or provider changes, so old cached cards are not reused
 MAX_TEXT_CROPS = 3
 
 SleeveLength = Literal["sleeveless", "short", "elbow", "three_quarter", "full", "not_applicable"]

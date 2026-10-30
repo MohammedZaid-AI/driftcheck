@@ -172,6 +172,7 @@ def test_ollama_sends_schema_and_images() -> None:
     assert content.startswith("describe") and '"sleeve_length"' in content
     assert fake.chat_kwargs["options"]["temperature"] == 0
     assert fake.chat_kwargs["options"]["num_ctx"] == 16384
+    assert fake.chat_kwargs["options"]["num_predict"] == 1024
 
 
 def test_ollama_falls_back_to_plain_json_on_grammar_error() -> None:
