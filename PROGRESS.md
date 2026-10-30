@@ -137,11 +137,25 @@ Phase 6 so far, 2026-10-30
 6. The user stopped the qwen2.5vl:3b run and chose Groq. driftcheck/vision/groq_provider.py talks to Groq's OpenAI compatible API with httpx: JSON schema output with a fallback to JSON mode, waits on 429 as long as Groq asks, answers capped at 1024 tokens. The user picked qwen/qwen3.8-27b as the Groq model, set in config/vision.json. To be confirmed against Groq's /models list, and that it takes images, once the key is set.
 7. A bug in a new CLI test ran driftcheck eval against the real config and overwrote config/thresholds.json with untuned values marked tuned. Restored from git, the test fixed, and eval now refuses to tune without calibration and test pairs.
 
+8. Groq free tier: qwen/qwen3.8-27b answered correctly in 0.6s, but the free tier allows 200000 tokens per day for this model, shown only in the 429 error, not in headers. The full run needs about 2 million tokens. Abandoned for the evaluation. The Groq provider stays in the code.
+9. The evaluation ran on local qwen2.5vl:7b through Ollama, chosen by the user, with VISION_PROVIDER=ollama and VISION_MODEL=qwen2.5vl:7b set for the run only. .env still says groq.
+10. Problems fixed during the 7b run: Python ran out of RAM on the 12 GB laptop, so images are capped at 2048 px when checks load them and Ollama uses num_ctx 8192 with at most 3 images per call. easyocr's detector still crashed with a Windows access violation in a torch convolution, but only while the 7b model was loaded; alone it ran 15 times on the same image without a crash. The detector canvas is capped at 1600 px, and eval-run restarts after a crash and warms models up before timing. Final run: 406 pairs, 872 vision calls, 0 failed calls, 11 crashes restarted automatically, 00:25 to 04:09.
+
+Phase 6: done, 2026-10-31
+1. Tuned on the calibration split, 207 pairs, then frozen in config/thresholds.json: segmentation missing_share 0.02, colour 11.75, text min_match 80 kept, pattern patch_similarity 0.78 and max_drift_share 0.45, judge min_ordinal_steps 3, baseline 1 similarity 0.578. reports/tuning.json has the calibration scores.
+2. reports/eval_report.md and .json, from commit 96cf374. Headline numbers on the test split, measured:
+   a. Real Gemini outputs, 40 images, all labelled unchanged: DriftCheck flagged 27 as drifted, a wrong flag rate of 67.5%. Baseline 1 25.0%, baseline 2 0.0%. Per attribute wrong flag rates: pattern 42.5%, text 22.9%, logo 14.3%, colour 12.5%, shape 10.0%, product missing 2.5%.
+   b. Synthetic set, 159 images, 99 drifted: DriftCheck recall 80.8%, precision 74.8%, wrong flag rate 45.0% on the 60 no change images. Baseline 1 recall 2.0%, baseline 2 recall 5.1%, both 0.0% wrong flags. Per attribute recall: text 84.4%, pattern 73.3%, colour 65.0%, product missing 10.0%, shape 9.1%.
+   c. Time per image: DriftCheck median 51.2s and p90 145.8s on real outputs, median 17.7s on synthetic. Baseline 1 about 0.5s, baseline 2 about 7s. 2.42 vision calls per real image.
+3. Not done from the plan: the qwen2.5vl:3b against 7b comparison. The 3b run was stopped after it failed many vision calls. Only 7b results exist.
+4. Main reasons for false alarms, from the gallery: in model shots and scenes, rembg cuts out the whole person, so colour and pattern compare the garment with the model's face, skin and jeans. A blurred product can also fall below the product missing share and skip every other check.
+5. A weakness in the tuning method: the 10% wrong flag cap was measured on all calibration negatives, mostly synthetic. It held there but not on real outputs. Measuring the cap on real calibration images only would fit the plan better. Not changed, because the test results are already seen; this is the user's call.
+6. The failure gallery in reports/gallery is gitignored because it shows the user's photos.
+
 ## Next
 
-1. User adds GROQ_API_KEY to .env and sets VISION_PROVIDER=groq.
-2. driftcheck ping, then driftcheck eval-run, then driftcheck eval.
-3. Phases 7 to 9.
+1. User reviews reports/eval_report.md and decides on point 5 above.
+2. Phase 7: Gradio demo app. Phase 8: API. Phase 9: docs.
 
 ## Commands
 

@@ -10,6 +10,16 @@ The Kaggle notebook loads the 4 bit build of Qwen Image Edit 2511 across both T4
 
 All outputs for the evaluation come from the free Gemini app instead, made by hand. So the results describe one generator only.
 
+## False alarms on real AI images
+
+On 40 Gemini images that were labelled as unchanged, DriftCheck flagged 27 as drifted. Most false alarms come from model shots and scene photos. The product cut out step keeps the whole person, so the colour and pattern checks compare the garment with the model's face, skin and other clothes. A garment level cut out would be the first thing to fix.
+
+Thresholds were tuned so that at most 10 percent of good calibration images are flagged. Most of those calibration images were synthetic, and the cap did not hold on real outputs.
+
+## Speed and memory
+
+On a laptop with 12 GB of RAM and a 6 GB GPU, one image takes a median of 51 seconds with qwen2.5vl:7b on Ollama, and up to 146 seconds for the slowest 10 percent. With the 7b model loaded, easyocr crashed the Python process 11 times in 406 images with a Windows access violation. The evaluation restarted itself after each crash.
+
 ## Text
 
 ### Large stylised titles can be misread
