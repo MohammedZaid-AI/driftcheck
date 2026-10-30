@@ -128,9 +128,20 @@ Gemini outputs placed, 2026-10-30
 5. p028 lifestyle came back on a plain white background, so it looks like a second studio shot.
 6. Not registered yet. 4 targets are still to be made by the user in Gemini: studio for p013, p060 and p067, and instagram_post for p068.
 
+Phase 6 so far, 2026-10-30
+1. All 80 outputs registered and labelled. The user labelled every attribute on all 80 as not changed. p031 studio shape_changed was set to no by Claude at the user's request. So the real set can measure wrong flags, unknown rate and speed, but not recall. Recall comes from the synthetic set only.
+2. driftcheck synth made 326 synthetic outputs for the 40 core products.
+3. Code: driftcheck/baselines.py, driftcheck/evaluate.py, driftcheck/eval_report.py. driftcheck eval-run runs every pair once with recording thresholds and saves raw results to cache/eval/<model>/. driftcheck eval tunes on the calibration split, freezes config/thresholds.json and writes reports/eval_report.md, reports/eval_report.json, reports/tuning.json and the gallery in reports/gallery, which is gitignored because it shows the user's photos.
+4. Ollama problems found while running qwen2.5vl:3b, all fixed in driftcheck/vision/ollama_provider.py: the default 4096 context cut off prompts with several images, now 16384; llama.cpp fails schema decoding with "empty grammar stack", sometimes as an error and sometimes as an empty reply, both now fall back to plain JSON mode; once the model generated until the context was full, so answers are capped at 1024 tokens. Even so, the model still failed on long card prompts and hit Ollama's token repeat limit: 8 failed calls in the first 4 pairs.
+5. The python process also crashed twice with a Windows access violation, 0xC0000005, in native code, once at pair 23 and once at pair 50 of earlier attempts. eval-run now logs each pair before it starts, so a crash shows where it was.
+6. The user stopped the qwen2.5vl:3b run and chose Groq. driftcheck/vision/groq_provider.py talks to Groq's OpenAI compatible API with httpx: JSON schema output with a fallback to JSON mode, waits on 429 as long as Groq asks, answers capped at 1024 tokens. Default model meta-llama/llama-4-scout-17b-16e-instruct, to be confirmed against Groq's /models list once the key is set.
+7. A bug in a new CLI test ran driftcheck eval against the real config and overwrote config/thresholds.json with untuned values marked tuned. Restored from git, the test fixed, and eval now refuses to tune without calibration and test pairs.
+
 ## Next
 
-Register the 80 outputs once the last 4 are in, then label them. Phase 6 after that.
+1. User adds GROQ_API_KEY to .env and sets VISION_PROVIDER=groq.
+2. driftcheck ping, then driftcheck eval-run, then driftcheck eval.
+3. Phases 7 to 9.
 
 ## Commands
 

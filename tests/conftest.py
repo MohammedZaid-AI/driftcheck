@@ -18,7 +18,7 @@ def plain_shirt() -> Path:
     return SAMPLES / "plain_shirt.jpg"
 
 
-_ENV_NAMES = ("GEMINI_API_KEY", "HF_TOKEN", "VISION_PROVIDER", "VISION_MODEL", "OLLAMA_HOST")
+_ENV_NAMES = ("GEMINI_API_KEY", "HF_TOKEN", "GROQ_API_KEY", "VISION_PROVIDER", "VISION_MODEL", "OLLAMA_HOST")
 
 
 @pytest.fixture(autouse=True)

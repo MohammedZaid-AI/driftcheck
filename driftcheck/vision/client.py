@@ -123,7 +123,11 @@ def make_provider(settings: Settings, model: str | None = None) -> Provider:
         from driftcheck.vision.hf_provider import HuggingFaceProvider
 
         return HuggingFaceProvider(model, settings.hf_token, vision.timeout_seconds)
-    raise VisionUnavailable(f"Unknown VISION_PROVIDER {vision.provider!r}. Use ollama, gemini or hf.")
+    if vision.provider == "groq":
+        from driftcheck.vision.groq_provider import GroqProvider
+
+        return GroqProvider(model, settings.groq_api_key, vision.timeout_seconds)
+    raise VisionUnavailable(f"Unknown VISION_PROVIDER {vision.provider!r}. Use ollama, gemini, hf or groq.")
 
 
 def get_vision_client(settings: Settings | None = None, model: str | None = None) -> VisionClient:

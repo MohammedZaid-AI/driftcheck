@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-ProviderName = Literal["ollama", "gemini", "hf"]
+ProviderName = Literal["ollama", "gemini", "hf", "groq"]
 
 
 class VisionConfig(BaseModel):
@@ -34,6 +34,7 @@ class Settings(BaseModel):
     ollama_host: str
     gemini_api_key: str | None
     hf_token: str | None
+    groq_api_key: str | None
     root: Path
     data_dir: Path
     cache_dir: Path
@@ -81,6 +82,7 @@ def load_settings(root: Path | None = None) -> Settings:
         ollama_host=os.getenv("OLLAMA_HOST") or "http://localhost:11434",
         gemini_api_key=os.getenv("GEMINI_API_KEY") or None,
         hf_token=os.getenv("HF_TOKEN") or None,
+        groq_api_key=os.getenv("GROQ_API_KEY") or None,
         root=root,
         data_dir=_resolve(root, os.getenv("DRIFTCHECK_DATA_DIR", "data")),
         cache_dir=_resolve(root, os.getenv("DRIFTCHECK_CACHE_DIR", "cache")),

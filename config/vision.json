@@ -3,7 +3,8 @@
   "models": {
     "ollama": "qwen2.5vl:3b",
     "gemini": "gemini-3.8-flash",
-    "hf": "Qwen/Qwen2.5-VL-3B-Instruct"
+    "hf": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "groq": "meta-llama/llama-4-scout-17b-16e-instruct"
   },
   "compare_models": ["qwen2.5vl:3b", "qwen2.5vl:7b"],
   "pattern_model": "facebook/dinov2-small",
@@ -13,6 +14,7 @@
   "sources": {
     "ollama": "qwen2.5vl:3b runs fully on a 6 GB RTX 3050 in about 15s per image. qwen2.5vl:7b splits CPU and GPU, about 2 minutes. Use 7b for the final overnight eval.",
     "gemini": "https://ai.google.dev/gemini-api/docs/models, checked 2026-10-24, listed as stable.",
-    "hf": "https://huggingface.co/docs/inference-providers/tasks/image-text-to-text, checked 2026-10-24, listed as a recommended model."
+    "hf": "https://huggingface.co/docs/inference-providers/tasks/image-text-to-text, checked 2026-10-24, listed as a recommended model.",
+    "groq": "Vision model named in third party Groq integration docs on 2026-10-30. Confirm against Groq's /models list once GROQ_API_KEY is set."
   }
 }

@@ -9,7 +9,7 @@ Always:
 6. Use the skills in .claude/skills for their tasks.
 
 # Setup decisions
-1. Vision model calls go through driftcheck/vision. One setting, VISION_PROVIDER, picks the provider: ollama (default), gemini or hf. Never call a model SDK directly from a check.
+1. Vision model calls go through driftcheck/vision. One setting, VISION_PROVIDER, picks the provider: ollama (default), gemini, hf or groq. Never call a model SDK directly from a check. On 2026-10-30 the user chose Groq for the evaluation, because qwen2.5vl:3b on Ollama kept failing calls.
 2. Default model is qwen2.5vl:3b on local Ollama, which runs fully on the 6 GB RTX 3050 in about 15s per image. qwen2.5vl:7b is the option for the final overnight eval, at about 2 minutes per image.
 3. Wherever the plan says Gemini, such as the ingest category, the product card, the shape and logo judge and baseline 2, use the selected vision provider.
 4. Images are resized to a max side of 1024 before sending.
