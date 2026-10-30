@@ -120,9 +120,17 @@ Outputs, 2026-10-25
 3. data/jobs/gemini_app/manual_checklist.md has one line per image with a tick box, the photo path, the exact prompt and the exact file name to save, all relative to the project folder.
 4. Five product types from the vision model would have put wrong details into the prompts and could cause drift the test then blames on Gemini. Fixed by hand in config/selection.json: p001 sleeveless printed kurti, was embroidered; p060 elephant block print kurti, was embroidered; p071 sleeveless printed strappy dress, was embroidered silk; p025 collared sweatshirt, was hooded; p057 chatpati candy pack, was masala spice pack.
 
+Gemini outputs placed, 2026-10-30
+1. The user made the outputs in the Gemini app, model 3.6 Flash, and saved them into the product outputs folders under Gemini's download names.
+2. 72 were matched to checklist targets by download time within their folder. Download times ran in checklist order with no breaks. p013, p060 and p067 had one file each, a model shot by eye. p068 had one Gemini file, the Diwali festival poster by eye.
+3. Each was copied to its checklist name as jpg: 76 outputs. The Gemini pngs were then moved to data/gemini_downloads/<product>/. A spare copy of a p028 file in the project root went to data/gemini_downloads. Log: data/gemini_downloads/placement_log.json.
+4. p068 also had a ChatGPT image. It was moved out and is not in the test set, so every output is from one generator.
+5. p028 lifestyle came back on a plain white background, so it looks like a second studio shot.
+6. Not registered yet. 4 targets are still to be made by the user in Gemini: studio for p013, p060 and p067, and instagram_post for p068.
+
 ## Next
 
-Phase 6: baselines and evaluation. Needs labels.
+Register the 80 outputs once the last 4 are in, then label them. Phase 6 after that.
 
 ## Commands
 
@@ -151,7 +159,7 @@ Use Python 3.12. The default python on this machine is 3.14, which torch and eas
 ## Waiting on me
 
 1. Done: photos ingested and the core set chosen.
-2. Make the 80 outputs in the Gemini app by following data/jobs/gemini_app/manual_checklist.md, then run driftcheck register.
+2. Make the last 4 outputs in Gemini: studio for p013, p060, p067 and instagram_post for p068, saved under their checklist names. Then run driftcheck register.
 3. Run driftcheck split once all products are ingested, then driftcheck label and label every output. Phase 6 needs this.
 
 ## GitHub
