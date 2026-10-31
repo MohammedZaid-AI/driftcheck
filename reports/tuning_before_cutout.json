@@ -1,0 +1,124 @@
+{
+ "checks": {
+  "product_missing": {
+   "tuned": true,
+   "calibration": {
+    "n": 207,
+    "positives": 20,
+    "negatives": 187,
+    "tp": 3,
+    "fp": 2,
+    "tn": 176,
+    "fn": 16,
+    "unknown_positive": 1,
+    "unknown_negative": 9,
+    "precision": 0.6,
+    "recall": 0.15,
+    "f1": 0.24,
+    "wrong_flag_rate": 0.0106951871657754,
+    "unknown_rate": 0.04830917874396135
+   },
+   "values": {
+    "missing_share": 0.02,
+    "small_share": 0.06
+   }
+  },
+  "colour": {
+   "tuned": true,
+   "calibration": {
+    "n": 187,
+    "positives": 20,
+    "negatives": 167,
+    "tp": 14,
+    "fp": 16,
+    "tn": 141,
+    "fn": 5,
+    "unknown_positive": 1,
+    "unknown_negative": 10,
+    "precision": 0.4666666666666667,
+    "recall": 0.7,
+    "f1": 0.56,
+    "wrong_flag_rate": 0.09580838323353294,
+    "unknown_rate": 0.058823529411764705
+   },
+   "values": {
+    "max_weighted_delta_e": 11.75,
+    "white_balance": true
+   }
+  },
+  "text": {
+   "tuned": false,
+   "calibration": {},
+   "values": {
+    "min_match": 80.0,
+    "min_item_length": 2,
+    "vision_backup": true
+   },
+   "reason": "no setting kept the text_changed wrong flag rate at or under 10% on calibration, starting values kept"
+  },
+  "pattern": {
+   "tuned": true,
+   "calibration": {
+    "n": 187,
+    "positives": 36,
+    "negatives": 151,
+    "tp": 25,
+    "fp": 13,
+    "tn": 131,
+    "fn": 7,
+    "unknown_positive": 4,
+    "unknown_negative": 7,
+    "precision": 0.6578947368421053,
+    "recall": 0.6944444444444444,
+    "f1": 0.6756756756756757,
+    "wrong_flag_rate": 0.08609271523178808,
+    "unknown_rate": 0.058823529411764705
+   },
+   "values": {
+    "patch_similarity": 0.78,
+    "max_drift_share": 0.45,
+    "min_patches": 20
+   }
+  },
+  "shape": {
+   "tuned": true,
+   "calibration": {
+    "n": 187,
+    "positives": 11,
+    "negatives": 176,
+    "tp": 2,
+    "fp": 14,
+    "tn": 151,
+    "fn": 9,
+    "unknown_positive": 0,
+    "unknown_negative": 11,
+    "precision": 0.125,
+    "recall": 0.18181818181818182,
+    "f1": 0.14814814814814814,
+    "wrong_flag_rate": 0.07954545454545454,
+    "unknown_rate": 0.058823529411764705
+   },
+   "values": {
+    "min_ordinal_steps": 3,
+    "min_changed_parts": 1,
+    "use_silhouette": false
+   }
+  }
+ },
+ "baseline_1": {
+  "n": 207,
+  "positives": 107,
+  "negatives": 100,
+  "tp": 4,
+  "fp": 9,
+  "tn": 91,
+  "fn": 103,
+  "unknown_positive": 0,
+  "unknown_negative": 0,
+  "precision": 0.3076923076923077,
+  "recall": 0.037383177570093455,
+  "f1": 0.06666666666666667,
+  "wrong_flag_rate": 0.09,
+  "unknown_rate": 0.0
+ }
+}

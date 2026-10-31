@@ -152,10 +152,24 @@ Phase 6: done, 2026-10-31
 5. A weakness in the tuning method: the 10% wrong flag cap was measured on all calibration negatives, mostly synthetic. It held there but not on real outputs. Measuring the cap on real calibration images only would fit the plan better. Not changed, because the test results are already seen; this is the user's call.
 6. The failure gallery in reports/gallery is gitignored because it shows the user's photos.
 
+Phase 6 follow up, cut out fix and retuning, 2026-10-31
+1. driftcheck/garment.py: for clothing and accessories, mattmdjaga/segformer_b2_clothes, a local clothes parsing model, keeps only the garment in any image with a person in it. Classes are grouped, top or dress, bottom, scarf and so on, and the biggest group on the original is the product. Accessories keep scarf, hat, bag and belt classes. Images without a person keep rembg. If the garment cannot be found, rembg is kept and the reason is recorded. The model's licence is listed as other. Before and after pictures were checked by eye for p001, p010, p018, p022, p031, p038, p060, p067.
+2. driftcheck eval-recut ran product missing, colour and pattern again with the new cut out on the saved 7b run, saved as cache/eval/qwen2.5vl_7b_garmentcut. Text, shape and logo come from the saved run. Time per image swaps in the new timing for those checks plus the parsing. The garment cut out was used on 30 of 80 real and 55 of 326 synthetic pairs. No crashes.
+3. Pattern similarity on worn images rose a lot with the new cut out, for example p031 from 0.32 to 0.58 and p067 from 0.43 to 0.73, but many still sit below the pattern cut off: the same garment on a body still looks different to DINOv2 than lying flat.
+4. Retuned, as the user asked, with the 10 percent wrong flag cap measured on the 40 real calibration images only. Catches still come from the synthetic calibration changes. With that cap nothing in the first search ranges worked for pattern and text, so the ranges were widened: pattern patch similarity 0.40 to 0.94 and share up to 0.95, text match 30 to 95. Both changes were made after the first test results were seen, and the report says so.
+5. Frozen thresholds now: colour 15.01, pattern patch 0.82 and share 0.90, text 40, product missing 0.02, shape steps 3, baseline 1 similarity 0.0, which means baseline 1 never flags. The first frozen values are kept in reports/thresholds_before_cutout.json, the first report in reports/eval_report_before_cutout.md and .json.
+6. Measured on the test split, before, then new cut out with the old rule, then after:
+   a. Real test images wrongly flagged: 27 of 40, 26 of 40, 20 of 40. Overall wrong flag rate 67.5%, 65.0%, 50.0%.
+   b. Real test wrong flag rate per attribute after: pattern 12.5% from 42.5%, text 14.3% from 22.9%, logo 14.3% unchanged, colour 7.5% from 12.5%, shape 10.0% unchanged, product missing 2.5% unchanged.
+   c. Synthetic test overall recall: 80.8%, 71.7%, 60.6%. Wrong flag rate on unchanged synthetic copies: 45.0%, 31.7%, 30.0%.
+   d. Synthetic recall per attribute after: text 59.4% from 84.4%, pattern 43.3% from 73.3%, colour 35.0% from 65.0%, product missing 10.0% and shape 9.1% unchanged.
+7. So the fixes cut false alarms on real images from 27 to 20 of 40, but half the real images are still wrongly flagged, and fewer real changes are caught. Logo and shape come from the vision model and were not changed by the cut out.
+8. Still not done from the plan: the qwen2.5vl:3b against 7b comparison.
+
 ## Next
 
-1. User reviews reports/eval_report.md and decides on point 5 above.
-2. Phase 7: Gradio demo app. Phase 8: API. Phase 9: docs.
+1. User reviews the before and after numbers in reports/eval_report.md.
+2. Phase 7: Gradio demo app, not started. Phase 8: API. Phase 9: docs.
 
 ## Commands
 
