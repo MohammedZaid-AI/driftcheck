@@ -12,9 +12,11 @@ All outputs for the evaluation come from the free Gemini app instead, made by ha
 
 ## False alarms on real AI images
 
-On 40 Gemini images that were labelled as unchanged, DriftCheck flagged 27 as drifted. Most false alarms come from model shots and scene photos. The product cut out step keeps the whole person, so the colour and pattern checks compare the garment with the model's face, skin and other clothes. A garment level cut out would be the first thing to fix.
+On 40 Gemini test images that were labelled as unchanged, the first version of DriftCheck flagged 27 as drifted. A big cause was the cut out: in model shots it kept the whole person, so colour and pattern compared the garment with the model's face, skin and other clothes.
 
-Thresholds were tuned so that at most 10 percent of good calibration images are flagged. Most of those calibration images were synthetic, and the cap did not hold on real outputs.
+A clothes parsing model now keeps only the garment in worn photos, and the thresholds were retuned so that at most 10 percent of the real calibration images are flagged per check. After both changes, 20 of the 40 real test images are still flagged. The same garment worn on a body still looks different from the flat photo to the pattern check, and the logo and shape checks, which use the vision model, flag some good images too. The changes also lowered how many synthetic changes are caught, from 80.8 to 60.6 percent.
+
+Both changes were made after the first test results were seen.
 
 ## Speed and memory
 
