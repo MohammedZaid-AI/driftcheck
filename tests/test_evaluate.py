@@ -226,6 +226,19 @@ def test_comparison_table_shows_every_column() -> None:
     assert render_comparison(None) == ""
 
 
+def test_text_decision_uses_saved_vision_readings_like_the_live_check() -> None:
+    r = raw(text_score=33.3)["report"]
+    r["checks"][2]["details"]["items"][0]["text"] = "NYc"
+    loose = T.model_copy(deep=True)
+    loose.text.min_match = 40
+    assert decide_check(r, "text", loose)[0] == "fail"  # OCR alone scores 33
+    r["checks"][2]["details"]["vision_text"] = ["NK"]  # the backup read NK, which scores 40
+    assert decide_check(r, "text", loose)[0] == "pass"
+    strict = T.model_copy(deep=True)
+    strict.text.min_match = 80
+    assert decide_check(r, "text", strict)[0] == "fail"
+
+
 def test_scene_images_skip_colour_and_pattern() -> None:
     from driftcheck.evaluate import image_type
 

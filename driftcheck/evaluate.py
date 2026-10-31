@@ -268,6 +268,19 @@ def decide_segmentation(report: dict, t: Thresholds) -> Decision:
     return "pass", True
 
 
+def text_item_score(row: dict, details: dict, t: Thresholds) -> float:
+    """An item's best score as the live text check would see it at threshold t. Live, an item
+    under t goes to the vision backup and is found if the vision reading matches at t. The
+    recorded run asked the backup for every item under 95, so its readings are all saved."""
+    from driftcheck.checks.text import item_score
+    from driftcheck.ocr import normalise
+
+    vision_text = [normalise(text) for text in details.get("vision_text") or [] if normalise(text)]
+    if not (t.text.vision_backup and vision_text):
+        return row["score"]
+    return max(row["score"], item_score(normalise(row["text"]), vision_text)[0])
+
+
 def decide_check(report: dict, name: str, t: Thresholds, kind: str = "flat") -> Decision:
     """The status a check would have had with thresholds t. On a scene image colour and
     pattern are skipped: they neither pass nor fail and are left out of every count."""
@@ -290,7 +303,7 @@ def decide_check(report: dict, name: str, t: Thresholds, kind: str = "flat") -> 
         rows = details.get("items")
         if not rows:
             return "unknown", True
-        return ("pass" if all(r["score"] >= t.text.min_match for r in rows) else "fail"), True
+        return ("pass" if all(text_item_score(r, details, t) >= t.text.min_match for r in rows) else "fail"), True
     if name == "pattern":
         grid = details.get("similarity_grid")
         if not grid:

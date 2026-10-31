@@ -217,6 +217,11 @@ CHANGE_NOTES = [
     "verdict and out of that check's counts. A deliberate colour or pattern change on a scene image can then only be "
     "caught by the checks that still run, and counts as missed in the overall catch rate if they do not catch it. "
     "Thresholds are the ones frozen at the retuning, not tuned again. Also decided after results were seen.",
+    "Text decision fix in the evaluation. Found while building the demo. Live, a text item that OCR misses goes to the "
+    "vision model, and counts as found if its reading matches at the text threshold. The evaluation only used vision "
+    "readings that matched at 95, the recording threshold, so at the tuned threshold of 40 it marked items missing that "
+    "the live check finds. The evaluation now uses the saved vision readings the same way as the live check. The earlier "
+    "columns used the old decision. Thresholds are unchanged.",
 ]
 
 

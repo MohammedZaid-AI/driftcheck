@@ -160,6 +160,24 @@ def label(port: int = typer.Option(7861, help="Port for the labelling app.")) ->
 
 
 @app.command()
+def demo(
+    model: str = typer.Option("qwen2.5vl:7b", help="Local Ollama vision model. The thresholds were tuned with qwen2.5vl:7b."),
+    port: int = typer.Option(7860, help="Port for the demo."),
+) -> None:
+    """Open the DriftCheck demo in the browser. Always uses local Ollama, never a paid API."""
+    import os
+
+    from driftcheck.apps.demo_app import build_demo
+    from driftcheck.pipeline import Checker
+
+    os.environ["VISION_PROVIDER"] = "ollama"  # this run only; .env is not changed
+    os.environ["VISION_MODEL"] = model
+    settings = load_settings()
+    note = f"Vision model: {model} on local Ollama, no paid APIs."
+    build_demo(lambda: Checker.from_settings(settings), settings.data_dir, note).launch(server_port=port, inbrowser=True)
+
+
+@app.command()
 def split(
     seed: int = typer.Option(42, help="Random seed for the shuffle."),
     force: bool = typer.Option(False, help="Overwrite an existing split. Thresholds must then be retuned."),
