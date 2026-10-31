@@ -16,7 +16,9 @@ On 40 Gemini test images that were labelled as unchanged, the first version of D
 
 A clothes parsing model now keeps only the garment in worn photos, and the thresholds were retuned so that at most 10 percent of the real calibration images are flagged per check. After both changes, 20 of the 40 real test images are still flagged. The same garment worn on a body still looks different from the flat photo to the pattern check, and the logo and shape checks, which use the vision model, flag some good images too. The changes also lowered how many synthetic changes are caught, from 80.8 to 60.6 percent.
 
-Both changes were made after the first test results were seen.
+Colour and pattern are now skipped on scene images, such as model shots, lifestyle scenes and posters, because the same product looks different on a body or in a scene. With that, 15 of the 40 real test images are still flagged. The rest of the false alarms come from the logo, text, shape and product missing checks. A colour or pattern change in a scene image is now only caught if another check notices it.
+
+All of these changes were made after the first test results were seen.
 
 ## Speed and memory
 
