@@ -39,7 +39,7 @@ class Example:
 EXAMPLE_KEYS = [
     ("Clean pass: white top, Gemini studio shot", "products/p031/original.jpg", "products/p031/outputs/studio__gemini_app.jpg", "flat"),
     ("Colour changed: NEYMAR jersey, colour shifted on purpose", "products/p041/original.jpg", "synthetic/p041/colour_shift.jpg", "flat"),
-    ("Pattern changed: striped t-shirt, pattern shuffled on purpose", "products/p022/original.jpg", "synthetic/p022/pattern_swap.jpg", "flat"),
+    ("Pattern changed: striped tee, pattern shuffled on purpose","products/p022/original.jpg", "synthetic/p022/pattern_swap.jpg", "flat"),
 ]
 
 

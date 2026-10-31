@@ -193,10 +193,21 @@ Text decision fix in the evaluation, found while building the demo
 4. With a text threshold of 40, letter swaps such as BROOKLYN to UROKKLYH still count as a match, so the text check alone caught none of the synthetic text replacements in the test split. Worth a look before Phase 9.
 5. Previous report kept as reports/eval_report_before_textfix.md and .json.
 
+Phase 8, as the user named it: README and demo walkthrough, 2026-10-31
+1. README.md rewritten for a reader at Scalio: the problem with links to the Play Store, App Store and refund policy pages from the project brief, what DriftCheck does, how it works with the five checks and routing, how to run the CLI and the demo, results, limitations and next steps.
+2. Every number in README.md comes from reports/eval_report.json, including the first report numbers, which are in its comparison section. Written with the write-docs skill rules.
+3. Results as stated: 11 of 40 real test images wrongly flagged, 57 of 99 synthetic changes caught, 13 of 60 unchanged synthetic copies wrongly flagged, precision 81.4%, the table per check, baselines, and speed.
+4. The honesty note says all tuning and every change happened after the first test results were seen.
+5. Next steps lead with the strict text compare: compare strictly when OCR reads a word clearly in both images, keep the loose match only when OCR is unsure.
+6. docs/demo.md: a five minute walkthrough of the three examples and what to point at.
+7. The demo example label now says striped tee instead of t-shirt, to keep hyphens out of the docs.
+
+Note on phase numbers: the original plan had Phase 8 as the FastAPI service and Phase 9 as docs and the pitch. The user called this README work Phase 8. The FastAPI service, the Dockerfile, docs/demo_script.md, docs/message_to_scalio.md and the v0.1 tag are not done yet.
+
 ## Next
 
-1. User tries the demo.
-2. Phase 8: API. Phase 9: docs.
+1. User reviews README.md and docs/demo.md.
+2. Not done from the original plan: FastAPI service with POST /check and GET /health and a Dockerfile, docs/demo_script.md, docs/message_to_scalio.md, tag v0.1.
 
 ## Commands
 
