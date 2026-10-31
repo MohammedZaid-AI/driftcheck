@@ -1,0 +1,1731 @@
+{
+ "date": "2026-10-31T14:44:18+00:00",
+ "git_commit": "fadc178224face5264f3b8d9b3a64669bda99924",
+ "models": {
+  "vision": "ollama/qwen2.5vl:7b",
+  "result set": "qwen2.5vl_7b_garmentcut",
+  "compared vision models": "qwen2.5vl_7b_garmentcut, qwen2.5vl:7b",
+  "pattern and baseline 1": "facebook/dinov2-small",
+  "segmentation": "rembg/isnet-general-use, plus mattmdjaga/segformer_b2_clothes for worn clothing and accessories, licence listed as other",
+  "ocr": "easyocr readers en, en_hi, en_kn, en_bn",
+  "outputs": "Gemini app, model 3.6 Flash, made by hand",
+  "tuning": "calibration split, 207 pairs, results qwen2.5vl_7b_garmentcut, wrong flag cap on real calibration images only"
+ },
+ "thresholds": {
+  "tuned": true,
+  "segmentation": {
+   "missing_share": 0.02,
+   "small_share": 0.06
+  },
+  "colour": {
+   "max_weighted_delta_e": 15.01,
+   "white_balance": true
+  },
+  "text": {
+   "min_match": 40.0,
+   "min_item_length": 2,
+   "vision_backup": true
+  },
+  "pattern": {
+   "patch_similarity": 0.82,
+   "max_drift_share": 0.9,
+   "min_patches": 20
+  },
+  "judge": {
+   "min_ordinal_steps": 3,
+   "min_changed_parts": 1,
+   "use_silhouette": false
+  }
+ },
+ "tuning": {
+  "split": "calibration",
+  "max_wrong_flag_rate": 0.1,
+  "checks": {
+   "product_missing": {
+    "tuned": true,
+    "calibration": {
+     "n": 207,
+     "positives": 20,
+     "negatives": 187,
+     "tp": 3,
+     "fp": 1,
+     "tn": 177,
+     "fn": 16,
+     "unknown_positive": 1,
+     "unknown_negative": 9,
+     "precision": 0.75,
+     "recall": 0.15,
+     "f1": 0.24999999999999997,
+     "wrong_flag_rate": 0.0053475935828877,
+     "unknown_rate": 0.04830917874396135,
+     "capped_wrong_flag_rate": 0.0,
+     "capped_negatives": 40
+    },
+    "values": {
+     "missing_share": 0.02,
+     "small_share": 0.06
+    }
+   },
+   "colour": {
+    "tuned": true,
+    "calibration": {
+     "n": 187,
+     "positives": 20,
+     "negatives": 167,
+     "tp": 7,
+     "fp": 3,
+     "tn": 155,
+     "fn": 12,
+     "unknown_positive": 1,
+     "unknown_negative": 9,
+     "precision": 0.7,
+     "recall": 0.35,
+     "f1": 0.4666666666666667,
+     "wrong_flag_rate": 0.017964071856287425,
+     "unknown_rate": 0.053475935828877004,
+     "capped_wrong_flag_rate": 0.075,
+     "capped_negatives": 40
+    },
+    "values": {
+     "max_weighted_delta_e": 15.01,
+     "white_balance": true
+    }
+   },
+   "text": {
+    "tuned": true,
+    "calibration": {
+     "n": 124,
+     "positives": 42,
+     "negatives": 82,
+     "tp": 29,
+     "fp": 12,
+     "tn": 65,
+     "fn": 8,
+     "unknown_positive": 5,
+     "unknown_negative": 5,
+     "precision": 0.7073170731707317,
+     "recall": 0.6904761904761905,
+     "f1": 0.6987951807228916,
+     "wrong_flag_rate": 0.14634146341463414,
+     "unknown_rate": 0.08064516129032258,
+     "capped_wrong_flag_rate": 0.08571428571428572,
+     "capped_negatives": 35
+    },
+    "values": {
+     "min_match": 40,
+     "min_item_length": 2,
+     "vision_backup": true
+    }
+   },
+   "pattern": {
+    "tuned": true,
+    "calibration": {
+     "n": 187,
+     "positives": 36,
+     "negatives": 151,
+     "tp": 17,
+     "fp": 4,
+     "tn": 140,
+     "fn": 16,
+     "unknown_positive": 3,
+     "unknown_negative": 7,
+     "precision": 0.8095238095238095,
+     "recall": 0.4722222222222222,
+     "f1": 0.5964912280701755,
+     "wrong_flag_rate": 0.026490066225165563,
+     "unknown_rate": 0.053475935828877004,
+     "capped_wrong_flag_rate": 0.1,
+     "capped_negatives": 40
+    },
+    "values": {
+     "patch_similarity": 0.82,
+     "max_drift_share": 0.9,
+     "min_patches": 20
+    }
+   },
+   "shape": {
+    "tuned": true,
+    "calibration": {
+     "n": 187,
+     "positives": 11,
+     "negatives": 176,
+     "tp": 2,
+     "fp": 14,
+     "tn": 152,
+     "fn": 9,
+     "unknown_positive": 0,
+     "unknown_negative": 10,
+     "precision": 0.125,
+     "recall": 0.18181818181818182,
+     "f1": 0.14814814814814814,
+     "wrong_flag_rate": 0.07954545454545454,
+     "unknown_rate": 0.053475935828877004,
+     "capped_wrong_flag_rate": 0.075,
+     "capped_negatives": 40
+    },
+    "values": {
+     "min_ordinal_steps": 3,
+     "min_changed_parts": 1,
+     "use_silhouette": false
+    }
+   }
+  },
+  "baseline_1": {
+   "threshold": 0.0,
+   "calibration": {
+    "n": 207,
+    "positives": 107,
+    "negatives": 100,
+    "tp": 0,
+    "fp": 0,
+    "tn": 100,
+    "fn": 107,
+    "unknown_positive": 0,
+    "unknown_negative": 0,
+    "precision": null,
+    "recall": 0.0,
+    "f1": null,
+    "wrong_flag_rate": 0.0,
+    "unknown_rate": 0.0,
+    "capped_wrong_flag_rate": 0.0
+   }
+  }
+ },
+ "dataset_sizes": {
+  "real_calibration": {
+   "images": 40,
+   "products": 20,
+   "drifted_images": 0,
+   "positives": {
+    "shape_changed": 0,
+    "colour_changed": 0,
+    "pattern_changed": 0,
+    "logo_changed": 0,
+    "text_changed": 0,
+    "product_missing": 0
+   }
+  },
+  "real_test": {
+   "images": 40,
+   "products": 20,
+   "drifted_images": 0,
+   "positives": {
+    "shape_changed": 0,
+    "colour_changed": 0,
+    "pattern_changed": 0,
+    "logo_changed": 0,
+    "text_changed": 0,
+    "product_missing": 0
+   }
+  },
+  "synthetic_calibration": {
+   "images": 167,
+   "products": 20,
+   "drifted_images": 107,
+   "positives": {
+    "shape_changed": 11,
+    "colour_changed": 20,
+    "pattern_changed": 36,
+    "logo_changed": 0,
+    "text_changed": 42,
+    "product_missing": 20
+   }
+  },
+  "synthetic_test": {
+   "images": 159,
+   "products": 20,
+   "drifted_images": 99,
+   "positives": {
+    "shape_changed": 11,
+    "colour_changed": 20,
+    "pattern_changed": 30,
+    "logo_changed": 0,
+    "text_changed": 32,
+    "product_missing": 20
+   }
+  }
+ },
+ "results": {
+  "real": {
+   "images": 40,
+   "evaluated": 40,
+   "driftcheck": {
+    "attributes": {
+     "shape_changed": {
+      "n": 40,
+      "positives": 0,
+      "negatives": 40,
+      "tp": 0,
+      "fp": 4,
+      "tn": 35,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 1,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.1,
+      "unknown_rate": 0.025
+     },
+     "colour_changed": {
+      "n": 18,
+      "positives": 0,
+      "negatives": 18,
+      "tp": 0,
+      "fp": 0,
+      "tn": 18,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.0,
+      "unknown_rate": 0.0
+     },
+     "pattern_changed": {
+      "n": 18,
+      "positives": 0,
+      "negatives": 18,
+      "tp": 0,
+      "fp": 0,
+      "tn": 18,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.0,
+      "unknown_rate": 0.0
+     },
+     "logo_changed": {
+      "n": 35,
+      "positives": 0,
+      "negatives": 35,
+      "tp": 0,
+      "fp": 5,
+      "tn": 29,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 1,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.14285714285714285,
+      "unknown_rate": 0.02857142857142857
+     },
+     "text_changed": {
+      "n": 35,
+      "positives": 0,
+      "negatives": 35,
+      "tp": 0,
+      "fp": 5,
+      "tn": 29,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 1,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.14285714285714285,
+      "unknown_rate": 0.02857142857142857
+     },
+     "product_missing": {
+      "n": 40,
+      "positives": 0,
+      "negatives": 40,
+      "tp": 0,
+      "fp": 1,
+      "tn": 39,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 0,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.025,
+      "unknown_rate": 0.0
+     }
+    },
+    "overall": {
+     "n": 40,
+     "positives": 0,
+     "negatives": 40,
+     "tp": 0,
+     "fp": 15,
+     "tn": 25,
+     "fn": 0,
+     "unknown_positive": 0,
+     "unknown_negative": 0,
+     "precision": 0.0,
+     "recall": null,
+     "f1": null,
+     "wrong_flag_rate": 0.375,
+     "unknown_rate": 0.0
+    }
+   },
+   "baseline_1": {
+    "n": 40,
+    "positives": 0,
+    "negatives": 40,
+    "tp": 0,
+    "fp": 0,
+    "tn": 40,
+    "fn": 0,
+    "unknown_positive": 0,
+    "unknown_negative": 0,
+    "precision": null,
+    "recall": null,
+    "f1": null,
+    "wrong_flag_rate": 0.0,
+    "unknown_rate": 0.0
+   },
+   "baseline_2": {
+    "n": 40,
+    "positives": 0,
+    "negatives": 40,
+    "tp": 0,
+    "fp": 0,
+    "tn": 40,
+    "fn": 0,
+    "unknown_positive": 0,
+    "unknown_negative": 0,
+    "precision": null,
+    "recall": null,
+    "f1": null,
+    "wrong_flag_rate": 0.0,
+    "unknown_rate": 0.0
+   },
+   "timing": {
+    "driftcheck": {
+     "median_seconds": 51.52,
+     "p90_seconds": 143.56,
+     "n": 40,
+     "vision_calls_per_image": 2.42
+    },
+    "baseline_1": {
+     "median_seconds": 0.56,
+     "p90_seconds": 1.03,
+     "n": 40
+    },
+    "baseline_2": {
+     "median_seconds": 7.31,
+     "p90_seconds": 10.15,
+     "n": 40,
+     "vision_calls_per_image": 1.0
+    },
+    "rate_limit_wait_seconds_total": 0.0
+   }
+  },
+  "synthetic": {
+   "images": 159,
+   "evaluated": 159,
+   "driftcheck": {
+    "attributes": {
+     "shape_changed": {
+      "n": 139,
+      "positives": 11,
+      "negatives": 128,
+      "tp": 1,
+      "fp": 6,
+      "tn": 115,
+      "fn": 10,
+      "unknown_positive": 0,
+      "unknown_negative": 7,
+      "precision": 0.14285714285714285,
+      "recall": 0.09090909090909091,
+      "f1": 0.1111111111111111,
+      "wrong_flag_rate": 0.046875,
+      "unknown_rate": 0.050359712230215826
+     },
+     "colour_changed": {
+      "n": 125,
+      "positives": 18,
+      "negatives": 107,
+      "tp": 6,
+      "fp": 1,
+      "tn": 99,
+      "fn": 12,
+      "unknown_positive": 0,
+      "unknown_negative": 7,
+      "precision": 0.8571428571428571,
+      "recall": 0.3333333333333333,
+      "f1": 0.48,
+      "wrong_flag_rate": 0.009345794392523364,
+      "unknown_rate": 0.056
+     },
+     "pattern_changed": {
+      "n": 125,
+      "positives": 26,
+      "negatives": 99,
+      "tp": 12,
+      "fp": 0,
+      "tn": 99,
+      "fn": 7,
+      "unknown_positive": 7,
+      "unknown_negative": 0,
+      "precision": 1.0,
+      "recall": 0.46153846153846156,
+      "f1": 0.631578947368421,
+      "wrong_flag_rate": 0.0,
+      "unknown_rate": 0.056
+     },
+     "logo_changed": {
+      "n": 0,
+      "positives": 0,
+      "negatives": 0,
+      "tp": 0,
+      "fp": 0,
+      "tn": 0,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 0,
+      "precision": null,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": null,
+      "unknown_rate": null
+     },
+     "text_changed": {
+      "n": 79,
+      "positives": 32,
+      "negatives": 47,
+      "tp": 19,
+      "fp": 7,
+      "tn": 40,
+      "fn": 8,
+      "unknown_positive": 5,
+      "unknown_negative": 0,
+      "precision": 0.7307692307692307,
+      "recall": 0.59375,
+      "f1": 0.6551724137931033,
+      "wrong_flag_rate": 0.14893617021276595,
+      "unknown_rate": 0.06329113924050633
+     },
+     "product_missing": {
+      "n": 159,
+      "positives": 20,
+      "negatives": 139,
+      "tp": 2,
+      "fp": 4,
+      "tn": 132,
+      "fn": 17,
+      "unknown_positive": 1,
+      "unknown_negative": 3,
+      "precision": 0.3333333333333333,
+      "recall": 0.1,
+      "f1": 0.15384615384615383,
+      "wrong_flag_rate": 0.02877697841726619,
+      "unknown_rate": 0.025157232704402517
+     }
+    },
+    "overall": {
+     "n": 159,
+     "positives": 99,
+     "negatives": 60,
+     "tp": 58,
+     "fp": 18,
+     "tn": 42,
+     "fn": 37,
+     "unknown_positive": 4,
+     "unknown_negative": 0,
+     "precision": 0.7631578947368421,
+     "recall": 0.5858585858585859,
+     "f1": 0.6628571428571428,
+     "wrong_flag_rate": 0.3,
+     "unknown_rate": 0.025157232704402517
+    }
+   },
+   "baseline_1": {
+    "n": 159,
+    "positives": 99,
+    "negatives": 60,
+    "tp": 0,
+    "fp": 0,
+    "tn": 60,
+    "fn": 99,
+    "unknown_positive": 0,
+    "unknown_negative": 0,
+    "precision": null,
+    "recall": 0.0,
+    "f1": null,
+    "wrong_flag_rate": 0.0,
+    "unknown_rate": 0.0
+   },
+   "baseline_2": {
+    "n": 159,
+    "positives": 99,
+    "negatives": 60,
+    "tp": 5,
+    "fp": 0,
+    "tn": 60,
+    "fn": 94,
+    "unknown_positive": 0,
+    "unknown_negative": 0,
+    "precision": 1.0,
+    "recall": 0.050505050505050504,
+    "f1": 0.09615384615384615,
+    "wrong_flag_rate": 0.0,
+    "unknown_rate": 0.0
+   },
+   "timing": {
+    "driftcheck": {
+     "median_seconds": 16.45,
+     "p90_seconds": 33.54,
+     "n": 159,
+     "vision_calls_per_image": 1.45
+    },
+    "baseline_1": {
+     "median_seconds": 0.51,
+     "p90_seconds": 0.55,
+     "n": 159
+    },
+    "baseline_2": {
+     "median_seconds": 6.52,
+     "p90_seconds": 8.8,
+     "n": 159,
+     "vision_calls_per_image": 1.0
+    },
+    "rate_limit_wait_seconds_total": 0.0
+   }
+  }
+ },
+ "model_comparison": {
+  "qwen2.5vl_7b_garmentcut": {
+   "real": {
+    "images": 40,
+    "evaluated": 40,
+    "driftcheck": {
+     "attributes": {
+      "shape_changed": {
+       "n": 40,
+       "positives": 0,
+       "negatives": 40,
+       "tp": 0,
+       "fp": 4,
+       "tn": 35,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 1,
+       "precision": 0.0,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.1,
+       "unknown_rate": 0.025
+      },
+      "colour_changed": {
+       "n": 18,
+       "positives": 0,
+       "negatives": 18,
+       "tp": 0,
+       "fp": 0,
+       "tn": 18,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 0,
+       "precision": null,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.0,
+       "unknown_rate": 0.0
+      },
+      "pattern_changed": {
+       "n": 18,
+       "positives": 0,
+       "negatives": 18,
+       "tp": 0,
+       "fp": 0,
+       "tn": 18,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 0,
+       "precision": null,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.0,
+       "unknown_rate": 0.0
+      },
+      "logo_changed": {
+       "n": 35,
+       "positives": 0,
+       "negatives": 35,
+       "tp": 0,
+       "fp": 5,
+       "tn": 29,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 1,
+       "precision": 0.0,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.14285714285714285,
+       "unknown_rate": 0.02857142857142857
+      },
+      "text_changed": {
+       "n": 35,
+       "positives": 0,
+       "negatives": 35,
+       "tp": 0,
+       "fp": 5,
+       "tn": 29,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 1,
+       "precision": 0.0,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.14285714285714285,
+       "unknown_rate": 0.02857142857142857
+      },
+      "product_missing": {
+       "n": 40,
+       "positives": 0,
+       "negatives": 40,
+       "tp": 0,
+       "fp": 1,
+       "tn": 39,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 0,
+       "precision": 0.0,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.025,
+       "unknown_rate": 0.0
+      }
+     },
+     "overall": {
+      "n": 40,
+      "positives": 0,
+      "negatives": 40,
+      "tp": 0,
+      "fp": 15,
+      "tn": 25,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 0,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.375,
+      "unknown_rate": 0.0
+     }
+    },
+    "baseline_1": {
+     "n": 40,
+     "positives": 0,
+     "negatives": 40,
+     "tp": 0,
+     "fp": 0,
+     "tn": 40,
+     "fn": 0,
+     "unknown_positive": 0,
+     "unknown_negative": 0,
+     "precision": null,
+     "recall": null,
+     "f1": null,
+     "wrong_flag_rate": 0.0,
+     "unknown_rate": 0.0
+    },
+    "baseline_2": {
+     "n": 40,
+     "positives": 0,
+     "negatives": 40,
+     "tp": 0,
+     "fp": 0,
+     "tn": 40,
+     "fn": 0,
+     "unknown_positive": 0,
+     "unknown_negative": 0,
+     "precision": null,
+     "recall": null,
+     "f1": null,
+     "wrong_flag_rate": 0.0,
+     "unknown_rate": 0.0
+    },
+    "timing": {
+     "driftcheck": {
+      "median_seconds": 51.52,
+      "p90_seconds": 143.56,
+      "n": 40,
+      "vision_calls_per_image": 2.42
+     },
+     "baseline_1": {
+      "median_seconds": 0.56,
+      "p90_seconds": 1.03,
+      "n": 40
+     },
+     "baseline_2": {
+      "median_seconds": 7.31,
+      "p90_seconds": 10.15,
+      "n": 40,
+      "vision_calls_per_image": 1.0
+     },
+     "rate_limit_wait_seconds_total": 0.0
+    }
+   },
+   "synthetic": {
+    "images": 159,
+    "evaluated": 159,
+    "driftcheck": {
+     "attributes": {
+      "shape_changed": {
+       "n": 139,
+       "positives": 11,
+       "negatives": 128,
+       "tp": 1,
+       "fp": 6,
+       "tn": 115,
+       "fn": 10,
+       "unknown_positive": 0,
+       "unknown_negative": 7,
+       "precision": 0.14285714285714285,
+       "recall": 0.09090909090909091,
+       "f1": 0.1111111111111111,
+       "wrong_flag_rate": 0.046875,
+       "unknown_rate": 0.050359712230215826
+      },
+      "colour_changed": {
+       "n": 125,
+       "positives": 18,
+       "negatives": 107,
+       "tp": 6,
+       "fp": 1,
+       "tn": 99,
+       "fn": 12,
+       "unknown_positive": 0,
+       "unknown_negative": 7,
+       "precision": 0.8571428571428571,
+       "recall": 0.3333333333333333,
+       "f1": 0.48,
+       "wrong_flag_rate": 0.009345794392523364,
+       "unknown_rate": 0.056
+      },
+      "pattern_changed": {
+       "n": 125,
+       "positives": 26,
+       "negatives": 99,
+       "tp": 12,
+       "fp": 0,
+       "tn": 99,
+       "fn": 7,
+       "unknown_positive": 7,
+       "unknown_negative": 0,
+       "precision": 1.0,
+       "recall": 0.46153846153846156,
+       "f1": 0.631578947368421,
+       "wrong_flag_rate": 0.0,
+       "unknown_rate": 0.056
+      },
+      "logo_changed": {
+       "n": 0,
+       "positives": 0,
+       "negatives": 0,
+       "tp": 0,
+       "fp": 0,
+       "tn": 0,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 0,
+       "precision": null,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": null,
+       "unknown_rate": null
+      },
+      "text_changed": {
+       "n": 79,
+       "positives": 32,
+       "negatives": 47,
+       "tp": 19,
+       "fp": 7,
+       "tn": 40,
+       "fn": 8,
+       "unknown_positive": 5,
+       "unknown_negative": 0,
+       "precision": 0.7307692307692307,
+       "recall": 0.59375,
+       "f1": 0.6551724137931033,
+       "wrong_flag_rate": 0.14893617021276595,
+       "unknown_rate": 0.06329113924050633
+      },
+      "product_missing": {
+       "n": 159,
+       "positives": 20,
+       "negatives": 139,
+       "tp": 2,
+       "fp": 4,
+       "tn": 132,
+       "fn": 17,
+       "unknown_positive": 1,
+       "unknown_negative": 3,
+       "precision": 0.3333333333333333,
+       "recall": 0.1,
+       "f1": 0.15384615384615383,
+       "wrong_flag_rate": 0.02877697841726619,
+       "unknown_rate": 0.025157232704402517
+      }
+     },
+     "overall": {
+      "n": 159,
+      "positives": 99,
+      "negatives": 60,
+      "tp": 58,
+      "fp": 18,
+      "tn": 42,
+      "fn": 37,
+      "unknown_positive": 4,
+      "unknown_negative": 0,
+      "precision": 0.7631578947368421,
+      "recall": 0.5858585858585859,
+      "f1": 0.6628571428571428,
+      "wrong_flag_rate": 0.3,
+      "unknown_rate": 0.025157232704402517
+     }
+    },
+    "baseline_1": {
+     "n": 159,
+     "positives": 99,
+     "negatives": 60,
+     "tp": 0,
+     "fp": 0,
+     "tn": 60,
+     "fn": 99,
+     "unknown_positive": 0,
+     "unknown_negative": 0,
+     "precision": null,
+     "recall": 0.0,
+     "f1": null,
+     "wrong_flag_rate": 0.0,
+     "unknown_rate": 0.0
+    },
+    "baseline_2": {
+     "n": 159,
+     "positives": 99,
+     "negatives": 60,
+     "tp": 5,
+     "fp": 0,
+     "tn": 60,
+     "fn": 94,
+     "unknown_positive": 0,
+     "unknown_negative": 0,
+     "precision": 1.0,
+     "recall": 0.050505050505050504,
+     "f1": 0.09615384615384615,
+     "wrong_flag_rate": 0.0,
+     "unknown_rate": 0.0
+    },
+    "timing": {
+     "driftcheck": {
+      "median_seconds": 16.45,
+      "p90_seconds": 33.54,
+      "n": 159,
+      "vision_calls_per_image": 1.45
+     },
+     "baseline_1": {
+      "median_seconds": 0.51,
+      "p90_seconds": 0.55,
+      "n": 159
+     },
+     "baseline_2": {
+      "median_seconds": 6.52,
+      "p90_seconds": 8.8,
+      "n": 159,
+      "vision_calls_per_image": 1.0
+     },
+     "rate_limit_wait_seconds_total": 0.0
+    }
+   }
+  },
+  "qwen2.5vl:7b": {
+   "real": {
+    "images": 40,
+    "evaluated": 40,
+    "driftcheck": {
+     "attributes": {
+      "shape_changed": {
+       "n": 40,
+       "positives": 0,
+       "negatives": 40,
+       "tp": 0,
+       "fp": 4,
+       "tn": 35,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 1,
+       "precision": 0.0,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.1,
+       "unknown_rate": 0.025
+      },
+      "colour_changed": {
+       "n": 18,
+       "positives": 0,
+       "negatives": 18,
+       "tp": 0,
+       "fp": 0,
+       "tn": 18,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 0,
+       "precision": null,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.0,
+       "unknown_rate": 0.0
+      },
+      "pattern_changed": {
+       "n": 18,
+       "positives": 0,
+       "negatives": 18,
+       "tp": 0,
+       "fp": 0,
+       "tn": 18,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 0,
+       "precision": null,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.0,
+       "unknown_rate": 0.0
+      },
+      "logo_changed": {
+       "n": 35,
+       "positives": 0,
+       "negatives": 35,
+       "tp": 0,
+       "fp": 5,
+       "tn": 29,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 1,
+       "precision": 0.0,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.14285714285714285,
+       "unknown_rate": 0.02857142857142857
+      },
+      "text_changed": {
+       "n": 35,
+       "positives": 0,
+       "negatives": 35,
+       "tp": 0,
+       "fp": 5,
+       "tn": 29,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 1,
+       "precision": 0.0,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.14285714285714285,
+       "unknown_rate": 0.02857142857142857
+      },
+      "product_missing": {
+       "n": 40,
+       "positives": 0,
+       "negatives": 40,
+       "tp": 0,
+       "fp": 1,
+       "tn": 39,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 0,
+       "precision": 0.0,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": 0.025,
+       "unknown_rate": 0.0
+      }
+     },
+     "overall": {
+      "n": 40,
+      "positives": 0,
+      "negatives": 40,
+      "tp": 0,
+      "fp": 15,
+      "tn": 25,
+      "fn": 0,
+      "unknown_positive": 0,
+      "unknown_negative": 0,
+      "precision": 0.0,
+      "recall": null,
+      "f1": null,
+      "wrong_flag_rate": 0.375,
+      "unknown_rate": 0.0
+     }
+    },
+    "baseline_1": {
+     "n": 40,
+     "positives": 0,
+     "negatives": 40,
+     "tp": 0,
+     "fp": 0,
+     "tn": 40,
+     "fn": 0,
+     "unknown_positive": 0,
+     "unknown_negative": 0,
+     "precision": null,
+     "recall": null,
+     "f1": null,
+     "wrong_flag_rate": 0.0,
+     "unknown_rate": 0.0
+    },
+    "baseline_2": {
+     "n": 40,
+     "positives": 0,
+     "negatives": 40,
+     "tp": 0,
+     "fp": 0,
+     "tn": 40,
+     "fn": 0,
+     "unknown_positive": 0,
+     "unknown_negative": 0,
+     "precision": null,
+     "recall": null,
+     "f1": null,
+     "wrong_flag_rate": 0.0,
+     "unknown_rate": 0.0
+    },
+    "timing": {
+     "driftcheck": {
+      "median_seconds": 51.21,
+      "p90_seconds": 145.82,
+      "n": 40,
+      "vision_calls_per_image": 2.42
+     },
+     "baseline_1": {
+      "median_seconds": 0.56,
+      "p90_seconds": 1.03,
+      "n": 40
+     },
+     "baseline_2": {
+      "median_seconds": 7.31,
+      "p90_seconds": 10.15,
+      "n": 40,
+      "vision_calls_per_image": 1.0
+     },
+     "rate_limit_wait_seconds_total": 0.0
+    }
+   },
+   "synthetic": {
+    "images": 159,
+    "evaluated": 159,
+    "driftcheck": {
+     "attributes": {
+      "shape_changed": {
+       "n": 139,
+       "positives": 11,
+       "negatives": 128,
+       "tp": 1,
+       "fp": 6,
+       "tn": 114,
+       "fn": 10,
+       "unknown_positive": 0,
+       "unknown_negative": 8,
+       "precision": 0.14285714285714285,
+       "recall": 0.09090909090909091,
+       "f1": 0.1111111111111111,
+       "wrong_flag_rate": 0.046875,
+       "unknown_rate": 0.05755395683453238
+      },
+      "colour_changed": {
+       "n": 125,
+       "positives": 18,
+       "negatives": 107,
+       "tp": 6,
+       "fp": 1,
+       "tn": 99,
+       "fn": 12,
+       "unknown_positive": 0,
+       "unknown_negative": 7,
+       "precision": 0.8571428571428571,
+       "recall": 0.3333333333333333,
+       "f1": 0.48,
+       "wrong_flag_rate": 0.009345794392523364,
+       "unknown_rate": 0.056
+      },
+      "pattern_changed": {
+       "n": 125,
+       "positives": 26,
+       "negatives": 99,
+       "tp": 12,
+       "fp": 0,
+       "tn": 99,
+       "fn": 7,
+       "unknown_positive": 7,
+       "unknown_negative": 0,
+       "precision": 1.0,
+       "recall": 0.46153846153846156,
+       "f1": 0.631578947368421,
+       "wrong_flag_rate": 0.0,
+       "unknown_rate": 0.056
+      },
+      "logo_changed": {
+       "n": 0,
+       "positives": 0,
+       "negatives": 0,
+       "tp": 0,
+       "fp": 0,
+       "tn": 0,
+       "fn": 0,
+       "unknown_positive": 0,
+       "unknown_negative": 0,
+       "precision": null,
+       "recall": null,
+       "f1": null,
+       "wrong_flag_rate": null,
+       "unknown_rate": null
+      },
+      "text_changed": {
+       "n": 79,
+       "positives": 32,
+       "negatives": 47,
+       "tp": 19,
+       "fp": 7,
+       "tn": 40,
+       "fn": 8,
+       "unknown_positive": 5,
+       "unknown_negative": 0,
+       "precision": 0.7307692307692307,
+       "recall": 0.59375,
+       "f1": 0.6551724137931033,
+       "wrong_flag_rate": 0.14893617021276595,
+       "unknown_rate": 0.06329113924050633
+      },
+      "product_missing": {
+       "n": 159,
+       "positives": 20,
+       "negatives": 139,
+       "tp": 2,
+       "fp": 4,
+       "tn": 131,
+       "fn": 17,
+       "unknown_positive": 1,
+       "unknown_negative": 4,
+       "precision": 0.3333333333333333,
+       "recall": 0.1,
+       "f1": 0.15384615384615383,
+       "wrong_flag_rate": 0.02877697841726619,
+       "unknown_rate": 0.031446540880503145
+      }
+     },
+     "overall": {
+      "n": 159,
+      "positives": 99,
+      "negatives": 60,
+      "tp": 58,
+      "fp": 18,
+      "tn": 42,
+      "fn": 36,
+      "unknown_positive": 5,
+      "unknown_negative": 0,
+      "precision": 0.7631578947368421,
+      "recall": 0.5858585858585859,
+      "f1": 0.6628571428571428,
+      "wrong_flag_rate": 0.3,
+      "unknown_rate": 0.031446540880503145
+     }
+    },
+    "baseline_1": {
+     "n": 159,
+     "positives": 99,
+     "negatives": 60,
+     "tp": 0,
+     "fp": 0,
+     "tn": 60,
+     "fn": 99,
+     "unknown_positive": 0,
+     "unknown_negative": 0,
+     "precision": null,
+     "recall": 0.0,
+     "f1": null,
+     "wrong_flag_rate": 0.0,
+     "unknown_rate": 0.0
+    },
+    "baseline_2": {
+     "n": 159,
+     "positives": 99,
+     "negatives": 60,
+     "tp": 5,
+     "fp": 0,
+     "tn": 60,
+     "fn": 94,
+     "unknown_positive": 0,
+     "unknown_negative": 0,
+     "precision": 1.0,
+     "recall": 0.050505050505050504,
+     "f1": 0.09615384615384615,
+     "wrong_flag_rate": 0.0,
+     "unknown_rate": 0.0
+    },
+    "timing": {
+     "driftcheck": {
+      "median_seconds": 17.74,
+      "p90_seconds": 33.59,
+      "n": 159,
+      "vision_calls_per_image": 1.45
+     },
+     "baseline_1": {
+      "median_seconds": 0.51,
+      "p90_seconds": 0.55,
+      "n": 159
+     },
+     "baseline_2": {
+      "median_seconds": 6.52,
+      "p90_seconds": 8.8,
+      "n": 159,
+      "vision_calls_per_image": 1.0
+     },
+     "rate_limit_wait_seconds_total": 0.0
+    }
+   }
+  }
+ },
+ "api_cost": "Vision calls run on a local Ollama model, so there is no API charge. Calls per image are in the tables.",
+ "scalio_examples": "No images in data/scalio_examples, so this part was not run.",
+ "comparison": {
+  "columns": {
+   "0": "First report",
+   "1": "Cut out fix and retune",
+   "2": "Routing by image type"
+  },
+  "rows": {
+   "Real test, overall wrong flag rate": {
+    "0": 0.675,
+    "1": 0.5,
+    "2": 0.375
+   },
+   "Real test, shape_changed wrong flag rate": {
+    "0": 0.1,
+    "1": 0.1,
+    "2": 0.1
+   },
+   "Real test, colour_changed wrong flag rate": {
+    "0": 0.125,
+    "1": 0.075,
+    "2": 0.0
+   },
+   "Real test, pattern_changed wrong flag rate": {
+    "0": 0.425,
+    "1": 0.125,
+    "2": 0.0
+   },
+   "Real test, logo_changed wrong flag rate": {
+    "0": 0.14285714285714285,
+    "1": 0.14285714285714285,
+    "2": 0.14285714285714285
+   },
+   "Real test, text_changed wrong flag rate": {
+    "0": 0.22857142857142856,
+    "1": 0.14285714285714285,
+    "2": 0.14285714285714285
+   },
+   "Real test, product_missing wrong flag rate": {
+    "0": 0.025,
+    "1": 0.025,
+    "2": 0.025
+   },
+   "Synthetic test, overall recall": {
+    "0": 0.8080808080808081,
+    "1": 0.6060606060606061,
+    "2": 0.5858585858585859
+   },
+   "Synthetic test, overall precision": {
+    "0": 0.7476635514018691,
+    "1": 0.7692307692307693,
+    "2": 0.7631578947368421
+   },
+   "Synthetic test, overall wrong flag rate": {
+    "0": 0.45,
+    "1": 0.3,
+    "2": 0.3
+   },
+   "Synthetic test, shape_changed recall": {
+    "0": 0.09090909090909091,
+    "1": 0.09090909090909091,
+    "2": 0.09090909090909091
+   },
+   "Synthetic test, colour_changed recall": {
+    "0": 0.65,
+    "1": 0.35,
+    "2": 0.3333333333333333
+   },
+   "Synthetic test, pattern_changed recall": {
+    "0": 0.7333333333333333,
+    "1": 0.43333333333333335,
+    "2": 0.46153846153846156
+   },
+   "Synthetic test, logo_changed recall": {
+    "0": null,
+    "1": null,
+    "2": null
+   },
+   "Synthetic test, text_changed recall": {
+    "0": 0.84375,
+    "1": 0.59375,
+    "2": 0.59375
+   },
+   "Synthetic test, product_missing recall": {
+    "0": 0.1,
+    "1": 0.1,
+    "2": 0.1
+   },
+   "Baseline 1, real test wrong flag rate": {
+    "0": 0.25,
+    "1": 0.0,
+    "2": 0.0
+   },
+   "Baseline 1, synthetic test recall": {
+    "0": 0.020202020202020204,
+    "1": 0.0,
+    "2": 0.0
+   }
+  },
+  "real_test_flagged": {
+   "0": [
+    27,
+    40
+   ],
+   "1": [
+    20,
+    40
+   ],
+   "2": [
+    15,
+    40
+   ]
+  },
+  "synthetic_test_caught": {
+   "0": [
+    80,
+    99
+   ],
+   "1": [
+    60,
+    99
+   ],
+   "2": [
+    58,
+    99
+   ]
+  },
+  "thresholds": {
+   "0": {
+    "tuned": true,
+    "segmentation": {
+     "missing_share": 0.02,
+     "small_share": 0.06
+    },
+    "colour": {
+     "max_weighted_delta_e": 11.75,
+     "white_balance": true
+    },
+    "text": {
+     "min_match": 80.0,
+     "min_item_length": 2,
+     "vision_backup": true
+    },
+    "pattern": {
+     "patch_similarity": 0.78,
+     "max_drift_share": 0.45,
+     "min_patches": 20
+    },
+    "judge": {
+     "min_ordinal_steps": 3,
+     "min_changed_parts": 1,
+     "use_silhouette": false
+    }
+   },
+   "1": {
+    "tuned": true,
+    "segmentation": {
+     "missing_share": 0.02,
+     "small_share": 0.06
+    },
+    "colour": {
+     "max_weighted_delta_e": 15.01,
+     "white_balance": true
+    },
+    "text": {
+     "min_match": 40.0,
+     "min_item_length": 2,
+     "vision_backup": true
+    },
+    "pattern": {
+     "patch_similarity": 0.82,
+     "max_drift_share": 0.9,
+     "min_patches": 20
+    },
+    "judge": {
+     "min_ordinal_steps": 3,
+     "min_changed_parts": 1,
+     "use_silhouette": false
+    }
+   },
+   "2": {
+    "tuned": true,
+    "segmentation": {
+     "missing_share": 0.02,
+     "small_share": 0.06
+    },
+    "colour": {
+     "max_weighted_delta_e": 15.01,
+     "white_balance": true
+    },
+    "text": {
+     "min_match": 40.0,
+     "min_item_length": 2,
+     "vision_backup": true
+    },
+    "pattern": {
+     "patch_similarity": 0.82,
+     "max_drift_share": 0.9,
+     "min_patches": 20
+    },
+    "judge": {
+     "min_ordinal_steps": 3,
+     "min_changed_parts": 1,
+     "use_silhouette": false
+    }
+   }
+  }
+ },
+ "failure_gallery": [
+  {
+   "kind": "missed",
+   "item": "synthetic/p015__pattern_blur",
+   "attributes": [
+    "text_changed",
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p015__pattern_blur.png",
+   "reasons_from_recorded_run": {
+    "text": "9 of 9 text items not found or changed: fresh, Pure, nqndini, PASTEUaISEO TONED, QUALITY EXCELLENCE FROTT COw T0, CONSUNILR, ಾದೂ, ಶದ್ದ, ಹಾಗೂ",
+    "pattern": "The product has fewer than 3920 pixels. Too small to compare patterns."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p028__pattern_swap",
+   "attributes": [
+    "text_changed",
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p028__pattern_swap.png",
+   "reasons_from_recorded_run": {
+    "text": "7 of 14 text items not found or changed: UGHTER, (osmel, bint, rose-linted lip &, chcck stain, blush liquide rose, 6mL/0.2 US f. oz.",
+    "pattern": "78% of the output product has no close match in the original pattern, above 45%."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p029__pattern_swap",
+   "attributes": [
+    "text_changed",
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p029__pattern_swap.png",
+   "reasons_from_recorded_run": {
+    "text": "1 of 1 text items not found or changed: अमृततुल्थ",
+    "pattern": "92% of the output product has no close match in the original pattern, above 45%."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p043__pattern_swap",
+   "attributes": [
+    "text_changed",
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p043__pattern_swap.png",
+   "reasons_from_recorded_run": {
+    "text": "1 of 1 text items not found or changed: @पारी",
+    "pattern": "86% of the output product has no close match in the original pattern, above 45%."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p068__pattern_blur",
+   "attributes": [
+    "text_changed",
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p068__pattern_blur.png",
+   "reasons_from_recorded_run": {
+    "text": "1 of 1 text items not found or changed: अमृततुल्य",
+    "pattern": "52% of the output product has no close match in the original pattern, above 45%."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p068__pattern_swap",
+   "attributes": [
+    "text_changed",
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p068__pattern_swap.png",
+   "reasons_from_recorded_run": {
+    "text": "1 of 1 text items not found or changed: अमृततुल्य",
+    "pattern": "The product has fewer than 3920 pixels. Too small to compare patterns."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p010__colour_shift",
+   "attributes": [
+    "colour_changed"
+   ],
+   "file": "missed_synthetic_p010__colour_shift.png",
+   "reasons_from_recorded_run": {
+    "colour": "Skipped on scene images."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p010__pattern_blur",
+   "attributes": [
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p010__pattern_blur.png",
+   "reasons_from_recorded_run": {
+    "pattern": "Skipped on scene images."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p010__pattern_swap",
+   "attributes": [
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p010__pattern_swap.png",
+   "reasons_from_recorded_run": {
+    "pattern": "Skipped on scene images."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p010__product_erase",
+   "attributes": [
+    "product_missing"
+   ],
+   "file": "missed_synthetic_p010__product_erase.png",
+   "reasons_from_recorded_run": {
+    "product_missing": "The product covers 64.2% of the output."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p015__studio__gemini_app",
+   "attributes": [
+    "text_changed"
+   ],
+   "file": "false_alarm_real_p015__studio__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "text": "6 of 9 text items not found or changed: nqndini, PASTEUaISEO TONED, QUALITY EXCELLENCE FROTT COw T0, CONSUNILR, ಾದೂ, ಶದ್ದ"
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p018__model_shot__gemini_app",
+   "attributes": [
+    "shape_changed"
+   ],
+   "file": "false_alarm_real_p018__model_shot__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "shape": "Shape changed: sleeves sleeveless to three_quarter."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p018__studio__gemini_app",
+   "attributes": [
+    "shape_changed"
+   ],
+   "file": "false_alarm_real_p018__studio__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "shape": "Shape changed: sleeves sleeveless to three_quarter."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p027__model_shot__gemini_app",
+   "attributes": [
+    "text_changed"
+   ],
+   "file": "false_alarm_real_p027__model_shot__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "text": "1 of 1 text items not found or changed: olo]"
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p029__festival_poster__gemini_app",
+   "attributes": [
+    "logo_changed"
+   ],
+   "file": "false_alarm_real_p029__festival_poster__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "logo": "The original has a logo but none is visible in the output."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p029__instagram_post__gemini_app",
+   "attributes": [
+    "logo_changed"
+   ],
+   "file": "false_alarm_real_p029__instagram_post__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "logo": "The original has a logo but none is visible in the output."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p051__lifestyle__gemini_app",
+   "attributes": [
+    "text_changed"
+   ],
+   "file": "false_alarm_real_p051__lifestyle__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "text": "1 of 7 text items not found or changed: 20 g"
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p067__model_shot__gemini_app",
+   "attributes": [
+    "text_changed"
+   ],
+   "file": "false_alarm_real_p067__model_shot__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "text": "4 of 8 text items not found or changed: C A LTF 0 R N [ A, BROOKLYH, Pegendary Tean, STRTVE FO R"
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p067__studio__gemini_app",
+   "attributes": [
+    "text_changed"
+   ],
+   "file": "false_alarm_real_p067__studio__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "text": "4 of 8 text items not found or changed: C A LTF 0 R N [ A, BROOKLYH, Pegendary Tean, STRTVE FO R"
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p068__festival_poster__gemini_app",
+   "attributes": [
+    "product_missing"
+   ],
+   "file": "false_alarm_real_p068__festival_poster__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "product_missing": "The product covers 0.7% of the output."
+   }
+  }
+ ]
+}

@@ -179,10 +179,24 @@ Phase 6 follow up 2, routing by image type, 2026-10-31
 6. The 15 real false alarms left come from logo, text, shape and product missing. Logo and shape are the vision model's describe and compare.
 7. Previous report kept as reports/eval_report_before_routing.md and .json. The table at the top of reports/eval_report.md has all three columns.
 
+Phase 7: Gradio demo, 2026-10-31
+1. driftcheck demo opens driftcheck/apps/demo_app.py on port 7860. It always uses local Ollama, default qwen2.5vl:7b, set for that run only; .env is not changed.
+2. Two uploads, original and generated, and an image type dropdown: auto, flat, scene. auto reads the style from a project file name like studio__gemini_app.jpg; an upload has none, so auto means scene.
+3. It calls Checker.check, the same pipeline as the evaluation, with the garment cut out, routing and the frozen thresholds. The page shows the verdict in words, which checks fired, each check as fine, changed, not sure or not applicable with its reason, the text read in each image with the match scores, and the heatmap when the pattern check ran.
+4. Three examples from the test split, picked with the saved evaluation and then run live to confirm: a clean pass, p031 studio; a colour change caught by colour, synthetic p041 colour_shift; a pattern change caught by pattern, synthetic p022 pattern_swap. The real outputs have no labelled changes, so both changed examples are synthetic, and the page says so. Examples only show when data/ has the files.
+5. Checked: the app starts and serves its page.
+
+Text decision fix in the evaluation, found while building the demo
+1. Live, a text item OCR misses goes to the vision model and counts as found if its reading matches at the text threshold. The evaluation only used vision readings that matched at 95, the recording threshold, so at the tuned 40 it marked items missing that the live check finds. Example: p067 text_replace, where the vision model read NYc as NK, a score of 40.
+2. driftcheck/evaluate.py now uses the saved vision readings like the live check. Thresholds unchanged. The report adds a fourth column.
+3. Measured on the test split with the fix: real test images wrongly flagged 11 of 40, from 15 of 40. Text wrong flag rate 2.9%, from 14.3%. Synthetic changes caught 57 of 99, from 58. Synthetic text recall 56.2%, from 59.4%.
+4. With a text threshold of 40, letter swaps such as BROOKLYN to UROKKLYH still count as a match, so the text check alone caught none of the synthetic text replacements in the test split. Worth a look before Phase 9.
+5. Previous report kept as reports/eval_report_before_textfix.md and .json.
+
 ## Next
 
-1. User reviews the routing numbers in reports/eval_report.md.
-2. Phase 7: Gradio demo app, not started. Phase 8: API. Phase 9: docs.
+1. User tries the demo.
+2. Phase 8: API. Phase 9: docs.
 
 ## Commands
 

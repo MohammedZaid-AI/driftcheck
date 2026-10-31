@@ -38,6 +38,10 @@ Torch is the CPU only build. Ollama does the GPU work.
 
 driftcheck check writes report.json and heatmap.png.
 
+## Demo
+
+Start the Ollama app, then run `.venv\Scripts\driftcheck demo`. It opens http://localhost:7860 in the browser. Upload an original and a generated image, or click one of the examples, then press Run DriftCheck. It uses qwen2.5vl:7b on local Ollama.
+
 docs\make_outputs.md explains how to make the AI outputs with Kaggle or the free Gemini app.
 
 ## Vision provider

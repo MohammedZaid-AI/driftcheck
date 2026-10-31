@@ -1,6 +1,6 @@
 {
- "date": "2026-10-31T14:44:18+00:00",
- "git_commit": "fadc178224face5264f3b8d9b3a64669bda99924",
+ "date": "2026-10-31T14:53:13+00:00",
+ "git_commit": "50b77b965342c8d01ebf5a0281ebf30dfed3d3ed",
  "models": {
   "vision": "ollama/qwen2.5vl:7b",
   "result set": "qwen2.5vl_7b_garmentcut",
@@ -320,15 +320,15 @@
       "positives": 0,
       "negatives": 35,
       "tp": 0,
-      "fp": 5,
-      "tn": 29,
+      "fp": 1,
+      "tn": 33,
       "fn": 0,
       "unknown_positive": 0,
       "unknown_negative": 1,
       "precision": 0.0,
       "recall": null,
       "f1": null,
-      "wrong_flag_rate": 0.14285714285714285,
+      "wrong_flag_rate": 0.02857142857142857,
       "unknown_rate": 0.02857142857142857
      },
      "product_missing": {
@@ -353,15 +353,15 @@
      "positives": 0,
      "negatives": 40,
      "tp": 0,
-     "fp": 15,
-     "tn": 25,
+     "fp": 11,
+     "tn": 29,
      "fn": 0,
      "unknown_positive": 0,
      "unknown_negative": 0,
      "precision": 0.0,
      "recall": null,
      "f1": null,
-     "wrong_flag_rate": 0.375,
+     "wrong_flag_rate": 0.275,
      "unknown_rate": 0.0
     }
    },
@@ -491,16 +491,16 @@
       "n": 79,
       "positives": 32,
       "negatives": 47,
-      "tp": 19,
-      "fp": 7,
-      "tn": 40,
-      "fn": 8,
+      "tp": 18,
+      "fp": 1,
+      "tn": 46,
+      "fn": 9,
       "unknown_positive": 5,
       "unknown_negative": 0,
-      "precision": 0.7307692307692307,
-      "recall": 0.59375,
-      "f1": 0.6551724137931033,
-      "wrong_flag_rate": 0.14893617021276595,
+      "precision": 0.9473684210526315,
+      "recall": 0.5625,
+      "f1": 0.7058823529411765,
+      "wrong_flag_rate": 0.02127659574468085,
       "unknown_rate": 0.06329113924050633
      },
      "product_missing": {
@@ -524,16 +524,16 @@
      "n": 159,
      "positives": 99,
      "negatives": 60,
-     "tp": 58,
-     "fp": 18,
-     "tn": 42,
-     "fn": 37,
+     "tp": 57,
+     "fp": 13,
+     "tn": 47,
+     "fn": 38,
      "unknown_positive": 4,
      "unknown_negative": 0,
-     "precision": 0.7631578947368421,
-     "recall": 0.5858585858585859,
-     "f1": 0.6628571428571428,
-     "wrong_flag_rate": 0.3,
+     "precision": 0.8142857142857143,
+     "recall": 0.5757575757575758,
+     "f1": 0.6745562130177515,
+     "wrong_flag_rate": 0.21666666666666667,
      "unknown_rate": 0.025157232704402517
     }
    },
@@ -667,15 +667,15 @@
        "positives": 0,
        "negatives": 35,
        "tp": 0,
-       "fp": 5,
-       "tn": 29,
+       "fp": 1,
+       "tn": 33,
        "fn": 0,
        "unknown_positive": 0,
        "unknown_negative": 1,
        "precision": 0.0,
        "recall": null,
        "f1": null,
-       "wrong_flag_rate": 0.14285714285714285,
+       "wrong_flag_rate": 0.02857142857142857,
        "unknown_rate": 0.02857142857142857
       },
       "product_missing": {
@@ -700,15 +700,15 @@
       "positives": 0,
       "negatives": 40,
       "tp": 0,
-      "fp": 15,
-      "tn": 25,
+      "fp": 11,
+      "tn": 29,
       "fn": 0,
       "unknown_positive": 0,
       "unknown_negative": 0,
       "precision": 0.0,
       "recall": null,
       "f1": null,
-      "wrong_flag_rate": 0.375,
+      "wrong_flag_rate": 0.275,
       "unknown_rate": 0.0
      }
     },
@@ -838,16 +838,16 @@
        "n": 79,
        "positives": 32,
        "negatives": 47,
-       "tp": 19,
-       "fp": 7,
-       "tn": 40,
-       "fn": 8,
+       "tp": 18,
+       "fp": 1,
+       "tn": 46,
+       "fn": 9,
        "unknown_positive": 5,
        "unknown_negative": 0,
-       "precision": 0.7307692307692307,
-       "recall": 0.59375,
-       "f1": 0.6551724137931033,
-       "wrong_flag_rate": 0.14893617021276595,
+       "precision": 0.9473684210526315,
+       "recall": 0.5625,
+       "f1": 0.7058823529411765,
+       "wrong_flag_rate": 0.02127659574468085,
        "unknown_rate": 0.06329113924050633
       },
       "product_missing": {
@@ -871,16 +871,16 @@
       "n": 159,
       "positives": 99,
       "negatives": 60,
-      "tp": 58,
-      "fp": 18,
-      "tn": 42,
-      "fn": 37,
+      "tp": 57,
+      "fp": 13,
+      "tn": 47,
+      "fn": 38,
       "unknown_positive": 4,
       "unknown_negative": 0,
-      "precision": 0.7631578947368421,
-      "recall": 0.5858585858585859,
-      "f1": 0.6628571428571428,
-      "wrong_flag_rate": 0.3,
+      "precision": 0.8142857142857143,
+      "recall": 0.5757575757575758,
+      "f1": 0.6745562130177515,
+      "wrong_flag_rate": 0.21666666666666667,
       "unknown_rate": 0.025157232704402517
      }
     },
@@ -1013,15 +1013,15 @@
        "positives": 0,
        "negatives": 35,
        "tp": 0,
-       "fp": 5,
-       "tn": 29,
+       "fp": 1,
+       "tn": 33,
        "fn": 0,
        "unknown_positive": 0,
        "unknown_negative": 1,
        "precision": 0.0,
        "recall": null,
        "f1": null,
-       "wrong_flag_rate": 0.14285714285714285,
+       "wrong_flag_rate": 0.02857142857142857,
        "unknown_rate": 0.02857142857142857
       },
       "product_missing": {
@@ -1046,15 +1046,15 @@
       "positives": 0,
       "negatives": 40,
       "tp": 0,
-      "fp": 15,
-      "tn": 25,
+      "fp": 11,
+      "tn": 29,
       "fn": 0,
       "unknown_positive": 0,
       "unknown_negative": 0,
       "precision": 0.0,
       "recall": null,
       "f1": null,
-      "wrong_flag_rate": 0.375,
+      "wrong_flag_rate": 0.275,
       "unknown_rate": 0.0
      }
     },
@@ -1184,16 +1184,16 @@
        "n": 79,
        "positives": 32,
        "negatives": 47,
-       "tp": 19,
-       "fp": 7,
-       "tn": 40,
-       "fn": 8,
+       "tp": 18,
+       "fp": 1,
+       "tn": 46,
+       "fn": 9,
        "unknown_positive": 5,
        "unknown_negative": 0,
-       "precision": 0.7307692307692307,
-       "recall": 0.59375,
-       "f1": 0.6551724137931033,
-       "wrong_flag_rate": 0.14893617021276595,
+       "precision": 0.9473684210526315,
+       "recall": 0.5625,
+       "f1": 0.7058823529411765,
+       "wrong_flag_rate": 0.02127659574468085,
        "unknown_rate": 0.06329113924050633
       },
       "product_missing": {
@@ -1217,16 +1217,16 @@
       "n": 159,
       "positives": 99,
       "negatives": 60,
-      "tp": 58,
-      "fp": 18,
-      "tn": 42,
-      "fn": 36,
+      "tp": 57,
+      "fp": 13,
+      "tn": 47,
+      "fn": 37,
       "unknown_positive": 5,
       "unknown_negative": 0,
-      "precision": 0.7631578947368421,
-      "recall": 0.5858585858585859,
-      "f1": 0.6628571428571428,
-      "wrong_flag_rate": 0.3,
+      "precision": 0.8142857142857143,
+      "recall": 0.5757575757575758,
+      "f1": 0.6745562130177515,
+      "wrong_flag_rate": 0.21666666666666667,
       "unknown_rate": 0.031446540880503145
      }
     },
@@ -1291,98 +1291,117 @@
   "columns": {
    "0": "First report",
    "1": "Cut out fix and retune",
-   "2": "Routing by image type"
+   "2": "Routing by image type",
+   "3": "Text decision fix"
   },
   "rows": {
    "Real test, overall wrong flag rate": {
     "0": 0.675,
     "1": 0.5,
-    "2": 0.375
+    "2": 0.375,
+    "3": 0.275
    },
    "Real test, shape_changed wrong flag rate": {
     "0": 0.1,
     "1": 0.1,
-    "2": 0.1
+    "2": 0.1,
+    "3": 0.1
    },
    "Real test, colour_changed wrong flag rate": {
     "0": 0.125,
     "1": 0.075,
-    "2": 0.0
+    "2": 0.0,
+    "3": 0.0
    },
    "Real test, pattern_changed wrong flag rate": {
     "0": 0.425,
     "1": 0.125,
-    "2": 0.0
+    "2": 0.0,
+    "3": 0.0
    },
    "Real test, logo_changed wrong flag rate": {
     "0": 0.14285714285714285,
     "1": 0.14285714285714285,
-    "2": 0.14285714285714285
+    "2": 0.14285714285714285,
+    "3": 0.14285714285714285
    },
    "Real test, text_changed wrong flag rate": {
     "0": 0.22857142857142856,
     "1": 0.14285714285714285,
-    "2": 0.14285714285714285
+    "2": 0.14285714285714285,
+    "3": 0.02857142857142857
    },
    "Real test, product_missing wrong flag rate": {
     "0": 0.025,
     "1": 0.025,
-    "2": 0.025
+    "2": 0.025,
+    "3": 0.025
    },
    "Synthetic test, overall recall": {
     "0": 0.8080808080808081,
     "1": 0.6060606060606061,
-    "2": 0.5858585858585859
+    "2": 0.5858585858585859,
+    "3": 0.5757575757575758
    },
    "Synthetic test, overall precision": {
     "0": 0.7476635514018691,
     "1": 0.7692307692307693,
-    "2": 0.7631578947368421
+    "2": 0.7631578947368421,
+    "3": 0.8142857142857143
    },
    "Synthetic test, overall wrong flag rate": {
     "0": 0.45,
     "1": 0.3,
-    "2": 0.3
+    "2": 0.3,
+    "3": 0.21666666666666667
    },
    "Synthetic test, shape_changed recall": {
     "0": 0.09090909090909091,
     "1": 0.09090909090909091,
-    "2": 0.09090909090909091
+    "2": 0.09090909090909091,
+    "3": 0.09090909090909091
    },
    "Synthetic test, colour_changed recall": {
     "0": 0.65,
     "1": 0.35,
-    "2": 0.3333333333333333
+    "2": 0.3333333333333333,
+    "3": 0.3333333333333333
    },
    "Synthetic test, pattern_changed recall": {
     "0": 0.7333333333333333,
     "1": 0.43333333333333335,
-    "2": 0.46153846153846156
+    "2": 0.46153846153846156,
+    "3": 0.46153846153846156
    },
    "Synthetic test, logo_changed recall": {
     "0": null,
     "1": null,
-    "2": null
+    "2": null,
+    "3": null
    },
    "Synthetic test, text_changed recall": {
     "0": 0.84375,
     "1": 0.59375,
-    "2": 0.59375
+    "2": 0.59375,
+    "3": 0.5625
    },
    "Synthetic test, product_missing recall": {
     "0": 0.1,
     "1": 0.1,
-    "2": 0.1
+    "2": 0.1,
+    "3": 0.1
    },
    "Baseline 1, real test wrong flag rate": {
     "0": 0.25,
     "1": 0.0,
-    "2": 0.0
+    "2": 0.0,
+    "3": 0.0
    },
    "Baseline 1, synthetic test recall": {
     "0": 0.020202020202020204,
     "1": 0.0,
-    "2": 0.0
+    "2": 0.0,
+    "3": 0.0
    }
   },
   "real_test_flagged": {
@@ -1397,6 +1416,10 @@
    "2": [
     15,
     40
+   ],
+   "3": [
+    11,
+    40
    ]
   },
   "synthetic_test_caught": {
@@ -1410,6 +1433,10 @@
    ],
    "2": [
     58,
+    99
+   ],
+   "3": [
+    57,
     99
    ]
   },
@@ -1467,6 +1494,32 @@
     }
    },
    "2": {
+    "tuned": true,
+    "segmentation": {
+     "missing_share": 0.02,
+     "small_share": 0.06
+    },
+    "colour": {
+     "max_weighted_delta_e": 15.01,
+     "white_balance": true
+    },
+    "text": {
+     "min_match": 40.0,
+     "min_item_length": 2,
+     "vision_backup": true
+    },
+    "pattern": {
+     "patch_similarity": 0.82,
+     "max_drift_share": 0.9,
+     "min_patches": 20
+    },
+    "judge": {
+     "min_ordinal_steps": 3,
+     "min_changed_parts": 1,
+     "use_silhouette": false
+    }
+   },
+   "3": {
     "tuned": true,
     "segmentation": {
      "missing_share": 0.02,
@@ -1619,17 +1672,6 @@
   },
   {
    "kind": "false_alarm",
-   "item": "real/p015__studio__gemini_app",
-   "attributes": [
-    "text_changed"
-   ],
-   "file": "false_alarm_real_p015__studio__gemini_app.png",
-   "reasons_from_recorded_run": {
-    "text": "6 of 9 text items not found or changed: nqndini, PASTEUaISEO TONED, QUALITY EXCELLENCE FROTT COw T0, CONSUNILR, ಾದೂ, ಶದ್ದ"
-   }
-  },
-  {
-   "kind": "false_alarm",
    "item": "real/p018__model_shot__gemini_app",
    "attributes": [
     "shape_changed"
@@ -1685,39 +1727,6 @@
   },
   {
    "kind": "false_alarm",
-   "item": "real/p051__lifestyle__gemini_app",
-   "attributes": [
-    "text_changed"
-   ],
-   "file": "false_alarm_real_p051__lifestyle__gemini_app.png",
-   "reasons_from_recorded_run": {
-    "text": "1 of 7 text items not found or changed: 20 g"
-   }
-  },
-  {
-   "kind": "false_alarm",
-   "item": "real/p067__model_shot__gemini_app",
-   "attributes": [
-    "text_changed"
-   ],
-   "file": "false_alarm_real_p067__model_shot__gemini_app.png",
-   "reasons_from_recorded_run": {
-    "text": "4 of 8 text items not found or changed: C A LTF 0 R N [ A, BROOKLYH, Pegendary Tean, STRTVE FO R"
-   }
-  },
-  {
-   "kind": "false_alarm",
-   "item": "real/p067__studio__gemini_app",
-   "attributes": [
-    "text_changed"
-   ],
-   "file": "false_alarm_real_p067__studio__gemini_app.png",
-   "reasons_from_recorded_run": {
-    "text": "4 of 8 text items not found or changed: C A LTF 0 R N [ A, BROOKLYH, Pegendary Tean, STRTVE FO R"
-   }
-  },
-  {
-   "kind": "false_alarm",
    "item": "real/p068__festival_poster__gemini_app",
    "attributes": [
     "product_missing"
@@ -1725,6 +1734,50 @@
    "file": "false_alarm_real_p068__festival_poster__gemini_app.png",
    "reasons_from_recorded_run": {
     "product_missing": "The product covers 0.7% of the output."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p068__instagram_post__gemini_app",
+   "attributes": [
+    "logo_changed"
+   ],
+   "file": "false_alarm_real_p068__instagram_post__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "logo": "The original has a logo but none is visible in the output."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p071__model_shot__gemini_app",
+   "attributes": [
+    "shape_changed"
+   ],
+   "file": "false_alarm_real_p071__model_shot__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "shape": "Shape changed: neckline halter to v_neck; silhouette fitted to straight."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p071__studio__gemini_app",
+   "attributes": [
+    "shape_changed"
+   ],
+   "file": "false_alarm_real_p071__studio__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "shape": "Shape changed: neckline halter to v_neck; silhouette fitted to a_line."
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p076__model_shot__gemini_app",
+   "attributes": [
+    "logo_changed"
+   ],
+   "file": "false_alarm_real_p076__model_shot__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "logo": "The original has a logo but none is visible in the output."
    }
   }
  ]
