@@ -204,10 +204,13 @@ Phase 8, as the user named it: README and demo walkthrough, 2026-10-31
 
 Note on phase numbers: the original plan had Phase 8 as the FastAPI service and Phase 9 as docs and the pitch. The user called this README work Phase 8. The FastAPI service, the Dockerfile, docs/demo_script.md, docs/message_to_scalio.md and the v0.1 tag are not done yet.
 
+v0.1, tagged on commit c42591f on 2026-10-31: the first working version with the demo and an honest evaluation.
+
 ## Next
 
 1. User reviews README.md and docs/demo.md.
-2. Not done from the original plan: FastAPI service with POST /check and GET /health and a Dockerfile, docs/demo_script.md, docs/message_to_scalio.md, tag v0.1.
+2. Not done, deferred: the FastAPI service with POST /check and GET /health, and its Dockerfile.
+3. Not done from the original plan: docs/demo_script.md and docs/message_to_scalio.md.
 
 ## Commands
 
