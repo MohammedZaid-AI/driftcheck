@@ -182,6 +182,75 @@ def render_markdown(report: dict) -> str:
     return "\n".join(lines)
 
 
+# Before and after -----------------------------------------------------------------------
+
+def _rates(report: dict) -> dict[str, float | None]:
+    """The numbers compared before and after: wrong flags on real test images, catches on synthetic ones."""
+    real = report["results"]["real"]["driftcheck"]
+    synthetic = report["results"]["synthetic"]["driftcheck"]
+    rows: dict[str, float | None] = {
+        "Real test, overall wrong flag rate": real["overall"]["wrong_flag_rate"],
+        **{f"Real test, {name} wrong flag rate": s["wrong_flag_rate"] for name, s in real["attributes"].items()},
+        "Synthetic test, overall recall": synthetic["overall"]["recall"],
+        "Synthetic test, overall precision": synthetic["overall"]["precision"],
+        "Synthetic test, overall wrong flag rate": synthetic["overall"]["wrong_flag_rate"],
+        **{f"Synthetic test, {name} recall": s["recall"] for name, s in synthetic["attributes"].items()},
+        "Baseline 1, real test wrong flag rate": report["results"]["real"]["baseline_1"]["wrong_flag_rate"],
+        "Baseline 1, synthetic test recall": report["results"]["synthetic"]["baseline_1"]["recall"],
+    }
+    return rows
+
+
+def comparison(before: dict, middle: dict, after: dict) -> dict:
+    columns = {
+        "before": "Before: whole image cut out, cap on all calibration negatives",
+        "middle": "Garment cut out, cap on all calibration negatives",
+        "after": "After: garment cut out, cap on real calibration images only",
+    }
+    reports = {"before": before, "middle": middle, "after": after}
+    rates = {key: _rates(r) for key, r in reports.items()}
+    flagged = {key: (r["results"]["real"]["driftcheck"]["overall"]["fp"], r["results"]["real"]["driftcheck"]["overall"]["negatives"])
+               for key, r in reports.items()}
+    return {"columns": columns, "rows": {row: {key: rates[key].get(row) for key in reports} for row in rates["after"]},
+            "real_test_flagged": flagged, "thresholds": {key: r["thresholds"] for key, r in reports.items()}}
+
+
+def render_comparison(data: dict | None) -> str:
+    if not data:
+        return ""
+    keys = list(data["columns"])
+    flagged = data["real_test_flagged"]
+    lines = [
+        "# What the cut out fix and the retuning changed",
+        "",
+        "Two things changed after the first report. Both are shown here so nothing is hidden.",
+        "",
+        "1. Cut out. For worn clothing and accessories, a clothes parsing model now keeps only the garment, not the "
+        "model's face, arms, legs or other clothes. Flat lays and studio shots keep the rembg cut out. Product missing, "
+        "colour and pattern were run again with the new cut out on the saved run. Text, shape and logo come from the "
+        "saved run unchanged.",
+        "2. Tuning. The first tuning kept wrong flags at or under 10 percent across all calibration negatives, which were "
+        "mostly synthetic. The new tuning measures that 10 percent on the user's real calibration images only. Catches are "
+        "still measured on the synthetic changes. This rule was changed after the first test results were seen.",
+        "",
+        "The middle column has the new cut out with the old tuning rule, so the effect of each change can be seen on its own.",
+        "",
+        "| | " + " | ".join(data["columns"][k] for k in keys) + " |",
+        "|---|" + "---|" * len(keys),
+        "| Real test images wrongly flagged | " + " | ".join(f"{flagged[k][0]} of {flagged[k][1]}" for k in keys) + " |",
+    ]
+    for row, values in data["rows"].items():
+        lines.append(f"| {row} | " + " | ".join(pct(values[k]) for k in keys) + " |")
+    lines += ["", "Thresholds in each column:", ""]
+    for key in keys:
+        t = data["thresholds"][key]
+        lines.append(f"1. {data['columns'][key]}: colour {t['colour']['max_weighted_delta_e']}, "
+                     f"pattern patch {t['pattern']['patch_similarity']} and share {t['pattern']['max_drift_share']}, "
+                     f"text {t['text']['min_match']}, product missing {t['segmentation']['missing_share']}, "
+                     f"shape steps {t['judge']['min_ordinal_steps']}")
+    return "\n".join(lines) + "\n\n"
+
+
 # Failure gallery ----------------------------------------------------------------------
 
 def failures(items: list[Item], raws: dict, t: Thresholds) -> tuple[list, list]:

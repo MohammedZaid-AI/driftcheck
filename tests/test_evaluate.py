@@ -103,6 +103,53 @@ def test_tune_picks_best_recall_within_wrong_flag_cap() -> None:
     assert notes["shape"]["tuned"] is False and "no shape_changed positives" in notes["shape"]["reason"]
 
 
+def test_cap_on_real_images_only() -> None:
+    # Real good images score 5.0 to 8.8, synthetic good images 1 to 2, drifted synthetic 7.0 to 8.8.
+    real = [item(f"r{i}", set_name="real") for i in range(20)]
+    synthetic_good = [item(f"g{i}") for i in range(20)]
+    drifted = [item(f"d{i}", colour_changed=True) for i in range(10)]
+    raws = {i.key: raw(colour=round(5.0 + 0.2 * n, 2)) for n, i in enumerate(real)}
+    raws |= {i.key: raw(colour=1.0 + 0.05 * n) for n, i in enumerate(synthetic_good)}
+    raws |= {i.key: raw(colour=round(7.0 + 0.2 * n, 2)) for n, i in enumerate(drifted)}
+    items = real + synthetic_good + drifted
+
+    all_negatives, _ = tune(items, raws, T)
+    real_only, notes = tune(items, raws, T, cap_set="real")
+    # Counting the 20 easy synthetic negatives, 4 of 40 may be flagged: 4 real images go over 8.0.
+    assert all_negatives.colour.max_weighted_delta_e == 8.0
+    # Measured on the 20 real images only, at most 2 may be flagged, so the line moves up to 8.4.
+    assert real_only.colour.max_weighted_delta_e == 8.4
+    assert notes["colour"]["calibration"]["capped_wrong_flag_rate"] <= 0.10
+
+
+def test_recut_replaces_only_cutout_checks_and_fixes_time(monkeypatch: pytest.MonkeyPatch) -> None:
+    from types import SimpleNamespace
+
+    import numpy as np
+
+    from driftcheck import evaluate
+    from tests.synthetic import garment, simple_mask
+    from tests.test_check_pattern import fake_features
+
+    image = garment(stripes=True)
+    monkeypatch.setattr(evaluate, "load_image", lambda path: image)
+    saved = raw(colour=30.0)  # the old cut out saw a big colour change
+    saved["report"]["card"] = {"vision": None, "vision_model": "m", "palette": [], "ocr": [], "product_box": None,
+                               "product_share": 0.4}
+    saved["report"]["check_seconds"] = {"masks": 2.0, "product_missing": 0.1, "colour": 0.5, "pattern": 1.4}
+    saved["report"]["seconds"] = 10.0
+    checker = SimpleNamespace(features_fn=fake_features,
+                              masks=lambda o, u, c: (simple_mask(o), simple_mask(u), {"method": "clothes parsing"}))
+
+    recut = evaluate.recut_item(item("a"), saved, checker, recording_thresholds(T))["report"]
+    by_name = {c["name"]: c for c in recut["checks"]}
+    assert by_name["colour"]["score"] < 2  # same image, so no colour change once cut out properly
+    assert by_name["text"] == saved["report"]["checks"][2]  # text kept from the saved run
+    assert recut["cutout"]["method"] == "clothes parsing"
+    assert recut["recut"]["replaced_seconds"] == 4.0
+    assert np.isclose(recut["seconds"], 10.0 - 4.0 + recut["recut"]["new_seconds"], atol=0.01)
+
+
 def test_tune_says_when_no_setting_meets_the_cap() -> None:
     # Every good image has text that never matches, so any min_match flags all of them.
     items = [item(f"g{i}", text_changed=False) for i in range(10)] + [item("d", text_changed=True)]
@@ -159,6 +206,21 @@ def test_gallery_draws_with_tuned_thresholds() -> None:
     report.check("text").details["items"][0]["found_by"] = "ocr"
     show_tuned_thresholds(report, tuned)
     assert report.check("text").details["items"][0]["found_by"] == "ocr"  # 85 is over the tuned 80
+
+
+def test_comparison_table_shows_all_three_columns() -> None:
+    from driftcheck.eval_report import comparison, render_comparison
+
+    items = [item(f"g{i}", split="test", set_name="real") for i in range(4)] + [item("s", split="test", colour_changed=True)]
+    noisy = {i.key: raw(colour=20) for i in items}  # everything flagged
+    clean = {i.key: raw(colour=1) for i in items[:4]} | {items[4].key: raw(colour=20)}
+    build = lambda raws: build_report(Path("."), items, {"m": raws}, "m", T, {}, 0.9, {}, {}, "", "")  # noqa: E731
+    data = comparison(build(noisy), build(clean), build(clean))
+    assert data["real_test_flagged"] == {"before": (4, 4), "middle": (0, 4), "after": (0, 4)}
+    text = render_comparison(data)
+    assert "| Real test images wrongly flagged | 4 of 4 | 0 of 4 | 0 of 4 |" in text
+    assert "changed after the first test results were seen" in text
+    assert render_comparison(None) == ""
 
 
 def test_driftcheck_scores_count_per_attribute() -> None:

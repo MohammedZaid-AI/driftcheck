@@ -45,6 +45,7 @@ class Item:
     output: Path
     label: dict[str, bool | None]
     text_scripts: list[str] | None
+    category: str | None = None
 
     @property
     def key(self) -> str:
@@ -62,10 +63,11 @@ def collect_items(data_dir: Path) -> list[Item]:
         if product_id not in half or not store.is_complete(product_id, output_id):
             continue
         row = store.get(product_id, output_id)
+        meta = read_meta(data_dir, product_id)
         items.append(Item("real", half[product_id], product_id, output_id,
                           product_dir(data_dir, product_id) / "original.jpg",
                           output_image(data_dir, product_id, output_id),
-                          {name: row[name] for name in ATTRIBUTES}, read_meta(data_dir, product_id).text_scripts))
+                          {name: row[name] for name in ATTRIBUTES}, meta.text_scripts, meta.category))
 
     synthetic = data_dir / "synthetic" / "labels.json"
     if synthetic.exists():
@@ -73,10 +75,11 @@ def collect_items(data_dir: Path) -> list[Item]:
             product_id = row["product_id"]
             if product_id not in half:
                 continue
+            meta = read_meta(data_dir, product_id)
             items.append(Item("synthetic", half[product_id], product_id, row["output_id"],
                               product_dir(data_dir, product_id) / "original.jpg",
                               data_dir / "synthetic" / product_id / f"{row['output_id']}.jpg",
-                              {name: row[name] for name in ATTRIBUTES}, read_meta(data_dir, product_id).text_scripts))
+                              {name: row[name] for name in ATTRIBUTES}, meta.text_scripts, meta.category))
     return items
 
 
@@ -107,7 +110,7 @@ def run_item(item: Item, checker, features_fn: Callable) -> dict:
     """One recorded run of DriftCheck and both baselines on one pair.
     Baseline 2 runs on the test split only: it is reported there and never tuned."""
     waited_before = _waited(checker)
-    report = checker.check(item.original, item.output, item.text_scripts)
+    report = checker.check(item.original, item.output, item.text_scripts, item.category)
     report_wait = _waited(checker) - waited_before
     original, output = load_image(item.original), load_image(item.output)
 
@@ -165,6 +168,57 @@ def run_all(items: Iterable[Item], checker, features_fn: Callable, cache_dir: Pa
         path.write_text(json.dumps(raw), encoding="utf-8")
         results[item.key] = raw
         log.info("%d/%d %s %s in %.1fs", number, len(items), item.key, raw["report"]["verdict"], raw["report"]["seconds"])
+    return results
+
+
+RECUT_CHECKS = ("product_missing", "colour", "pattern")  # the checks that read the cut out
+
+
+def recut_item(item: Item, raw: dict, checker, t_record: Thresholds) -> dict:
+    """Run the cut out dependent checks again with the garment cut out, keeping text, shape and
+    logo from the saved run. The time is the saved time with these checks swapped for the new ones."""
+    from driftcheck.card import ProductCard
+    from driftcheck.checks.base import Pair
+    from driftcheck.checks.colour import check_colour
+    from driftcheck.checks.pattern import check_pattern
+    from driftcheck.checks.segmentation import check_segmentation
+
+    report = json.loads(json.dumps(raw["report"]))
+    began = time.perf_counter()
+    original, output = load_image(item.original), load_image(item.output)
+    original_mask, output_mask, cutout = checker.masks(original, output, item.category)
+    pair = Pair(original, output, original_mask, output_mask, ProductCard.model_validate(report["card"]))
+    new = {"product_missing": check_segmentation(pair, t_record.segmentation)}
+    new["colour"] = check_colour(pair, t_record.colour)
+    new["pattern"] = check_pattern(pair, t_record.pattern, checker.features_fn)
+    new_seconds = time.perf_counter() - began
+
+    report["checks"] = [new[c["name"]].model_dump(mode="json") if c["name"] in new else c for c in report["checks"]]
+    old = report["check_seconds"]
+    old_seconds = sum(old.get(name, 0) for name in ("masks", "product_missing", "colour", "pattern"))
+    report["seconds"] = round(report["seconds"] - old_seconds + new_seconds, 3)
+    report["cutout"] = cutout
+    report["recut"] = {"checks": list(RECUT_CHECKS), "replaced_seconds": round(old_seconds, 3),
+                       "new_seconds": round(new_seconds, 3)}
+    return {**raw, "report": report}
+
+
+def recut_all(items: list[Item], raws: dict[str, dict], checker, t_record: Thresholds, cache_dir: Path,
+              tag: str) -> dict[str, dict]:
+    """Recut every item that has a saved run, saving to cache/eval/<tag>. Done items are skipped."""
+    results = {}
+    for number, item in enumerate(items, 1):
+        path = raw_path(cache_dir, tag, item)
+        if path.exists():
+            results[item.key] = json.loads(path.read_text(encoding="utf-8"))
+            continue
+        if item.key not in raws:
+            continue
+        recut = recut_item(item, raws[item.key], checker, t_record)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(recut), encoding="utf-8")
+        results[item.key] = recut
+        log.info("recut %d/%d %s %s", number, len(items), item.key, recut["report"]["cutout"].get("method"))
     return results
 
 
@@ -350,13 +404,19 @@ def _better(candidate: dict, best: dict | None) -> bool:
     return (candidate["wrong_flag_rate"] or 0) < (best["wrong_flag_rate"] or 0)
 
 
-def _choose(items: list[Item], raws: dict, attribute: str, check: str, candidates: list[Thresholds]) -> tuple[Thresholds, dict]:
+def _choose_capped(items: list[Item], raws: dict, attribute: str, check: str, candidates: list[Thresholds],
+                   cap_set: str | None = None) -> tuple[Thresholds, dict]:
+    """Best recall among settings whose wrong flag rate is at most the cap. With cap_set, the
+    wrong flag rate is measured on that set only, such as the real images."""
     best, best_score = candidates[0], None
     for t in candidates:
-        pairs = [(i.label[attribute], prediction(*decide_check(raws[i.key]["report"], check, t)))
+        pairs = [(i, i.label[attribute], prediction(*decide_check(raws[i.key]["report"], check, t)))
                  for i in items if i.key in raws]
-        result = score(pairs)
-        if result["wrong_flag_rate"] is not None and result["wrong_flag_rate"] > MAX_WRONG_FLAG_RATE:
+        result = score([(label, pred) for _, label, pred in pairs])
+        capped = score([(label, pred) for i, label, pred in pairs if cap_set is None or i.set_name == cap_set])
+        result["capped_wrong_flag_rate"] = capped["wrong_flag_rate"]
+        result["capped_negatives"] = capped["negatives"]
+        if capped["wrong_flag_rate"] is not None and capped["wrong_flag_rate"] > MAX_WRONG_FLAG_RATE:
             continue
         if _better(result, best_score):
             best, best_score = t, result
@@ -370,10 +430,16 @@ def _with(t: Thresholds, section: str, **values) -> Thresholds:
     return copy
 
 
-def tune(items: list[Item], raws: dict[str, dict], start: Thresholds) -> tuple[Thresholds, dict]:
-    """Tune every threshold on the given calibration items. Returns the thresholds and notes per check."""
+def tune(items: list[Item], raws: dict[str, dict], start: Thresholds,
+         cap_set: str | None = None) -> tuple[Thresholds, dict]:
+    """Tune every threshold on the given calibration items. Returns the thresholds and notes per check.
+    Recall comes from every item with a positive label. The wrong flag cap is measured on every
+    negative, or with cap_set="real" on the real images only."""
     notes: dict[str, dict] = {}
     t = start.model_copy(deep=True)
+
+    def _choose(items, raws, attribute, check, candidates):  # noqa: ANN001
+        return _choose_capped(items, raws, attribute, check, candidates, cap_set)
 
     def record(name: str, attribute: str, chosen: Thresholds, result: dict, section: str) -> None:
         positives = result.get("positives", 0)
@@ -419,15 +485,17 @@ def tune(items: list[Item], raws: dict[str, dict], start: Thresholds) -> tuple[T
     return t, notes
 
 
-def tune_baseline_1(items: list[Item], raws: dict[str, dict]) -> tuple[float, dict]:
+def tune_baseline_1(items: list[Item], raws: dict[str, dict], cap_set: str | None = None) -> tuple[float, dict]:
     """One similarity threshold for baseline 1, chosen the same way on overall drift."""
     sims = sorted({raws[i.key]["b1"]["similarity"] for i in items if i.key in raws})
     best, best_score = 0.0, None
     for threshold in [0.0] + [s + 1e-9 for s in sims]:
-        pairs = [(overall_label(i.label), "flag" if raws[i.key]["b1"]["similarity"] < threshold else "clear")
+        pairs = [(i, overall_label(i.label), "flag" if raws[i.key]["b1"]["similarity"] < threshold else "clear")
                  for i in items if i.key in raws]
-        result = score(pairs)
-        if result["wrong_flag_rate"] is not None and result["wrong_flag_rate"] > MAX_WRONG_FLAG_RATE:
+        result = score([(label, pred) for _, label, pred in pairs])
+        capped = score([(label, pred) for i, label, pred in pairs if cap_set is None or i.set_name == cap_set])
+        result["capped_wrong_flag_rate"] = capped["wrong_flag_rate"]
+        if capped["wrong_flag_rate"] is not None and capped["wrong_flag_rate"] > MAX_WRONG_FLAG_RATE:
             continue
         if _better(result, best_score):
             best, best_score = threshold, result

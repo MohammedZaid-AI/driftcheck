@@ -313,12 +313,35 @@ def eval_run(
     typer.echo("Done. Run driftcheck eval to tune and write the report.")
 
 
+@app.command(name="eval-recut")
+def eval_recut() -> None:
+    """Rerun product missing, colour and pattern with the garment cut out on the saved run of the
+    configured vision model. Text, shape and logo are kept. Saved as a separate set, <model>_garmentcut."""
+    from driftcheck.evaluate import collect_items, load_raw, model_tag, recording_thresholds, recut_all
+    from driftcheck.pipeline import Checker
+
+    settings = load_settings()
+    items = collect_items(settings.data_dir)
+    raws = load_raw(items, settings.cache_dir, settings.vision.model)
+    if len(raws) < len(items):
+        typer.echo(f"Only {len(raws)} of {len(items)} pairs have a saved run. Run eval-run first.", err=True)
+        raise typer.Exit(code=1)
+    checker = Checker.from_settings(settings)
+    tag = model_tag(settings.vision.model) + "_garmentcut"
+    recut_all(items, raws, checker, recording_thresholds(checker.thresholds), settings.cache_dir, tag)
+    typer.echo(f"Done. Saved as {tag}. Report with: driftcheck eval --raw-tag {tag}")
+
+
 @app.command(name="eval")
 def evaluate(
     retune: bool = typer.Option(False, help="Tune again on the calibration split even though thresholds are frozen."),
+    raw_tag: str = typer.Option(None, help="Saved result set to report on. Default: the configured vision model."),
+    cap: str = typer.Option("all", help="Where the 10 percent wrong flag cap is measured when tuning: all or real."),
+    before: str = typer.Option(None, help="An earlier eval_report.json to compare with, side by side."),
 ) -> None:
     """Tune on the calibration split if not done yet, then write reports/eval_report.md and .json."""
     import json
+    from pathlib import Path
 
     from driftcheck.checks.base import load_thresholds
     from driftcheck.eval_report import build_report, gallery_markdown, render_markdown, write_gallery
@@ -331,7 +354,11 @@ def evaluate(
     if not any(i.split == "calibration" for i in items) or not any(i.split == "test" for i in items):
         typer.echo("Need labelled or synthetic pairs in both the calibration and test split. Nothing was tuned or written.", err=True)
         raise typer.Exit(code=1)
-    primary = settings.vision.model
+    if cap not in ("all", "real"):
+        typer.echo("--cap must be all or real.", err=True)
+        raise typer.Exit(code=1)
+    cap_set = "real" if cap == "real" else None
+    primary = raw_tag or settings.vision.model
     raws = load_raw(items, settings.cache_dir, primary)
     missing = [i.key for i in items if i.key not in raws]
     if missing:
@@ -341,13 +368,15 @@ def evaluate(
     thresholds_path = settings.config_dir / "thresholds.json"
     notes_path = settings.root / "reports" / "tuning.json"
     t = load_thresholds(settings.config_dir)
+    calibration = [i for i in items if i.split == "calibration"]
     if not t.tuned or retune:
         if t.tuned:
             typer.echo("Retuning frozen thresholds. Say so in PROGRESS.md.", err=True)
-        calibration = [i for i in items if i.split == "calibration"]
-        t, notes = tune(calibration, raws, t)
-        b1_threshold, b1_note = tune_baseline_1(calibration, raws)
-        frozen = {"tuned": True, "tuned_on": f"calibration split, {len(calibration)} pairs, vision model {primary}",
+        t, notes = tune(calibration, raws, t, cap_set)
+        b1_threshold, b1_note = tune_baseline_1(calibration, raws, cap_set)
+        cap_note = "real calibration images only" if cap_set else "all calibration negatives, real and synthetic"
+        frozen = {"tuned": True,
+                  "tuned_on": f"calibration split, {len(calibration)} pairs, results {primary}, wrong flag cap on {cap_note}",
                   "note": "Frozen. Do not change after tuning unless the split changes; then retune and say so in PROGRESS.md.",
                   **{k: v for k, v in t.model_dump().items() if k != "tuned"},
                   "baseline_1": {"similarity": b1_threshold}}
@@ -369,19 +398,38 @@ def evaluate(
                    if not scalio.exists() or not any(scalio.iterdir()) else "Scalio examples are present but not evaluated yet.")
     cost = ("Vision calls run on a local Ollama model, so there is no API charge. Calls per image are in the tables."
             if settings.vision.provider == "ollama" else "Not estimated: no pricing is set in the config.")
-    models = {"vision": f"{settings.vision.provider}/{primary}",
+    from driftcheck.garment import PARSER_MODEL
+
+    garment_cut = "garmentcut" in primary
+    models = {"vision": f"{settings.vision.provider}/{settings.vision.model}",
+              "result set": primary,
               "compared vision models": ", ".join(raws_by_model) or primary,
               "pattern and baseline 1": settings.vision.pattern_model,
-              "segmentation": f"rembg/{REMBG_MODEL}", "ocr": "easyocr readers " + ", ".join(READERS),
-              "outputs": "Gemini app, model 3.6 Flash, made by hand"}
+              "segmentation": f"rembg/{REMBG_MODEL}" + (
+                  f", plus {PARSER_MODEL} for worn clothing and accessories, licence listed as other" if garment_cut else ""),
+              "ocr": "easyocr readers " + ", ".join(READERS),
+              "outputs": "Gemini app, model 3.6 Flash, made by hand",
+              "tuning": saved.get("tuned_on", "")}
     report = build_report(settings.root, items, raws_by_model, primary, t, tuning["checks"],
                           saved["baseline_1"]["similarity"], tuning["baseline_1"], models, cost, scalio_note)
+    if before:
+        from driftcheck.eval_report import comparison
+
+        previous = json.loads(Path(before).read_text(encoding="utf-8"))
+        # The middle column: the new cut out, tuned the old way, so each change shows on its own.
+        old_rule, _ = tune(calibration, raws, t.model_copy(deep=True), None)
+        old_b1, _ = tune_baseline_1(calibration, raws, None)
+        middle = build_report(settings.root, items, {primary: raws}, primary, old_rule, {}, old_b1, {}, models, cost, scalio_note)
+        report["comparison"] = comparison(previous, middle, report)
 
     out = settings.root / "reports"
     entries = write_gallery(out / "gallery", items, raws, t)
     report["failure_gallery"] = entries
     (out / "eval_report.json").write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding="utf-8")
-    markdown = render_markdown(report) + "\n## Failure gallery\n\n" + gallery_markdown(entries)
+    from driftcheck.eval_report import render_comparison
+
+    markdown = (render_comparison(report.get("comparison")) + render_markdown(report)
+                + "\n## Failure gallery\n\n" + gallery_markdown(entries))
     (out / "eval_report.md").write_text(markdown, encoding="utf-8")
     typer.echo(f"Wrote {out / 'eval_report.md'} and {out / 'eval_report.json'}")
 

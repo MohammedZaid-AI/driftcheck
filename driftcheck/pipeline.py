@@ -42,6 +42,7 @@ class Report(BaseModel):
     thresholds_tuned: bool
     text_scripts: list[str]  # scripts OCR read on both images, besides English
     created: str
+    cutout: dict = {}  # which cut out the masks came from, see driftcheck/garment.py
 
     def check(self, name: str) -> CheckResult:
         return next(result for result in self.checks if result.name == name)
@@ -69,10 +70,22 @@ class Checker:
     scripts_fn: Callable[[Image.Image], list[str]] = lambda image: ["en"]  # used when a product has no text_scripts
     card_cache: DiskCache | None = None
     pattern_model: str = ""
+    clothes_parser: Callable | None = None  # garment cut out for worn clothing; None keeps rembg
+
+    def masks(self, original: Image.Image, output: Image.Image, category: str | None) -> tuple[np.ndarray, np.ndarray, dict]:
+        """rembg masks, or garment only masks for clothing and accessories."""
+        from driftcheck.garment import GARMENT_CATEGORIES, garment_cutout
+
+        original_mask, output_mask = self.mask_fn(original), self.mask_fn(output)
+        if self.clothes_parser is None or category not in GARMENT_CATEGORIES:
+            return original_mask, output_mask, {"method": "rembg", "reason": f"category {category}"}
+        cut = garment_cutout(original, output, original_mask, output_mask, self.clothes_parser, category)
+        return cut.original_mask, cut.output_mask, cut.info
 
     @classmethod
     def from_settings(cls, settings: Settings | None = None, vision_model: str | None = None) -> "Checker":
         from driftcheck.features import PatchFeatures
+        from driftcheck.garment import ClothesParser
 
         settings = settings or load_settings()
         masks = DiskCache(settings.cache_dir, "masks")
@@ -86,6 +99,7 @@ class Checker:
             features_fn=PatchFeatures(settings.vision.pattern_model, DiskCache(settings.cache_dir, "features")),
             card_cache=DiskCache(settings.cache_dir, "cards"),
             pattern_model=settings.vision.pattern_model,
+            clothes_parser=ClothesParser(cache=DiskCache(settings.cache_dir, "clothes")),
         )
 
     def check(
@@ -93,9 +107,10 @@ class Checker:
         original: Path | str | Image.Image,
         output: Path | str | Image.Image,
         text_scripts: list[str] | None = None,
+        category: str | None = None,
     ) -> Report:
-        """Run every check. text_scripts comes from the product's meta.json; without it
-        the scripts are detected from the original."""
+        """Run every check. text_scripts and category come from the product's meta.json;
+        without them the scripts are detected and the category is taken from the product card."""
         start = time.perf_counter()
         calls_before = len(self.client.calls)
         timings: dict[str, float] = {}
@@ -111,8 +126,10 @@ class Checker:
         read_text = lambda image: self.ocr_fn(image, scripts)  # noqa: E731
         card = timed("card", lambda: build_card(original_image, self.client, self.mask_fn, read_text,
                                                 self.card_cache, scripts))
-        pair = timed("masks", lambda: Pair(original_image, output_image, self.mask_fn(original_image),
-                                           self.mask_fn(output_image), card))
+        if category is None and card.vision is not None:
+            category = card.vision.category
+        original_mask, output_mask, cutout = timed("masks", lambda: self.masks(original_image, output_image, category))
+        pair = Pair(original_image, output_image, original_mask, output_mask, card)
         t = self.thresholds
         segmentation = timed("product_missing", lambda: check_segmentation(pair, t.segmentation))
         results = [segmentation]
@@ -144,4 +161,5 @@ class Checker:
             thresholds_tuned=t.tuned,
             text_scripts=scripts,
             created=datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            cutout=cutout,
         )
