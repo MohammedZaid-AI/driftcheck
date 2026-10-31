@@ -232,6 +232,9 @@ def render_comparison(data: dict | None) -> str:
         "2. Tuning. The first tuning kept wrong flags at or under 10 percent across all calibration negatives, which were "
         "mostly synthetic. The new tuning measures that 10 percent on the user's real calibration images only. Catches are "
         "still measured on the synthetic changes. This rule was changed after the first test results were seen.",
+        "3. Search ranges. With the cap on real images, no setting in the first ranges met it for pattern and text, so they "
+        "kept old values. The ranges were widened: pattern patch similarity 0.40 to 0.94 and share up to 0.95, text match "
+        "30 to 95. The middle and after columns both use the wider ranges. This was also changed after results were seen.",
         "",
         "The middle column has the new cut out with the old tuning rule, so the effect of each change can be seen on its own.",
         "",

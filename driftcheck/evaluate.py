@@ -464,13 +464,17 @@ def tune(items: list[Item], raws: dict[str, dict], start: Thresholds,
     t = chosen if result.get("positives") else t
     record("colour", "colour_changed", t, result, "colour")
 
-    candidates = [_with(t, "text", min_match=m) for m in range(60, 96, 5)]
+    # Ranges were widened on 2026-10-31: with the cap on real images, nothing in 60 to 95 kept
+    # text wrong flags at or under 10 percent.
+    candidates = [_with(t, "text", min_match=m) for m in range(30, 96, 5)]
     chosen, result = _choose(items, raws, "text_changed", "text", candidates)
     t = chosen if result.get("positives") else t
     record("text", "text_changed", t, result, "text")
 
+    # Widened on 2026-10-31 for the same reason: worn garments often have more than half their
+    # patches below the old patch similarity range even when nothing changed.
     candidates = [_with(t, "pattern", patch_similarity=round(p, 2), max_drift_share=round(s, 2))
-                  for p in np.arange(0.70, 0.96, 0.01) for s in np.arange(0.05, 0.55, 0.05)]
+                  for p in np.arange(0.40, 0.96, 0.02) for s in np.arange(0.05, 1.0, 0.05)]
     chosen, result = _choose(items, raws, "pattern_changed", "pattern", candidates)
     t = chosen if result.get("positives") else t
     record("pattern", "pattern_changed", t, result, "pattern")

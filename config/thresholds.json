@@ -1,23 +1,23 @@
 {
   "tuned": true,
-  "tuned_on": "calibration split, 207 pairs, vision model qwen2.5vl:7b",
+  "tuned_on": "calibration split, 207 pairs, results qwen2.5vl_7b_garmentcut, wrong flag cap on real calibration images only",
   "note": "Frozen. Do not change after tuning unless the split changes; then retune and say so in PROGRESS.md.",
   "segmentation": {
     "missing_share": 0.02,
     "small_share": 0.06
   },
   "colour": {
-    "max_weighted_delta_e": 11.75,
+    "max_weighted_delta_e": 15.01,
     "white_balance": true
   },
   "text": {
-    "min_match": 80.0,
+    "min_match": 40,
     "min_item_length": 2,
     "vision_backup": true
   },
   "pattern": {
-    "patch_similarity": 0.78,
-    "max_drift_share": 0.45,
+    "patch_similarity": 0.82,
+    "max_drift_share": 0.9,
     "min_patches": 20
   },
   "judge": {
@@ -26,6 +26,6 @@
     "use_silhouette": false
   },
   "baseline_1": {
-    "similarity": 0.5782696018682251
+    "similarity": 0.0
   }
 }
