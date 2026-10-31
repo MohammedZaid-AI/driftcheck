@@ -108,9 +108,12 @@ class Checker:
         output: Path | str | Image.Image,
         text_scripts: list[str] | None = None,
         category: str | None = None,
+        image_type: str = "flat",
     ) -> Report:
         """Run every check. text_scripts and category come from the product's meta.json;
-        without them the scripts are detected and the category is taken from the product card."""
+        without them the scripts are detected and the category is taken from the product card.
+        On a scene image, a model shot, lifestyle scene, poster or post, colour and pattern are
+        not run and are marked not applicable, so the verdict rests on the checks that ran."""
         start = time.perf_counter()
         calls_before = len(self.client.calls)
         timings: dict[str, float] = {}
@@ -134,9 +137,13 @@ class Checker:
         segmentation = timed("product_missing", lambda: check_segmentation(pair, t.segmentation))
         results = [segmentation]
         if product_visible(segmentation):
-            results.append(timed("colour", lambda: check_colour(pair, t.colour)))
+            scene = image_type == "scene"
+            skipped = "Not run on scene images: the same product looks different on a body or in a scene."
+            results.append(unknown("colour", skipped, applicable=False) if scene
+                           else timed("colour", lambda: check_colour(pair, t.colour)))
             results.append(timed("text", lambda: check_text(pair, t.text, read_text, self.client)))
-            results.append(timed("pattern", lambda: check_pattern(pair, t.pattern, self.features_fn)))
+            results.append(unknown("pattern", skipped, applicable=False) if scene
+                           else timed("pattern", lambda: check_pattern(pair, t.pattern, self.features_fn)))
             results.extend(timed("shape_and_logo", lambda: check_shape_and_logo(pair, t.judge, self.client)))
         else:
             reason = f"Skipped because the product is not visible in the output. {segmentation.reason}"

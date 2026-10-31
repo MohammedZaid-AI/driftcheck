@@ -23,7 +23,7 @@ from PIL import Image
 from driftcheck.baselines import ask_changed, whole_image_similarity
 from driftcheck.checks.base import Thresholds
 from driftcheck.checks.verdict import CHECK_ATTRIBUTE
-from driftcheck.dataset import list_outputs, output_image, product_dir, read_meta
+from driftcheck.dataset import list_outputs, output_image, parse_output_id, product_dir, read_meta
 from driftcheck.labels import ATTRIBUTES, LabelStore
 from driftcheck.log import get_logger
 from driftcheck.pipeline import load_image
@@ -33,6 +33,8 @@ log = get_logger(__name__)
 
 MAX_WRONG_FLAG_RATE = 0.10
 SETS = ("real", "synthetic")
+FLAT_STYLES = {"studio"}  # every other style puts the product in a scene or on a body
+SCENE_SKIPPED = ("colour", "pattern")  # the same product looks different on a body or in a scene
 
 
 @dataclass
@@ -46,10 +48,20 @@ class Item:
     label: dict[str, bool | None]
     text_scripts: list[str] | None
     category: str | None = None
+    image_type: str = "flat"  # flat or scene, see image_type()
 
     @property
     def key(self) -> str:
         return f"{self.set_name}/{self.product_id}__{self.output_id}"
+
+
+def image_type(style: str | None, original_worn: bool | None) -> str:
+    """flat or scene. AI outputs go by their style: studio is flat, model shots, lifestyle
+    scenes, posters and posts are scenes. A synthetic copy has no style, it is an edit of the
+    original photo, so it is a scene when the original shows the product worn."""
+    if style is not None:
+        return "flat" if style in FLAT_STYLES else "scene"
+    return "scene" if original_worn else "flat"
 
 
 def collect_items(data_dir: Path) -> list[Item]:
@@ -64,10 +76,12 @@ def collect_items(data_dir: Path) -> list[Item]:
             continue
         row = store.get(product_id, output_id)
         meta = read_meta(data_dir, product_id)
+        style = (parse_output_id(output_id) or (None, None))[0]
         items.append(Item("real", half[product_id], product_id, output_id,
                           product_dir(data_dir, product_id) / "original.jpg",
                           output_image(data_dir, product_id, output_id),
-                          {name: row[name] for name in ATTRIBUTES}, meta.text_scripts, meta.category))
+                          {name: row[name] for name in ATTRIBUTES}, meta.text_scripts, meta.category,
+                          image_type(style or "unknown", meta.worn)))
 
     synthetic = data_dir / "synthetic" / "labels.json"
     if synthetic.exists():
@@ -79,7 +93,8 @@ def collect_items(data_dir: Path) -> list[Item]:
             items.append(Item("synthetic", half[product_id], product_id, row["output_id"],
                               product_dir(data_dir, product_id) / "original.jpg",
                               data_dir / "synthetic" / product_id / f"{row['output_id']}.jpg",
-                              {name: row[name] for name in ATTRIBUTES}, meta.text_scripts, meta.category))
+                              {name: row[name] for name in ATTRIBUTES}, meta.text_scripts, meta.category,
+                              image_type(None, meta.worn)))
     return items
 
 
@@ -253,8 +268,11 @@ def decide_segmentation(report: dict, t: Thresholds) -> Decision:
     return "pass", True
 
 
-def decide_check(report: dict, name: str, t: Thresholds) -> Decision:
-    """The status a check would have had with thresholds t."""
+def decide_check(report: dict, name: str, t: Thresholds, kind: str = "flat") -> Decision:
+    """The status a check would have had with thresholds t. On a scene image colour and
+    pattern are skipped: they neither pass nor fail and are left out of every count."""
+    if kind == "scene" and name in SCENE_SKIPPED:
+        return "skipped", False
     if name == "product_missing":
         return decide_segmentation(report, t)
     if decide_segmentation(report, t)[0] != "pass":
@@ -308,8 +326,8 @@ def decide_shape(details: dict, t: Thresholds) -> Decision:
     return ("fail" if sum(changed) >= t.judge.min_changed_parts else "pass"), True
 
 
-def decide_all(report: dict, t: Thresholds) -> dict[str, Decision]:
-    return {name: decide_check(report, name, t) for name in CHECK_ATTRIBUTE}
+def decide_all(report: dict, t: Thresholds, kind: str = "flat") -> dict[str, Decision]:
+    return {name: decide_check(report, name, t, kind) for name in CHECK_ATTRIBUTE}
 
 
 def verdict(decisions: dict[str, Decision]) -> str:
@@ -324,7 +342,10 @@ def verdict(decisions: dict[str, Decision]) -> str:
 # Metrics ---------------------------------------------------------------------------------
 
 def prediction(status: str, applicable: bool) -> str:
-    """flag, clear or unknown. A check that does not apply is a clear: the attribute is not there."""
+    """flag, clear, unknown or skipped. A check that does not apply is a clear: the attribute
+    is not there. A skipped check made no call at all."""
+    if status == "skipped":
+        return "skipped"
     if status == "fail":
         return "flag"
     if status == "pass" or not applicable:
@@ -341,8 +362,9 @@ def overall_label(label: dict[str, bool | None]) -> bool | None:
 
 def score(pairs: list[tuple[bool | None, str]]) -> dict:
     """Counts and rates for (true label, prediction) pairs. Rates with nothing to divide by are None.
-    An unknown on a drifted image counts as missed. An unknown on a good image is not a wrong flag."""
-    pairs = [(label, pred) for label, pred in pairs if label is not None]
+    An unknown on a drifted image counts as missed. An unknown on a good image is not a wrong flag.
+    A skipped check is left out entirely."""
+    pairs = [(label, pred) for label, pred in pairs if label is not None and pred != "skipped"]
     tp = sum(label and pred == "flag" for label, pred in pairs)
     fn = sum(label and pred == "clear" for label, pred in pairs)
     unknown_pos = sum(label and pred == "unknown" for label, pred in pairs)
@@ -372,7 +394,7 @@ def driftcheck_scores(items: list[Item], raws: dict[str, dict], t: Thresholds) -
         raw = raws.get(item.key)
         if raw is None:
             continue
-        decisions = decide_all(raw["report"], t)
+        decisions = decide_all(raw["report"], t, item.image_type)
         for check, attribute in CHECK_ATTRIBUTE.items():
             per_attribute[attribute].append((item.label[attribute], prediction(*decisions[check])))
         verdict_pred = {"drifted": "flag", "faithful": "clear", "unknown": "unknown"}[verdict(decisions)]

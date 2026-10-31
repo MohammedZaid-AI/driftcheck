@@ -201,46 +201,56 @@ def _rates(report: dict) -> dict[str, float | None]:
     return rows
 
 
-def comparison(before: dict, middle: dict, after: dict) -> dict:
-    columns = {
-        "before": "Before: whole image cut out, cap on all calibration negatives",
-        "middle": "Garment cut out, cap on all calibration negatives",
-        "after": "After: garment cut out, cap on real calibration images only",
-    }
-    reports = {"before": before, "middle": middle, "after": after}
+CHANGE_NOTES = [
+    "Cut out. For worn clothing and accessories, a clothes parsing model keeps only the garment, not the model's face, "
+    "arms, legs or other clothes. Flat lays and studio shots keep the rembg cut out. Product missing, colour and pattern "
+    "were run again with the new cut out on the saved run. Text, shape and logo come from the saved run unchanged.",
+    "Tuning. The first tuning kept wrong flags at or under 10 percent across all calibration negatives, which were mostly "
+    "synthetic. The retuning measures that 10 percent on the user's real calibration images only. Catches are still "
+    "measured on the synthetic changes. This rule was changed after the first test results were seen.",
+    "Search ranges. With the cap on real images, no setting in the first ranges met it for pattern and text. The ranges "
+    "were widened: pattern patch similarity 0.40 to 0.94 and share up to 0.95, text match 30 to 95. Also changed after "
+    "results were seen.",
+    "Routing by image type. Studio outputs are flat images. Model shots, lifestyle scenes, posters and Instagram posts "
+    "are scene images. A synthetic copy takes the type of its original: a scene if the original shows the product worn. "
+    "On scene images colour and pattern are skipped. A skipped check is neither a pass nor a fail: it is left out of the "
+    "verdict and out of that check's counts. A deliberate colour or pattern change on a scene image can then only be "
+    "caught by the checks that still run, and counts as missed in the overall catch rate if they do not catch it. "
+    "Thresholds are the ones frozen at the retuning, not tuned again. Also decided after results were seen.",
+]
+
+
+def comparison(columns: list[tuple[str, dict]]) -> dict:
+    """Side by side numbers for each (label, report), oldest first."""
+    keys = [str(i) for i in range(len(columns))]
+    reports = dict(zip(keys, (r for _, r in columns)))
     rates = {key: _rates(r) for key, r in reports.items()}
     flagged = {key: (r["results"]["real"]["driftcheck"]["overall"]["fp"], r["results"]["real"]["driftcheck"]["overall"]["negatives"])
                for key, r in reports.items()}
-    return {"columns": columns, "rows": {row: {key: rates[key].get(row) for key in reports} for row in rates["after"]},
-            "real_test_flagged": flagged, "thresholds": {key: r["thresholds"] for key, r in reports.items()}}
+    caught = {key: (r["results"]["synthetic"]["driftcheck"]["overall"]["tp"],
+                    r["results"]["synthetic"]["driftcheck"]["overall"]["positives"]) for key, r in reports.items()}
+    return {"columns": dict(zip(keys, (label for label, _ in columns))),
+            "rows": {row: {key: rates[key].get(row) for key in keys} for row in rates[keys[-1]]},
+            "real_test_flagged": flagged, "synthetic_test_caught": caught,
+            "thresholds": {key: r["thresholds"] for key, r in reports.items()}}
 
 
 def render_comparison(data: dict | None) -> str:
     if not data:
         return ""
     keys = list(data["columns"])
-    flagged = data["real_test_flagged"]
+    flagged, caught = data["real_test_flagged"], data["synthetic_test_caught"]
     lines = [
-        "# What the cut out fix and the retuning changed",
+        "# What changed since the first report",
         "",
-        "Two things changed after the first report. Both are shown here so nothing is hidden.",
+        "Every change after the first report is listed here, and each column shows the numbers after it, so nothing is hidden.",
         "",
-        "1. Cut out. For worn clothing and accessories, a clothes parsing model now keeps only the garment, not the "
-        "model's face, arms, legs or other clothes. Flat lays and studio shots keep the rembg cut out. Product missing, "
-        "colour and pattern were run again with the new cut out on the saved run. Text, shape and logo come from the "
-        "saved run unchanged.",
-        "2. Tuning. The first tuning kept wrong flags at or under 10 percent across all calibration negatives, which were "
-        "mostly synthetic. The new tuning measures that 10 percent on the user's real calibration images only. Catches are "
-        "still measured on the synthetic changes. This rule was changed after the first test results were seen.",
-        "3. Search ranges. With the cap on real images, no setting in the first ranges met it for pattern and text, so they "
-        "kept old values. The ranges were widened: pattern patch similarity 0.40 to 0.94 and share up to 0.95, text match "
-        "30 to 95. The middle and after columns both use the wider ranges. This was also changed after results were seen.",
-        "",
-        "The middle column has the new cut out with the old tuning rule, so the effect of each change can be seen on its own.",
+        *[f"{n}. {note}" for n, note in enumerate(CHANGE_NOTES, 1)],
         "",
         "| | " + " | ".join(data["columns"][k] for k in keys) + " |",
         "|---|" + "---|" * len(keys),
         "| Real test images wrongly flagged | " + " | ".join(f"{flagged[k][0]} of {flagged[k][1]}" for k in keys) + " |",
+        "| Synthetic test changes caught | " + " | ".join(f"{caught[k][0]} of {caught[k][1]}" for k in keys) + " |",
     ]
     for row, values in data["rows"].items():
         lines.append(f"| {row} | " + " | ".join(pct(values[k]) for k in keys) + " |")
@@ -262,7 +272,7 @@ def failures(items: list[Item], raws: dict, t: Thresholds) -> tuple[list, list]:
     for item in items:
         if item.split != "test" or item.key not in raws:
             continue
-        decisions = decide_all(raws[item.key]["report"], t)
+        decisions = decide_all(raws[item.key]["report"], t, item.image_type)
         missed_attrs, flagged_attrs = [], []
         for check, attribute in CHECK_ATTRIBUTE.items():
             pred = prediction(*decisions[check])
@@ -302,7 +312,10 @@ def write_gallery(out_dir: Path, items: list[Item], raws: dict, t: Thresholds) -
         for _, item, attributes, decisions in group:
             report = Report.model_validate(raws[item.key]["report"])
             for check in report.checks:  # show the tuned decision, not the recording run's
-                check.status, check.applicable = decisions[check.name]
+                status, check.applicable = decisions[check.name]
+                check.status = "unknown" if status == "skipped" else status  # drawn as not applicable
+                if status == "skipped":
+                    check.reason = "Skipped on scene images."
             show_tuned_thresholds(report, t)
             report.verdict = verdict(decisions)
             name = f"{kind}_{item.set_name}_{item.product_id}__{item.output_id}.png"

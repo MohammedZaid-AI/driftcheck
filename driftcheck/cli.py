@@ -256,6 +256,7 @@ def check(
     out: str = typer.Option("reports/check", help="Folder for report.json and heatmap.png."),
     model: str = typer.Option(None, help="Vision model to use instead of the configured one, for example qwen2.5vl:7b."),
     text_scripts: str = typer.Option(None, "--scripts", help="Scripts on the product, for example en,hi. Detected if not given."),
+    image_type: str = typer.Option(None, "--image-type", help="flat or scene. Taken from the output's style name if not given."),
 ) -> None:
     """Check one original against one output. Writes report.json and heatmap.png."""
     from pathlib import Path
@@ -269,7 +270,14 @@ def check(
         checker.client.ensure_ready()
     except VisionUnavailable as error:
         typer.echo(f"Vision model not ready, so shape, logo and the card will be unknown: {error}", err=True)
-    report = checker.check(original, output, text_scripts.split(",") if text_scripts else None)
+    from driftcheck.dataset import parse_output_id
+    from driftcheck.evaluate import image_type as kind_of
+
+    if image_type is None:
+        parsed = parse_output_id(Path(output).stem)
+        image_type = kind_of(parsed[0], None) if parsed else "flat"
+    report = checker.check(original, output, text_scripts.split(",") if text_scripts else None, image_type=image_type)
+    typer.echo(f"Image type: {image_type}")
     folder = Path(out)
     folder.mkdir(parents=True, exist_ok=True)
     (folder / "report.json").write_text(report.model_dump_json(indent=2), encoding="utf-8")
@@ -337,7 +345,8 @@ def evaluate(
     retune: bool = typer.Option(False, help="Tune again on the calibration split even though thresholds are frozen."),
     raw_tag: str = typer.Option(None, help="Saved result set to report on. Default: the configured vision model."),
     cap: str = typer.Option("all", help="Where the 10 percent wrong flag cap is measured when tuning: all or real."),
-    before: str = typer.Option(None, help="An earlier eval_report.json to compare with, side by side."),
+    before: list[str] = typer.Option(None, help="Earlier reports to show side by side, oldest first, as LABEL::PATH."),
+    label: str = typer.Option("This report", help="Column label for this report in the side by side table."),
 ) -> None:
     """Tune on the calibration split if not done yet, then write reports/eval_report.md and .json."""
     import json
@@ -415,12 +424,11 @@ def evaluate(
     if before:
         from driftcheck.eval_report import comparison
 
-        previous = json.loads(Path(before).read_text(encoding="utf-8"))
-        # The middle column: the new cut out, tuned the old way, so each change shows on its own.
-        old_rule, _ = tune(calibration, raws, t.model_copy(deep=True), None)
-        old_b1, _ = tune_baseline_1(calibration, raws, None)
-        middle = build_report(settings.root, items, {primary: raws}, primary, old_rule, {}, old_b1, {}, models, cost, scalio_note)
-        report["comparison"] = comparison(previous, middle, report)
+        columns = []
+        for entry in before:
+            name, _, path = entry.partition("::")
+            columns.append((name, json.loads(Path(path).read_text(encoding="utf-8"))))
+        report["comparison"] = comparison(columns + [(label, report)])
 
     out = settings.root / "reports"
     entries = write_gallery(out / "gallery", items, raws, t)

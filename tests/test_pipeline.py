@@ -61,6 +61,18 @@ def test_colour_drift_is_drifted() -> None:
     assert report.verdict == "drifted"
 
 
+def test_scene_image_skips_colour_and_pattern() -> None:
+    original = garment(stripes=True, text="SALE 50")
+    output = garment(colour=(30, 140, 60), stripes=True, text="SALE 50")  # a colour change
+    flat = _checker([CARD, SHIRT, SHIRT]).check(original, output)
+    scene = _checker([CARD, SHIRT, SHIRT]).check(original, output, image_type="scene")
+    assert flat.check("colour").status == "fail" and flat.verdict == "drifted"
+    for name in ("colour", "pattern"):
+        assert scene.check(name).status == "unknown" and scene.check(name).applicable is False
+        assert "scene" in scene.check(name).reason
+    assert scene.verdict == "faithful"  # text and shape passed; skipped checks do not count
+
+
 def test_missing_product_skips_other_checks() -> None:
     blank = Image.new("RGB", garment().size, "white")
     checker = _checker([CARD])

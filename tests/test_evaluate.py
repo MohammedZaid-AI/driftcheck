@@ -208,19 +208,49 @@ def test_gallery_draws_with_tuned_thresholds() -> None:
     assert report.check("text").details["items"][0]["found_by"] == "ocr"  # 85 is over the tuned 80
 
 
-def test_comparison_table_shows_all_three_columns() -> None:
+def test_comparison_table_shows_every_column() -> None:
     from driftcheck.eval_report import comparison, render_comparison
 
     items = [item(f"g{i}", split="test", set_name="real") for i in range(4)] + [item("s", split="test", colour_changed=True)]
     noisy = {i.key: raw(colour=20) for i in items}  # everything flagged
     clean = {i.key: raw(colour=1) for i in items[:4]} | {items[4].key: raw(colour=20)}
     build = lambda raws: build_report(Path("."), items, {"m": raws}, "m", T, {}, 0.9, {}, {}, "", "")  # noqa: E731
-    data = comparison(build(noisy), build(clean), build(clean))
-    assert data["real_test_flagged"] == {"before": (4, 4), "middle": (0, 4), "after": (0, 4)}
+    data = comparison([("First", build(noisy)), ("Second", build(clean)), ("Third", build(clean))])
+    assert data["real_test_flagged"] == {"0": (4, 4), "1": (0, 4), "2": (0, 4)}
+    assert data["synthetic_test_caught"]["2"] == (1, 1)
     text = render_comparison(data)
+    assert "| | First | Second | Third |" in text
     assert "| Real test images wrongly flagged | 4 of 4 | 0 of 4 | 0 of 4 |" in text
-    assert "changed after the first test results were seen" in text
+    assert "| Synthetic test changes caught | 1 of 1 | 1 of 1 | 1 of 1 |" in text
+    assert "changed after the first test results were seen" in text and "Routing by image type" in text
     assert render_comparison(None) == ""
+
+
+def test_scene_images_skip_colour_and_pattern() -> None:
+    from driftcheck.evaluate import image_type
+
+    assert image_type("studio", True) == "flat"
+    assert image_type("model_shot", False) == image_type("instagram_post", False) == "scene"
+    assert image_type(None, True) == "scene" and image_type(None, False) == "flat"
+
+    r = raw(colour=30, grid_value=0.1)["report"]  # colour and pattern would both fail
+    flat = decide_all(r, T, "flat")
+    scene = decide_all(r, T, "scene")
+    assert flat["colour"][0] == "fail" and verdict(flat) == "drifted"
+    assert scene["colour"] == ("skipped", False) and scene["pattern"] == ("skipped", False)
+    assert verdict(scene) == "faithful"  # only the checks that ran count, and they passed
+
+
+def test_skipped_checks_leave_the_counts() -> None:
+    good = item("g", split="test", set_name="real")
+    good.image_type = "scene"
+    changed = item("c", split="test", colour_changed=True)
+    changed.image_type = "scene"
+    raws = {good.key: raw(colour=30), changed.key: raw(colour=30)}
+    s = driftcheck_scores([good, changed], raws, T)
+    assert s["attributes"]["colour_changed"]["n"] == 0  # not a pass, not a fail, not counted
+    assert s["overall"]["fp"] == 0  # the good scene image is not flagged by a skipped check
+    assert s["overall"]["fn"] == 1  # the colour change was not caught by the checks that ran
 
 
 def test_driftcheck_scores_count_per_attribute() -> None:
