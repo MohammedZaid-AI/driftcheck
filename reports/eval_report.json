@@ -1,6 +1,6 @@
 {
- "date": "2026-10-31T13:01:59+00:00",
- "git_commit": "fd40af4a795e0c1a2709deb98537f9714c9a52ad",
+ "date": "2026-10-31T14:44:18+00:00",
+ "git_commit": "fadc178224face5264f3b8d9b3a64669bda99924",
  "models": {
   "vision": "ollama/qwen2.5vl:7b",
   "result set": "qwen2.5vl_7b_garmentcut",
@@ -268,36 +268,36 @@
       "unknown_rate": 0.025
      },
      "colour_changed": {
-      "n": 40,
+      "n": 18,
       "positives": 0,
-      "negatives": 40,
+      "negatives": 18,
       "tp": 0,
-      "fp": 3,
-      "tn": 36,
+      "fp": 0,
+      "tn": 18,
       "fn": 0,
       "unknown_positive": 0,
-      "unknown_negative": 1,
-      "precision": 0.0,
+      "unknown_negative": 0,
+      "precision": null,
       "recall": null,
       "f1": null,
-      "wrong_flag_rate": 0.075,
-      "unknown_rate": 0.025
+      "wrong_flag_rate": 0.0,
+      "unknown_rate": 0.0
      },
      "pattern_changed": {
-      "n": 40,
+      "n": 18,
       "positives": 0,
-      "negatives": 40,
+      "negatives": 18,
       "tp": 0,
-      "fp": 5,
-      "tn": 34,
+      "fp": 0,
+      "tn": 18,
       "fn": 0,
       "unknown_positive": 0,
-      "unknown_negative": 1,
-      "precision": 0.0,
+      "unknown_negative": 0,
+      "precision": null,
       "recall": null,
       "f1": null,
-      "wrong_flag_rate": 0.125,
-      "unknown_rate": 0.025
+      "wrong_flag_rate": 0.0,
+      "unknown_rate": 0.0
      },
      "logo_changed": {
       "n": 35,
@@ -353,15 +353,15 @@
      "positives": 0,
      "negatives": 40,
      "tp": 0,
-     "fp": 20,
-     "tn": 20,
+     "fp": 15,
+     "tn": 25,
      "fn": 0,
      "unknown_positive": 0,
      "unknown_negative": 0,
      "precision": 0.0,
      "recall": null,
      "f1": null,
-     "wrong_flag_rate": 0.5,
+     "wrong_flag_rate": 0.375,
      "unknown_rate": 0.0
     }
    },
@@ -440,36 +440,36 @@
       "unknown_rate": 0.050359712230215826
      },
      "colour_changed": {
-      "n": 139,
-      "positives": 20,
-      "negatives": 119,
-      "tp": 7,
+      "n": 125,
+      "positives": 18,
+      "negatives": 107,
+      "tp": 6,
       "fp": 1,
-      "tn": 111,
-      "fn": 13,
+      "tn": 99,
+      "fn": 12,
       "unknown_positive": 0,
       "unknown_negative": 7,
-      "precision": 0.875,
-      "recall": 0.35,
-      "f1": 0.4999999999999999,
-      "wrong_flag_rate": 0.008403361344537815,
-      "unknown_rate": 0.050359712230215826
+      "precision": 0.8571428571428571,
+      "recall": 0.3333333333333333,
+      "f1": 0.48,
+      "wrong_flag_rate": 0.009345794392523364,
+      "unknown_rate": 0.056
      },
      "pattern_changed": {
-      "n": 139,
-      "positives": 30,
-      "negatives": 109,
-      "tp": 13,
+      "n": 125,
+      "positives": 26,
+      "negatives": 99,
+      "tp": 12,
       "fp": 0,
-      "tn": 109,
-      "fn": 10,
+      "tn": 99,
+      "fn": 7,
       "unknown_positive": 7,
       "unknown_negative": 0,
       "precision": 1.0,
-      "recall": 0.43333333333333335,
-      "f1": 0.6046511627906976,
+      "recall": 0.46153846153846156,
+      "f1": 0.631578947368421,
       "wrong_flag_rate": 0.0,
-      "unknown_rate": 0.050359712230215826
+      "unknown_rate": 0.056
      },
      "logo_changed": {
       "n": 0,
@@ -524,15 +524,15 @@
      "n": 159,
      "positives": 99,
      "negatives": 60,
-     "tp": 60,
+     "tp": 58,
      "fp": 18,
      "tn": 42,
-     "fn": 35,
+     "fn": 37,
      "unknown_positive": 4,
      "unknown_negative": 0,
-     "precision": 0.7692307692307693,
-     "recall": 0.6060606060606061,
-     "f1": 0.6779661016949152,
+     "precision": 0.7631578947368421,
+     "recall": 0.5858585858585859,
+     "f1": 0.6628571428571428,
      "wrong_flag_rate": 0.3,
      "unknown_rate": 0.025157232704402517
     }
@@ -615,36 +615,36 @@
        "unknown_rate": 0.025
       },
       "colour_changed": {
-       "n": 40,
+       "n": 18,
        "positives": 0,
-       "negatives": 40,
+       "negatives": 18,
        "tp": 0,
-       "fp": 3,
-       "tn": 36,
+       "fp": 0,
+       "tn": 18,
        "fn": 0,
        "unknown_positive": 0,
-       "unknown_negative": 1,
-       "precision": 0.0,
+       "unknown_negative": 0,
+       "precision": null,
        "recall": null,
        "f1": null,
-       "wrong_flag_rate": 0.075,
-       "unknown_rate": 0.025
+       "wrong_flag_rate": 0.0,
+       "unknown_rate": 0.0
       },
       "pattern_changed": {
-       "n": 40,
+       "n": 18,
        "positives": 0,
-       "negatives": 40,
+       "negatives": 18,
        "tp": 0,
-       "fp": 5,
-       "tn": 34,
+       "fp": 0,
+       "tn": 18,
        "fn": 0,
        "unknown_positive": 0,
-       "unknown_negative": 1,
-       "precision": 0.0,
+       "unknown_negative": 0,
+       "precision": null,
        "recall": null,
        "f1": null,
-       "wrong_flag_rate": 0.125,
-       "unknown_rate": 0.025
+       "wrong_flag_rate": 0.0,
+       "unknown_rate": 0.0
       },
       "logo_changed": {
        "n": 35,
@@ -700,15 +700,15 @@
       "positives": 0,
       "negatives": 40,
       "tp": 0,
-      "fp": 20,
-      "tn": 20,
+      "fp": 15,
+      "tn": 25,
       "fn": 0,
       "unknown_positive": 0,
       "unknown_negative": 0,
       "precision": 0.0,
       "recall": null,
       "f1": null,
-      "wrong_flag_rate": 0.5,
+      "wrong_flag_rate": 0.375,
       "unknown_rate": 0.0
      }
     },
@@ -787,36 +787,36 @@
        "unknown_rate": 0.050359712230215826
       },
       "colour_changed": {
-       "n": 139,
-       "positives": 20,
-       "negatives": 119,
-       "tp": 7,
+       "n": 125,
+       "positives": 18,
+       "negatives": 107,
+       "tp": 6,
        "fp": 1,
-       "tn": 111,
-       "fn": 13,
+       "tn": 99,
+       "fn": 12,
        "unknown_positive": 0,
        "unknown_negative": 7,
-       "precision": 0.875,
-       "recall": 0.35,
-       "f1": 0.4999999999999999,
-       "wrong_flag_rate": 0.008403361344537815,
-       "unknown_rate": 0.050359712230215826
+       "precision": 0.8571428571428571,
+       "recall": 0.3333333333333333,
+       "f1": 0.48,
+       "wrong_flag_rate": 0.009345794392523364,
+       "unknown_rate": 0.056
       },
       "pattern_changed": {
-       "n": 139,
-       "positives": 30,
-       "negatives": 109,
-       "tp": 13,
+       "n": 125,
+       "positives": 26,
+       "negatives": 99,
+       "tp": 12,
        "fp": 0,
-       "tn": 109,
-       "fn": 10,
+       "tn": 99,
+       "fn": 7,
        "unknown_positive": 7,
        "unknown_negative": 0,
        "precision": 1.0,
-       "recall": 0.43333333333333335,
-       "f1": 0.6046511627906976,
+       "recall": 0.46153846153846156,
+       "f1": 0.631578947368421,
        "wrong_flag_rate": 0.0,
-       "unknown_rate": 0.050359712230215826
+       "unknown_rate": 0.056
       },
       "logo_changed": {
        "n": 0,
@@ -871,15 +871,15 @@
       "n": 159,
       "positives": 99,
       "negatives": 60,
-      "tp": 60,
+      "tp": 58,
       "fp": 18,
       "tn": 42,
-      "fn": 35,
+      "fn": 37,
       "unknown_positive": 4,
       "unknown_negative": 0,
-      "precision": 0.7692307692307693,
-      "recall": 0.6060606060606061,
-      "f1": 0.6779661016949152,
+      "precision": 0.7631578947368421,
+      "recall": 0.5858585858585859,
+      "f1": 0.6628571428571428,
       "wrong_flag_rate": 0.3,
       "unknown_rate": 0.025157232704402517
      }
@@ -961,36 +961,36 @@
        "unknown_rate": 0.025
       },
       "colour_changed": {
-       "n": 40,
+       "n": 18,
        "positives": 0,
-       "negatives": 40,
+       "negatives": 18,
        "tp": 0,
-       "fp": 3,
-       "tn": 36,
+       "fp": 0,
+       "tn": 18,
        "fn": 0,
        "unknown_positive": 0,
-       "unknown_negative": 1,
-       "precision": 0.0,
+       "unknown_negative": 0,
+       "precision": null,
        "recall": null,
        "f1": null,
-       "wrong_flag_rate": 0.075,
-       "unknown_rate": 0.025
+       "wrong_flag_rate": 0.0,
+       "unknown_rate": 0.0
       },
       "pattern_changed": {
-       "n": 40,
+       "n": 18,
        "positives": 0,
-       "negatives": 40,
+       "negatives": 18,
        "tp": 0,
-       "fp": 7,
-       "tn": 32,
+       "fp": 0,
+       "tn": 18,
        "fn": 0,
        "unknown_positive": 0,
-       "unknown_negative": 1,
-       "precision": 0.0,
+       "unknown_negative": 0,
+       "precision": null,
        "recall": null,
        "f1": null,
-       "wrong_flag_rate": 0.175,
-       "unknown_rate": 0.025
+       "wrong_flag_rate": 0.0,
+       "unknown_rate": 0.0
       },
       "logo_changed": {
        "n": 35,
@@ -1046,15 +1046,15 @@
       "positives": 0,
       "negatives": 40,
       "tp": 0,
-      "fp": 20,
-      "tn": 20,
+      "fp": 15,
+      "tn": 25,
       "fn": 0,
       "unknown_positive": 0,
       "unknown_negative": 0,
       "precision": 0.0,
       "recall": null,
       "f1": null,
-      "wrong_flag_rate": 0.5,
+      "wrong_flag_rate": 0.375,
       "unknown_rate": 0.0
      }
     },
@@ -1133,36 +1133,36 @@
        "unknown_rate": 0.05755395683453238
       },
       "colour_changed": {
-       "n": 139,
-       "positives": 20,
-       "negatives": 119,
-       "tp": 7,
+       "n": 125,
+       "positives": 18,
+       "negatives": 107,
+       "tp": 6,
        "fp": 1,
-       "tn": 110,
-       "fn": 13,
+       "tn": 99,
+       "fn": 12,
        "unknown_positive": 0,
-       "unknown_negative": 8,
-       "precision": 0.875,
-       "recall": 0.35,
-       "f1": 0.4999999999999999,
-       "wrong_flag_rate": 0.008403361344537815,
-       "unknown_rate": 0.05755395683453238
+       "unknown_negative": 7,
+       "precision": 0.8571428571428571,
+       "recall": 0.3333333333333333,
+       "f1": 0.48,
+       "wrong_flag_rate": 0.009345794392523364,
+       "unknown_rate": 0.056
       },
       "pattern_changed": {
-       "n": 139,
-       "positives": 30,
-       "negatives": 109,
+       "n": 125,
+       "positives": 26,
+       "negatives": 99,
        "tp": 12,
        "fp": 0,
-       "tn": 109,
-       "fn": 10,
-       "unknown_positive": 8,
+       "tn": 99,
+       "fn": 7,
+       "unknown_positive": 7,
        "unknown_negative": 0,
        "precision": 1.0,
-       "recall": 0.4,
-       "f1": 0.5714285714285715,
+       "recall": 0.46153846153846156,
+       "f1": 0.631578947368421,
        "wrong_flag_rate": 0.0,
-       "unknown_rate": 0.05755395683453238
+       "unknown_rate": 0.056
       },
       "logo_changed": {
        "n": 0,
@@ -1217,15 +1217,15 @@
       "n": 159,
       "positives": 99,
       "negatives": 60,
-      "tp": 61,
+      "tp": 58,
       "fp": 18,
       "tn": 42,
-      "fn": 33,
+      "fn": 36,
       "unknown_positive": 5,
       "unknown_negative": 0,
-      "precision": 0.7721518987341772,
-      "recall": 0.6161616161616161,
-      "f1": 0.6853932584269664,
+      "precision": 0.7631578947368421,
+      "recall": 0.5858585858585859,
+      "f1": 0.6628571428571428,
       "wrong_flag_rate": 0.3,
       "unknown_rate": 0.031446540880503145
      }
@@ -1289,118 +1289,132 @@
  "scalio_examples": "No images in data/scalio_examples, so this part was not run.",
  "comparison": {
   "columns": {
-   "before": "Before: whole image cut out, cap on all calibration negatives",
-   "middle": "Garment cut out, cap on all calibration negatives",
-   "after": "After: garment cut out, cap on real calibration images only"
+   "0": "First report",
+   "1": "Cut out fix and retune",
+   "2": "Routing by image type"
   },
   "rows": {
    "Real test, overall wrong flag rate": {
-    "before": 0.675,
-    "middle": 0.65,
-    "after": 0.5
+    "0": 0.675,
+    "1": 0.5,
+    "2": 0.375
    },
    "Real test, shape_changed wrong flag rate": {
-    "before": 0.1,
-    "middle": 0.1,
-    "after": 0.1
+    "0": 0.1,
+    "1": 0.1,
+    "2": 0.1
    },
    "Real test, colour_changed wrong flag rate": {
-    "before": 0.125,
-    "middle": 0.125,
-    "after": 0.075
+    "0": 0.125,
+    "1": 0.075,
+    "2": 0.0
    },
    "Real test, pattern_changed wrong flag rate": {
-    "before": 0.425,
-    "middle": 0.325,
-    "after": 0.125
+    "0": 0.425,
+    "1": 0.125,
+    "2": 0.0
    },
    "Real test, logo_changed wrong flag rate": {
-    "before": 0.14285714285714285,
-    "middle": 0.14285714285714285,
-    "after": 0.14285714285714285
+    "0": 0.14285714285714285,
+    "1": 0.14285714285714285,
+    "2": 0.14285714285714285
    },
    "Real test, text_changed wrong flag rate": {
-    "before": 0.22857142857142856,
-    "middle": 0.14285714285714285,
-    "after": 0.14285714285714285
+    "0": 0.22857142857142856,
+    "1": 0.14285714285714285,
+    "2": 0.14285714285714285
    },
    "Real test, product_missing wrong flag rate": {
-    "before": 0.025,
-    "middle": 0.025,
-    "after": 0.025
+    "0": 0.025,
+    "1": 0.025,
+    "2": 0.025
    },
    "Synthetic test, overall recall": {
-    "before": 0.8080808080808081,
-    "middle": 0.7171717171717171,
-    "after": 0.6060606060606061
+    "0": 0.8080808080808081,
+    "1": 0.6060606060606061,
+    "2": 0.5858585858585859
    },
    "Synthetic test, overall precision": {
-    "before": 0.7476635514018691,
-    "middle": 0.7888888888888889,
-    "after": 0.7692307692307693
+    "0": 0.7476635514018691,
+    "1": 0.7692307692307693,
+    "2": 0.7631578947368421
    },
    "Synthetic test, overall wrong flag rate": {
-    "before": 0.45,
-    "middle": 0.31666666666666665,
-    "after": 0.3
+    "0": 0.45,
+    "1": 0.3,
+    "2": 0.3
    },
    "Synthetic test, shape_changed recall": {
-    "before": 0.09090909090909091,
-    "middle": 0.09090909090909091,
-    "after": 0.09090909090909091
+    "0": 0.09090909090909091,
+    "1": 0.09090909090909091,
+    "2": 0.09090909090909091
    },
    "Synthetic test, colour_changed recall": {
-    "before": 0.65,
-    "middle": 0.65,
-    "after": 0.35
+    "0": 0.65,
+    "1": 0.35,
+    "2": 0.3333333333333333
    },
    "Synthetic test, pattern_changed recall": {
-    "before": 0.7333333333333333,
-    "middle": 0.7,
-    "after": 0.43333333333333335
+    "0": 0.7333333333333333,
+    "1": 0.43333333333333335,
+    "2": 0.46153846153846156
    },
    "Synthetic test, logo_changed recall": {
-    "before": null,
-    "middle": null,
-    "after": null
+    "0": null,
+    "1": null,
+    "2": null
    },
    "Synthetic test, text_changed recall": {
-    "before": 0.84375,
-    "middle": 0.59375,
-    "after": 0.59375
+    "0": 0.84375,
+    "1": 0.59375,
+    "2": 0.59375
    },
    "Synthetic test, product_missing recall": {
-    "before": 0.1,
-    "middle": 0.1,
-    "after": 0.1
+    "0": 0.1,
+    "1": 0.1,
+    "2": 0.1
    },
    "Baseline 1, real test wrong flag rate": {
-    "before": 0.25,
-    "middle": 0.25,
-    "after": 0.0
+    "0": 0.25,
+    "1": 0.0,
+    "2": 0.0
    },
    "Baseline 1, synthetic test recall": {
-    "before": 0.020202020202020204,
-    "middle": 0.020202020202020204,
-    "after": 0.0
+    "0": 0.020202020202020204,
+    "1": 0.0,
+    "2": 0.0
    }
   },
   "real_test_flagged": {
-   "before": [
+   "0": [
     27,
     40
    ],
-   "middle": [
-    26,
+   "1": [
+    20,
     40
    ],
-   "after": [
-    20,
+   "2": [
+    15,
     40
    ]
   },
+  "synthetic_test_caught": {
+   "0": [
+    80,
+    99
+   ],
+   "1": [
+    60,
+    99
+   ],
+   "2": [
+    58,
+    99
+   ]
+  },
   "thresholds": {
-   "before": {
+   "0": {
     "tuned": true,
     "segmentation": {
      "missing_share": 0.02,
@@ -1426,14 +1440,14 @@
      "use_silhouette": false
     }
    },
-   "middle": {
+   "1": {
     "tuned": true,
     "segmentation": {
      "missing_share": 0.02,
      "small_share": 0.06
     },
     "colour": {
-     "max_weighted_delta_e": 11.75,
+     "max_weighted_delta_e": 15.01,
      "white_balance": true
     },
     "text": {
@@ -1442,7 +1456,7 @@
      "vision_backup": true
     },
     "pattern": {
-     "patch_similarity": 0.9,
+     "patch_similarity": 0.82,
      "max_drift_share": 0.9,
      "min_patches": 20
     },
@@ -1452,7 +1466,7 @@
      "use_silhouette": false
     }
    },
-   "after": {
+   "2": {
     "tuned": true,
     "segmentation": {
      "missing_share": 0.02,
@@ -1561,13 +1575,35 @@
   },
   {
    "kind": "missed",
+   "item": "synthetic/p010__colour_shift",
+   "attributes": [
+    "colour_changed"
+   ],
+   "file": "missed_synthetic_p010__colour_shift.png",
+   "reasons_from_recorded_run": {
+    "colour": "Skipped on scene images."
+   }
+  },
+  {
+   "kind": "missed",
+   "item": "synthetic/p010__pattern_blur",
+   "attributes": [
+    "pattern_changed"
+   ],
+   "file": "missed_synthetic_p010__pattern_blur.png",
+   "reasons_from_recorded_run": {
+    "pattern": "Skipped on scene images."
+   }
+  },
+  {
+   "kind": "missed",
    "item": "synthetic/p010__pattern_swap",
    "attributes": [
     "pattern_changed"
    ],
    "file": "missed_synthetic_p010__pattern_swap.png",
    "reasons_from_recorded_run": {
-    "pattern": "72% of the output product has no close match in the original pattern, above 45%."
+    "pattern": "Skipped on scene images."
    }
   },
   {
@@ -1579,67 +1615,6 @@
    "file": "missed_synthetic_p010__product_erase.png",
    "reasons_from_recorded_run": {
     "product_missing": "The product covers 64.2% of the output."
-   }
-  },
-  {
-   "kind": "missed",
-   "item": "synthetic/p010__sleeve_erase",
-   "attributes": [
-    "shape_changed"
-   ],
-   "file": "missed_synthetic_p010__sleeve_erase.png",
-   "reasons_from_recorded_run": {
-    "shape": "Shape changed: silhouette straight to boxy."
-   }
-  },
-  {
-   "kind": "missed",
-   "item": "synthetic/p015__colour_shift",
-   "attributes": [
-    "colour_changed"
-   ],
-   "file": "missed_synthetic_p015__colour_shift.png",
-   "reasons_from_recorded_run": {
-    "colour": "Colours moved by 8.1 CIEDE2000 on average."
-   }
-  },
-  {
-   "kind": "false_alarm",
-   "item": "real/p018__model_shot__gemini_app",
-   "attributes": [
-    "pattern_changed",
-    "shape_changed"
-   ],
-   "file": "false_alarm_real_p018__model_shot__gemini_app.png",
-   "reasons_from_recorded_run": {
-    "pattern": "91% of the output product has no close match in the original pattern, above 45%.",
-    "shape": "Shape changed: sleeves sleeveless to three_quarter."
-   }
-  },
-  {
-   "kind": "false_alarm",
-   "item": "real/p029__festival_poster__gemini_app",
-   "attributes": [
-    "colour_changed",
-    "logo_changed"
-   ],
-   "file": "false_alarm_real_p029__festival_poster__gemini_app.png",
-   "reasons_from_recorded_run": {
-    "colour": "Colours moved by 16.2 CIEDE2000 on average, above 11.75. Biggest change: #d9f7fb became #91effb.",
-    "logo": "The original has a logo but none is visible in the output."
-   }
-  },
-  {
-   "kind": "false_alarm",
-   "item": "real/p076__model_shot__gemini_app",
-   "attributes": [
-    "pattern_changed",
-    "logo_changed"
-   ],
-   "file": "false_alarm_real_p076__model_shot__gemini_app.png",
-   "reasons_from_recorded_run": {
-    "pattern": "100% of the output product has no close match in the original pattern, above 45%.",
-    "logo": "The original has a logo but none is visible in the output."
    }
   },
   {
@@ -1655,6 +1630,17 @@
   },
   {
    "kind": "false_alarm",
+   "item": "real/p018__model_shot__gemini_app",
+   "attributes": [
+    "shape_changed"
+   ],
+   "file": "false_alarm_real_p018__model_shot__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "shape": "Shape changed: sleeves sleeveless to three_quarter."
+   }
+  },
+  {
+   "kind": "false_alarm",
    "item": "real/p018__studio__gemini_app",
    "attributes": [
     "shape_changed"
@@ -1662,28 +1648,6 @@
    "file": "false_alarm_real_p018__studio__gemini_app.png",
    "reasons_from_recorded_run": {
     "shape": "Shape changed: sleeves sleeveless to three_quarter."
-   }
-  },
-  {
-   "kind": "false_alarm",
-   "item": "real/p021__lifestyle__gemini_app",
-   "attributes": [
-    "colour_changed"
-   ],
-   "file": "false_alarm_real_p021__lifestyle__gemini_app.png",
-   "reasons_from_recorded_run": {
-    "colour": "Colours moved by 19.0 CIEDE2000 on average, above 11.75. Biggest change: #e1bc31 became #977b2b."
-   }
-  },
-  {
-   "kind": "false_alarm",
-   "item": "real/p022__model_shot__gemini_app",
-   "attributes": [
-    "pattern_changed"
-   ],
-   "file": "false_alarm_real_p022__model_shot__gemini_app.png",
-   "reasons_from_recorded_run": {
-    "pattern": "87% of the output product has no close match in the original pattern, above 45%."
    }
   },
   {
@@ -1699,6 +1663,17 @@
   },
   {
    "kind": "false_alarm",
+   "item": "real/p029__festival_poster__gemini_app",
+   "attributes": [
+    "logo_changed"
+   ],
+   "file": "false_alarm_real_p029__festival_poster__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "logo": "The original has a logo but none is visible in the output."
+   }
+  },
+  {
+   "kind": "false_alarm",
    "item": "real/p029__instagram_post__gemini_app",
    "attributes": [
     "logo_changed"
@@ -1710,13 +1685,46 @@
   },
   {
    "kind": "false_alarm",
-   "item": "real/p031__model_shot__gemini_app",
+   "item": "real/p051__lifestyle__gemini_app",
    "attributes": [
-    "pattern_changed"
+    "text_changed"
    ],
-   "file": "false_alarm_real_p031__model_shot__gemini_app.png",
+   "file": "false_alarm_real_p051__lifestyle__gemini_app.png",
    "reasons_from_recorded_run": {
-    "pattern": "95% of the output product has no close match in the original pattern, above 45%."
+    "text": "1 of 7 text items not found or changed: 20 g"
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p067__model_shot__gemini_app",
+   "attributes": [
+    "text_changed"
+   ],
+   "file": "false_alarm_real_p067__model_shot__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "text": "4 of 8 text items not found or changed: C A LTF 0 R N [ A, BROOKLYH, Pegendary Tean, STRTVE FO R"
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p067__studio__gemini_app",
+   "attributes": [
+    "text_changed"
+   ],
+   "file": "false_alarm_real_p067__studio__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "text": "4 of 8 text items not found or changed: C A LTF 0 R N [ A, BROOKLYH, Pegendary Tean, STRTVE FO R"
+   }
+  },
+  {
+   "kind": "false_alarm",
+   "item": "real/p068__festival_poster__gemini_app",
+   "attributes": [
+    "product_missing"
+   ],
+   "file": "false_alarm_real_p068__festival_poster__gemini_app.png",
+   "reasons_from_recorded_run": {
+    "product_missing": "The product covers 0.7% of the output."
    }
   }
  ]

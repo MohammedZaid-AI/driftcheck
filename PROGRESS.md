@@ -166,9 +166,22 @@ Phase 6 follow up, cut out fix and retuning, 2026-10-31
 7. So the fixes cut false alarms on real images from 27 to 20 of 40, but half the real images are still wrongly flagged, and fewer real changes are caught. Logo and shape come from the vision model and were not changed by the cut out.
 8. Still not done from the plan: the qwen2.5vl:3b against 7b comparison.
 
+Phase 6 follow up 2, routing by image type, 2026-10-31
+1. Asked by the user. Each output gets an image type: studio is flat; model_shot, lifestyle, festival_poster and instagram_post are scene. A synthetic copy takes its original's type: scene when the original is worn, which is p001, p010, p024 and p060.
+2. On scene images colour and pattern are skipped. In driftcheck check they come back as unknown with applicable false and the reason. In the evaluation a skipped check is left out of the verdict and out of that check's counts, so it is neither a pass nor a fail. A colour or pattern change on a scene image counts as missed overall unless another check catches it.
+3. No retune: thresholds are the ones frozen at the previous retune. The saved runs were decided again, nothing was rerun.
+4. Image types: real test 18 flat and 22 scene, real calibration 18 and 22, synthetic test 143 and 16, synthetic calibration 151 and 16.
+5. Measured on the test split, first report, then cut out fix and retune, then routing:
+   a. Real test images wrongly flagged: 27 of 40, 20 of 40, 15 of 40. Overall wrong flag rate 67.5%, 50.0%, 37.5%.
+   b. Real wrong flag rate per check with routing: colour 0.0% and pattern 0.0%, both on the 18 flat images only. Logo 14.3% on 35, text 14.3% on 35, shape 10.0% on 40, product missing 2.5% on 40.
+   c. Synthetic test changes caught: 80 of 99, 60 of 99, 58 of 99. Recall 80.8%, 60.6%, 58.6%. Wrong flag rate on unchanged synthetic copies 45.0%, 30.0%, 30.0%.
+   d. Synthetic recall per check with routing: text 59.4%, pattern 46.2% on 26 changes, colour 33.3% on 18 changes, product missing 10.0%, shape 9.1%.
+6. The 15 real false alarms left come from logo, text, shape and product missing. Logo and shape are the vision model's describe and compare.
+7. Previous report kept as reports/eval_report_before_routing.md and .json. The table at the top of reports/eval_report.md has all three columns.
+
 ## Next
 
-1. User reviews the before and after numbers in reports/eval_report.md.
+1. User reviews the routing numbers in reports/eval_report.md.
 2. Phase 7: Gradio demo app, not started. Phase 8: API. Phase 9: docs.
 
 ## Commands

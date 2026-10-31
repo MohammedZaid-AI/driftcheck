@@ -1,45 +1,45 @@
-# What the cut out fix and the retuning changed
+# What changed since the first report
 
-Two things changed after the first report. Both are shown here so nothing is hidden.
+Every change after the first report is listed here, and each column shows the numbers after it, so nothing is hidden.
 
-1. Cut out. For worn clothing and accessories, a clothes parsing model now keeps only the garment, not the model's face, arms, legs or other clothes. Flat lays and studio shots keep the rembg cut out. Product missing, colour and pattern were run again with the new cut out on the saved run. Text, shape and logo come from the saved run unchanged.
-2. Tuning. The first tuning kept wrong flags at or under 10 percent across all calibration negatives, which were mostly synthetic. The new tuning measures that 10 percent on the user's real calibration images only. Catches are still measured on the synthetic changes. This rule was changed after the first test results were seen.
-3. Search ranges. With the cap on real images, no setting in the first ranges met it for pattern and text, so they kept old values. The ranges were widened: pattern patch similarity 0.40 to 0.94 and share up to 0.95, text match 30 to 95. The middle and after columns both use the wider ranges. This was also changed after results were seen.
+1. Cut out. For worn clothing and accessories, a clothes parsing model keeps only the garment, not the model's face, arms, legs or other clothes. Flat lays and studio shots keep the rembg cut out. Product missing, colour and pattern were run again with the new cut out on the saved run. Text, shape and logo come from the saved run unchanged.
+2. Tuning. The first tuning kept wrong flags at or under 10 percent across all calibration negatives, which were mostly synthetic. The retuning measures that 10 percent on the user's real calibration images only. Catches are still measured on the synthetic changes. This rule was changed after the first test results were seen.
+3. Search ranges. With the cap on real images, no setting in the first ranges met it for pattern and text. The ranges were widened: pattern patch similarity 0.40 to 0.94 and share up to 0.95, text match 30 to 95. Also changed after results were seen.
+4. Routing by image type. Studio outputs are flat images. Model shots, lifestyle scenes, posters and Instagram posts are scene images. A synthetic copy takes the type of its original: a scene if the original shows the product worn. On scene images colour and pattern are skipped. A skipped check is neither a pass nor a fail: it is left out of the verdict and out of that check's counts. A deliberate colour or pattern change on a scene image can then only be caught by the checks that still run, and counts as missed in the overall catch rate if they do not catch it. Thresholds are the ones frozen at the retuning, not tuned again. Also decided after results were seen.
 
-The middle column has the new cut out with the old tuning rule, so the effect of each change can be seen on its own.
-
-| | Before: whole image cut out, cap on all calibration negatives | Garment cut out, cap on all calibration negatives | After: garment cut out, cap on real calibration images only |
+| | First report | Cut out fix and retune | Routing by image type |
 |---|---|---|---|
-| Real test images wrongly flagged | 27 of 40 | 26 of 40 | 20 of 40 |
-| Real test, overall wrong flag rate | 67.5% | 65.0% | 50.0% |
+| Real test images wrongly flagged | 27 of 40 | 20 of 40 | 15 of 40 |
+| Synthetic test changes caught | 80 of 99 | 60 of 99 | 58 of 99 |
+| Real test, overall wrong flag rate | 67.5% | 50.0% | 37.5% |
 | Real test, shape_changed wrong flag rate | 10.0% | 10.0% | 10.0% |
-| Real test, colour_changed wrong flag rate | 12.5% | 12.5% | 7.5% |
-| Real test, pattern_changed wrong flag rate | 42.5% | 32.5% | 12.5% |
+| Real test, colour_changed wrong flag rate | 12.5% | 7.5% | 0.0% |
+| Real test, pattern_changed wrong flag rate | 42.5% | 12.5% | 0.0% |
 | Real test, logo_changed wrong flag rate | 14.3% | 14.3% | 14.3% |
 | Real test, text_changed wrong flag rate | 22.9% | 14.3% | 14.3% |
 | Real test, product_missing wrong flag rate | 2.5% | 2.5% | 2.5% |
-| Synthetic test, overall recall | 80.8% | 71.7% | 60.6% |
-| Synthetic test, overall precision | 74.8% | 78.9% | 76.9% |
-| Synthetic test, overall wrong flag rate | 45.0% | 31.7% | 30.0% |
+| Synthetic test, overall recall | 80.8% | 60.6% | 58.6% |
+| Synthetic test, overall precision | 74.8% | 76.9% | 76.3% |
+| Synthetic test, overall wrong flag rate | 45.0% | 30.0% | 30.0% |
 | Synthetic test, shape_changed recall | 9.1% | 9.1% | 9.1% |
-| Synthetic test, colour_changed recall | 65.0% | 65.0% | 35.0% |
-| Synthetic test, pattern_changed recall | 73.3% | 70.0% | 43.3% |
+| Synthetic test, colour_changed recall | 65.0% | 35.0% | 33.3% |
+| Synthetic test, pattern_changed recall | 73.3% | 43.3% | 46.2% |
 | Synthetic test, logo_changed recall | not measurable | not measurable | not measurable |
 | Synthetic test, text_changed recall | 84.4% | 59.4% | 59.4% |
 | Synthetic test, product_missing recall | 10.0% | 10.0% | 10.0% |
-| Baseline 1, real test wrong flag rate | 25.0% | 25.0% | 0.0% |
-| Baseline 1, synthetic test recall | 2.0% | 2.0% | 0.0% |
+| Baseline 1, real test wrong flag rate | 25.0% | 0.0% | 0.0% |
+| Baseline 1, synthetic test recall | 2.0% | 0.0% | 0.0% |
 
 Thresholds in each column:
 
-1. Before: whole image cut out, cap on all calibration negatives: colour 11.75, pattern patch 0.78 and share 0.45, text 80.0, product missing 0.02, shape steps 3
-1. Garment cut out, cap on all calibration negatives: colour 11.75, pattern patch 0.9 and share 0.9, text 40.0, product missing 0.02, shape steps 3
-1. After: garment cut out, cap on real calibration images only: colour 15.01, pattern patch 0.82 and share 0.9, text 40.0, product missing 0.02, shape steps 3
+1. First report: colour 11.75, pattern patch 0.78 and share 0.45, text 80.0, product missing 0.02, shape steps 3
+1. Cut out fix and retune: colour 15.01, pattern patch 0.82 and share 0.9, text 40.0, product missing 0.02, shape steps 3
+1. Routing by image type: colour 15.01, pattern patch 0.82 and share 0.9, text 40.0, product missing 0.02, shape steps 3
 
 # DriftCheck evaluation report
 
-Date: 2026-10-31T13:01:59+00:00
-Git commit: fd40af4a795e0c1a2709deb98537f9714c9a52ad
+Date: 2026-10-31T14:44:18+00:00
+Git commit: fadc178224face5264f3b8d9b3a64669bda99924
 
 Models:
 1. vision: ollama/qwen2.5vl:7b
@@ -71,7 +71,7 @@ An unknown on a drifted image counts as missed. Rates with nothing to divide by 
 
 | | Precision | Recall | F1 | Wrong flag rate | TP | FP | TN | FN | Unknown | Unknown rate |
 |---|---|---|---|---|---|---|---|---|---|---|
-| DriftCheck | 0.0% | not measurable | not measurable | 50.0% | 0 | 20 | 20 | 0 | 0 | 0.0% |
+| DriftCheck | 0.0% | not measurable | not measurable | 37.5% | 0 | 15 | 25 | 0 | 0 | 0.0% |
 | Baseline 1, whole image DINOv2 | not measurable | not measurable | not measurable | 0.0% | 0 | 0 | 40 | 0 | 0 | 0.0% |
 | Baseline 2, one vision call | not measurable | not measurable | not measurable | 0.0% | 0 | 0 | 40 | 0 | 0 | 0.0% |
 
@@ -80,8 +80,8 @@ An unknown on a drifted image counts as missed. Rates with nothing to divide by 
 | | Precision | Recall | F1 | Wrong flag rate | TP | FP | TN | FN | Unknown | Unknown rate |
 |---|---|---|---|---|---|---|---|---|---|---|
 | shape_changed | 0.0% | not measurable | not measurable | 10.0% | 0 | 4 | 35 | 0 | 1 | 2.5% |
-| colour_changed | 0.0% | not measurable | not measurable | 7.5% | 0 | 3 | 36 | 0 | 1 | 2.5% |
-| pattern_changed | 0.0% | not measurable | not measurable | 12.5% | 0 | 5 | 34 | 0 | 1 | 2.5% |
+| colour_changed | not measurable | not measurable | not measurable | 0.0% | 0 | 0 | 18 | 0 | 0 | 0.0% |
+| pattern_changed | not measurable | not measurable | not measurable | 0.0% | 0 | 0 | 18 | 0 | 0 | 0.0% |
 | logo_changed | 0.0% | not measurable | not measurable | 14.3% | 0 | 5 | 29 | 0 | 1 | 2.9% |
 | text_changed | 0.0% | not measurable | not measurable | 14.3% | 0 | 5 | 29 | 0 | 1 | 2.9% |
 | product_missing | 0.0% | not measurable | not measurable | 2.5% | 0 | 1 | 39 | 0 | 0 | 0.0% |
@@ -102,7 +102,7 @@ An unknown on a drifted image counts as missed. Rates with nothing to divide by 
 
 | | Precision | Recall | F1 | Wrong flag rate | TP | FP | TN | FN | Unknown | Unknown rate |
 |---|---|---|---|---|---|---|---|---|---|---|
-| DriftCheck | 76.9% | 60.6% | 67.8% | 30.0% | 60 | 18 | 42 | 35 | 4 | 2.5% |
+| DriftCheck | 76.3% | 58.6% | 66.3% | 30.0% | 58 | 18 | 42 | 37 | 4 | 2.5% |
 | Baseline 1, whole image DINOv2 | not measurable | 0.0% | not measurable | 0.0% | 0 | 0 | 60 | 99 | 0 | 0.0% |
 | Baseline 2, one vision call | 100.0% | 5.1% | 9.6% | 0.0% | 5 | 0 | 60 | 94 | 0 | 0.0% |
 
@@ -111,8 +111,8 @@ An unknown on a drifted image counts as missed. Rates with nothing to divide by 
 | | Precision | Recall | F1 | Wrong flag rate | TP | FP | TN | FN | Unknown | Unknown rate |
 |---|---|---|---|---|---|---|---|---|---|---|
 | shape_changed | 14.3% | 9.1% | 11.1% | 4.7% | 1 | 6 | 115 | 10 | 7 | 5.0% |
-| colour_changed | 87.5% | 35.0% | 50.0% | 0.8% | 7 | 1 | 111 | 13 | 7 | 5.0% |
-| pattern_changed | 100.0% | 43.3% | 60.5% | 0.0% | 13 | 0 | 109 | 10 | 7 | 5.0% |
+| colour_changed | 85.7% | 33.3% | 48.0% | 0.9% | 6 | 1 | 99 | 12 | 7 | 5.6% |
+| pattern_changed | 100.0% | 46.2% | 63.2% | 0.0% | 12 | 0 | 99 | 7 | 7 | 5.6% |
 | logo_changed | not measurable | not measurable | not measurable | not measurable | 0 | 0 | 0 | 0 | 0 | not measurable |
 | text_changed | 73.1% | 59.4% | 65.5% | 14.9% | 19 | 7 | 40 | 8 | 5 | 6.3% |
 | product_missing | 33.3% | 10.0% | 15.4% | 2.9% | 2 | 4 | 132 | 17 | 4 | 2.5% |
@@ -133,15 +133,15 @@ Same frozen thresholds. Only the vision parts differ: product card, shape and lo
 
 | Model | Images | Overall wrong flag rate | Overall recall | Shape recall | Shape wrong flag rate | Median seconds | P90 seconds |
 |---|---|---|---|---|---|---|---|
-| qwen2.5vl_7b_garmentcut | 40 | 50.0% | not measurable | not measurable | 10.0% | 51.52 | 143.56 |
-| qwen2.5vl:7b | 40 | 50.0% | not measurable | not measurable | 10.0% | 51.21 | 145.82 |
+| qwen2.5vl_7b_garmentcut | 40 | 37.5% | not measurable | not measurable | 10.0% | 51.52 | 143.56 |
+| qwen2.5vl:7b | 40 | 37.5% | not measurable | not measurable | 10.0% | 51.21 | 145.82 |
 
 ### Synthetic test set
 
 | Model | Images | Overall wrong flag rate | Overall recall | Shape recall | Shape wrong flag rate | Median seconds | P90 seconds |
 |---|---|---|---|---|---|---|---|
-| qwen2.5vl_7b_garmentcut | 159 | 30.0% | 60.6% | 9.1% | 4.7% | 16.45 | 33.54 |
-| qwen2.5vl:7b | 159 | 30.0% | 61.6% | 9.1% | 4.7% | 17.74 | 33.59 |
+| qwen2.5vl_7b_garmentcut | 159 | 30.0% | 58.6% | 9.1% | 4.7% | 16.45 | 33.54 |
+| qwen2.5vl:7b | 159 | 30.0% | 58.6% | 9.1% | 4.7% | 17.74 | 33.59 |
 
 
 ## Tuning on the calibration split
@@ -171,17 +171,17 @@ No images in data/scalio_examples, so this part was not run.
 1. missed: synthetic/p043__pattern_swap, text_changed, pattern_changed. Image: gallery/missed_synthetic_p043__pattern_swap.png
 1. missed: synthetic/p068__pattern_blur, text_changed, pattern_changed. Image: gallery/missed_synthetic_p068__pattern_blur.png
 1. missed: synthetic/p068__pattern_swap, text_changed, pattern_changed. Image: gallery/missed_synthetic_p068__pattern_swap.png
+1. missed: synthetic/p010__colour_shift, colour_changed. Image: gallery/missed_synthetic_p010__colour_shift.png
+1. missed: synthetic/p010__pattern_blur, pattern_changed. Image: gallery/missed_synthetic_p010__pattern_blur.png
 1. missed: synthetic/p010__pattern_swap, pattern_changed. Image: gallery/missed_synthetic_p010__pattern_swap.png
 1. missed: synthetic/p010__product_erase, product_missing. Image: gallery/missed_synthetic_p010__product_erase.png
-1. missed: synthetic/p010__sleeve_erase, shape_changed. Image: gallery/missed_synthetic_p010__sleeve_erase.png
-1. missed: synthetic/p015__colour_shift, colour_changed. Image: gallery/missed_synthetic_p015__colour_shift.png
-1. false alarm: real/p018__model_shot__gemini_app, pattern_changed, shape_changed. Image: gallery/false_alarm_real_p018__model_shot__gemini_app.png
-1. false alarm: real/p029__festival_poster__gemini_app, colour_changed, logo_changed. Image: gallery/false_alarm_real_p029__festival_poster__gemini_app.png
-1. false alarm: real/p076__model_shot__gemini_app, pattern_changed, logo_changed. Image: gallery/false_alarm_real_p076__model_shot__gemini_app.png
 1. false alarm: real/p015__studio__gemini_app, text_changed. Image: gallery/false_alarm_real_p015__studio__gemini_app.png
+1. false alarm: real/p018__model_shot__gemini_app, shape_changed. Image: gallery/false_alarm_real_p018__model_shot__gemini_app.png
 1. false alarm: real/p018__studio__gemini_app, shape_changed. Image: gallery/false_alarm_real_p018__studio__gemini_app.png
-1. false alarm: real/p021__lifestyle__gemini_app, colour_changed. Image: gallery/false_alarm_real_p021__lifestyle__gemini_app.png
-1. false alarm: real/p022__model_shot__gemini_app, pattern_changed. Image: gallery/false_alarm_real_p022__model_shot__gemini_app.png
 1. false alarm: real/p027__model_shot__gemini_app, text_changed. Image: gallery/false_alarm_real_p027__model_shot__gemini_app.png
+1. false alarm: real/p029__festival_poster__gemini_app, logo_changed. Image: gallery/false_alarm_real_p029__festival_poster__gemini_app.png
 1. false alarm: real/p029__instagram_post__gemini_app, logo_changed. Image: gallery/false_alarm_real_p029__instagram_post__gemini_app.png
-1. false alarm: real/p031__model_shot__gemini_app, pattern_changed. Image: gallery/false_alarm_real_p031__model_shot__gemini_app.png
+1. false alarm: real/p051__lifestyle__gemini_app, text_changed. Image: gallery/false_alarm_real_p051__lifestyle__gemini_app.png
+1. false alarm: real/p067__model_shot__gemini_app, text_changed. Image: gallery/false_alarm_real_p067__model_shot__gemini_app.png
+1. false alarm: real/p067__studio__gemini_app, text_changed. Image: gallery/false_alarm_real_p067__studio__gemini_app.png
+1. false alarm: real/p068__festival_poster__gemini_app, product_missing. Image: gallery/false_alarm_real_p068__festival_poster__gemini_app.png
