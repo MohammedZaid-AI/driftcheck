@@ -174,7 +174,7 @@ def demo(
     os.environ["VISION_MODEL"] = model
     settings = load_settings()
     note = f"Vision model: {model} on local Ollama, no paid APIs."
-    build_demo(lambda: Checker.from_settings(settings), settings.data_dir, note).launch(server_port=port, inbrowser=True)
+    build_demo(lambda: Checker.from_settings(settings), note).launch(server_port=port, inbrowser=True)
 
 
 @app.command()

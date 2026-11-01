@@ -2,7 +2,65 @@
 
 DriftCheck checks whether an AI generated product image changed the real product.
 
-You give it the original product photo and an AI output. It tells you if the product itself changed, which part changed, and why it thinks so. It does not make images and it does not replace any image generator.
+## See it work
+
+These four pairs use one photo of a shirt. Each second image was edited on purpose to show how DriftCheck responds. They are not real AI outputs and not Scalio outputs. The results come from examples/results.json, made by running the full pipeline with qwen2.5vl:7b on local Ollama.
+
+**Unchanged copy.** DriftCheck says it looks fine. This is right.
+
+![Unchanged copy: DriftCheck says looks fine](docs/images/example_unchanged.png)
+
+**The black shirt made blue.** DriftCheck says changed, and the colour check fired. This is right.
+
+![Colour edited: DriftCheck says changed, colour fired](docs/images/example_colour.png)
+
+**The word SALE added to the chest.** DriftCheck says it looks fine. This is a miss. The text check only looks for text that was on the original, and this shirt had none, so new text is not checked.
+
+![Text added: DriftCheck says looks fine, a miss](docs/images/example_text.png)
+
+**Stripes added.** DriftCheck says it looks fine. This is a miss. The pattern check marked 22 percent of the shirt as different, shown in red, but at its current setting it only flags when more than 90 percent differs.
+
+![Stripes added: DriftCheck says looks fine, a miss](docs/images/example_stripes.png)
+
+So on these four, DriftCheck caught one of three changes and passed the unchanged copy. The two misses are listed under Limitations with the planned fixes.
+
+## Quickstart
+
+You need Windows with Python 3.12, and **Ollama**, which runs the vision model on your own computer. Install the Ollama app from https://ollama.com, open it, then run this once to get the model:
+
+```
+ollama pull qwen2.5vl:7b
+```
+
+Then run these in PowerShell, in order:
+
+```
+git clone https://github.com/MohammedZaid-AI/driftcheck.git
+cd driftcheck
+py -3.12 -m venv .venv
+.venv\Scripts\python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+.venv\Scripts\python -m pip install -e ".[all]"
+copy .env.example .env
+.venv\Scripts\driftcheck demo
+```
+
+The last command opens the demo at http://localhost:7860. Click one of the four examples and press Run DriftCheck. The first run takes about a minute while the models load.
+
+To check one pair from the command line instead:
+
+```
+.venv\Scripts\driftcheck check --original examples\plain_shirt_original.jpg --output examples\plain_shirt_colour.jpg --out reports\check --model qwen2.5vl:7b --image-type flat
+```
+
+To run the tests, which need no Ollama:
+
+```
+.venv\Scripts\python -m pytest
+```
+
+## What it is
+
+You give DriftCheck the original product photo and an AI output. It tells you if the product itself changed, which part changed, and why it thinks so. It does not make images and it does not replace any image generator.
 
 ## The problem
 
@@ -36,19 +94,9 @@ It runs on a normal laptop. The vision model runs locally on Ollama. No paid API
 5. **Route by image type.** A studio output is a flat image, so all five checks run. A model shot, lifestyle scene, poster or Instagram post is a scene image. On a scene image, colour and pattern are skipped, because the same product looks different on a body or in a scene. A skipped check is not a pass and not a fail. It is left out.
 6. **Give a verdict.** If any check that ran says changed, the verdict is changed. If every check that ran says fine, the verdict is fine. Otherwise it is not sure.
 
-## How to run it
+## More commands
 
-You need Windows with Python 3.12, and the Ollama app with qwen2.5vl:7b pulled. Run these in PowerShell from the project folder.
-
-```
-py -3.12 -m venv .venv
-.venv\Scripts\python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-.venv\Scripts\python -m pip install -e ".[all]"
-copy .env.example .env
-ollama pull qwen2.5vl:7b
-```
-
-Check one image:
+Set up as in the Quickstart first. Check one image:
 
 ```
 .venv\Scripts\driftcheck check --original ORIGINAL.jpg --output OUTPUT.jpg --out reports\check --model qwen2.5vl:7b
@@ -117,26 +165,32 @@ These numbers come from reports/eval_report.json. They were measured on this dat
 
 ## Limitations
 
-1. **Text passes garbled words.** The tuned text threshold is a match score of 40. At that level, BROOKLYN read as UROKKLYH still counts as the same text. On its own, the text check caught none of the synthetic text replacements in the test half.
-2. **The vision model is weak on shape.** The shape check caught 1 of 11 synthetic sleeve changes and wrongly flagged 4 of 40 good images. The logo check wrongly flagged 5 of 35.
-3. **Colour and pattern only work on flat photos.** They are skipped on model shots, lifestyle scenes and posters, so a colour or print change in those images is only caught if another check notices it.
-4. **No real drift in the test set.** All 80 real outputs were labelled unchanged, so catches come only from synthetic changes, which are cleaner than real AI drift.
-5. **One generator.** All real outputs come from the Gemini app. The Kaggle route with Qwen Image Edit ran out of GPU memory on free Kaggle GPUs.
-6. **Small data.** 40 products and 80 real outputs.
-7. **Slow on a laptop.** A median of 51.5 seconds per real output with qwen2.5vl:7b. With the 7b model loaded, easyocr sometimes crashed the process during the evaluation. The evaluation restarts itself after a crash.
-8. **Some text is hard to read.** A large Bengali title was misread, and the script on some products had to be set by hand because OCR guessed it wrong.
+1. **Text passes garbled words.** The tuned text threshold is a match score of 40. At that level, a brand name read back with two or three letters changed still counts as the same text. On its own, the text check caught none of the synthetic text replacements in the test half.
+2. **New text is not checked.** The text check only confirms that text on the original is still there. Text the generator adds, like the word SALE in the example above, is never looked at.
+3. **The pattern setting is loose.** The pattern check only flags when more than 90 percent of the product differs. The stripes example above marked 22 percent and passed. This setting came from tuning on the real calibration images, where worn and scene photos made the check flag good images.
+4. **The vision model is weak on shape.** The shape check caught 1 of 11 synthetic sleeve changes and wrongly flagged 4 of 40 good images. The logo check wrongly flagged 5 of 35.
+5. **Colour and pattern only work on flat photos.** They are skipped on model shots, lifestyle scenes and posters, so a colour or print change in those images is only caught if another check notices it.
+6. **New colours are not counted.** The colour check asks whether each original colour is still there. Colours the generator adds, like the grey stripes in the example above, do not count.
+7. **No real drift in the test set.** All 80 real outputs were labelled unchanged, so catches come only from synthetic changes, which are cleaner than real AI drift.
+8. **One generator.** All real outputs come from the Gemini app. The Kaggle route with Qwen Image Edit ran out of GPU memory on free Kaggle GPUs.
+9. **Small data.** 40 products and 80 real outputs.
+10. **Slow on a laptop.** A median of 51.5 seconds per real output with qwen2.5vl:7b. With the 7b model loaded, easyocr sometimes crashed the process during the evaluation. The evaluation restarts itself after a crash.
+11. **Some text is hard to read.** A large Bengali title was misread, and the script on some products had to be set by hand because OCR guessed it wrong.
 
 docs\limitations.md has the full list.
 
 ## Next steps
 
 1. **Strict text compare.** When OCR reads a word clearly in both images, compare it strictly instead of with the loose threshold, so a changed letter fails. Keep the loose match only when OCR is unsure.
-2. **A stronger shape check.** Try a larger vision model, or measure sleeve and length from the garment cut out directly.
-3. **Colour and pattern for scene images.** Compare only matching garment regions instead of skipping these checks.
-4. **Real drift labels.** Label real outputs that did change, so catches are measured on real AI drift.
-5. **More generators.** Run the same products through other image generators and compare them.
-6. **Video frames.** Run the checks on frames from generated Reels.
-7. **Block bad outputs before users pay.** Run DriftCheck before an output is shown, so the seller is not charged credits for a changed product.
+2. **Check for added text.** Flag clear text in the output that was not on the original.
+3. **A tighter pattern rule for flat photos.** Now that scene photos skip the pattern check, retune its setting on flat images only, where the same garment should match closely.
+4. **Check for added colours.** Also ask whether a large share of the output has colours that were not on the original.
+5. **A stronger shape check.** Try a larger vision model, or measure sleeve and length from the garment cut out directly.
+6. **Colour and pattern for scene images.** Compare only matching garment regions instead of skipping these checks.
+7. **Real drift labels.** Label real outputs that did change, so catches are measured on real AI drift.
+8. **More generators.** Run the same products through other image generators and compare them.
+9. **Video frames.** Run the checks on frames from generated Reels.
+10. **Block bad outputs before users pay.** Run DriftCheck before an output is shown, so the seller is not charged credits for a changed product.
 
 ## Project files
 
@@ -145,3 +199,4 @@ docs\limitations.md has the full list.
 3. docs\limitations.md: where it fails.
 4. docs\demo.md: how to show the demo.
 5. docs\make_outputs.md: how the AI outputs were made.
+6. examples\: the public example pairs. scripts\make_examples.py makes the edits from data\samples\plain_shirt.jpg, and scripts\make_figures.py runs DriftCheck on them and draws docs\images.

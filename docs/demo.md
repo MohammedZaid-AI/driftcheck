@@ -1,6 +1,6 @@
 # Demo walkthrough
 
-This takes about five minutes. The three examples come from the test half of this dataset. The two changed examples are copies that were changed on purpose, because none of the real Gemini outputs was labelled as changed.
+This takes about five minutes. The four examples use one photo of a shirt. Each second image was edited on purpose to show how DriftCheck responds. They are not real AI outputs and not Scalio outputs. Say this when you start.
 
 ## Before you start
 
@@ -11,39 +11,44 @@ This takes about five minutes. The three examples come from the test half of thi
 
 The first run takes about a minute while the models load. After that the examples are quick.
 
-## 1. A clean pass
+## 1. An unchanged copy
 
-1. Under Try an example from the test set, click Clean pass: white top, Gemini studio shot.
+1. Under Try an example, click Unchanged copy of the shirt.
 2. Press Run DriftCheck.
 3. Point at the verdict. It says Looks fine and no check fired.
-4. Point at the check table. Colour, pattern, shape and product present say fine, each with a reason. Text and logo say not applicable, because the original top has no text or logo.
-5. Point at the heatmap. There are no red patches on the output, so the pattern matches.
+4. Point at the check table. Product present, colour, pattern and shape say fine. Text and logo say not applicable, because this shirt has no text or logo to compare.
 
-What to say: Gemini kept this product, and DriftCheck agrees.
+What to say: nothing changed, and DriftCheck agrees.
 
 ## 2. A colour change
 
-1. Click Colour changed: NEYMAR jersey, colour shifted on purpose.
+1. Click Colour edited on purpose: black shirt made blue.
 2. Press Run DriftCheck.
-3. Point at the verdict. It says Changed and names Colour as the check that fired.
-4. Point at the colour row in the check table. It says how far the colours moved and which colour became which.
-5. Point at the two text boxes. Both show the same words read from the jersey, the player name, RESPECT and unicef, so the text check says fine. Only the colour changed, and only the colour check fired.
-6. Point at the colour strip under the heatmap. Each original colour sits next to the colour it became.
+3. Point at the verdict. It says Changed and names Colour.
+4. Point at the colour row. It says how far the colours moved and which colour became which.
+5. Point at the colour strip under the heatmap. Each original colour sits next to the blue it became.
 
 What to say: each check looks at one thing, so the report says what changed, not just that something changed.
 
-## 3. A pattern change
+## 3. Added text, a miss
 
-1. Click Pattern changed: striped tee, pattern shuffled on purpose.
+1. Click Text edited on purpose: the word SALE added.
 2. Press Run DriftCheck.
-3. Point at the verdict. It says Changed and names Pattern.
-4. Point at the heatmap. The red patches on the output show where the print no longer matches the original.
-5. Point at the colour row. It says fine, because the same colours are still there, just moved around.
+3. Point at the verdict. It says Looks fine. This is a miss.
+4. Point at the text row. It says not applicable, because the original shirt has no text. The text check only looks for text that was on the original, so it never looks at new text.
 
-What to say: colour alone would miss this. The pattern check catches it.
+What to say: this is a known gap, and checking for added text is the next fix.
 
-## If someone asks about weak spots
+## 4. Added stripes, a miss
+
+1. Click Pattern edited on purpose: stripes added.
+2. Press Run DriftCheck.
+3. Point at the heatmap. The red patches show where the pattern check saw a difference.
+4. Point at the pattern row. It says 22 percent of the shirt differs, but the check only flags above 90 percent at its current setting, so the verdict is Looks fine. This is a miss.
+
+What to say: the check sees the change, but its setting is too loose. It was tuned that way because worn and scene photos made it flag good images. Now that those photos skip the pattern check, the setting can be tightened.
+
+## If someone asks for more
 
 1. Scene photos: change the image type dropdown to scene and run an example again. Colour and pattern now say not applicable, and the verdict rests on the checks that ran.
-2. The text check passes garbled words at its current threshold. README.md explains this and the planned fix.
-3. The full numbers, including the weak parts, are in README.md and reports\eval_report.md.
+2. The full numbers, including the weak parts, are in README.md and reports\eval_report.md.

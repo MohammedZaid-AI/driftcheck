@@ -1,0 +1,164 @@
+[
+ {
+  "example": "unchanged",
+  "title": "Unchanged copy of the shirt",
+  "verdict": "Looks fine",
+  "fired": [],
+  "checks": {
+   "Product present": [
+    "pass",
+    true,
+    "The product covers 49.0% of the output."
+   ],
+   "Colour": [
+    "pass",
+    true,
+    "Colours moved by 0.5 CIEDE2000 on average."
+   ],
+   "Text": [
+    "unknown",
+    false,
+    "No text on the original product, so there is nothing to compare."
+   ],
+   "Pattern": [
+    "pass",
+    true,
+    "0% of the output product differs from the original pattern."
+   ],
+   "Shape": [
+    "pass",
+    true,
+    "Shape kept: sleeves full in both; length hip in both; neckline collar in both."
+   ],
+   "Logo": [
+    "unknown",
+    false,
+    "No logo on the original, so there is nothing to compare."
+   ]
+  },
+  "model": "qwen2.5vl:7b",
+  "figure": "docs/images/example_unchanged.png"
+ },
+ {
+  "example": "colour",
+  "title": "Colour edited on purpose: black shirt made blue",
+  "verdict": "Changed",
+  "fired": [
+   "Colour"
+  ],
+  "checks": {
+   "Product present": [
+    "pass",
+    true,
+    "The product covers 49.0% of the output."
+   ],
+   "Colour": [
+    "fail",
+    true,
+    "Colours moved by 18.8 CIEDE2000 on average, above 15.01. Biggest change: #454646 became #074671."
+   ],
+   "Text": [
+    "unknown",
+    false,
+    "No text on the original product, so there is nothing to compare."
+   ],
+   "Pattern": [
+    "pass",
+    true,
+    "0% of the output product differs from the original pattern."
+   ],
+   "Shape": [
+    "pass",
+    true,
+    "Shape kept: sleeves full in both; length hip in both; neckline collar in both."
+   ],
+   "Logo": [
+    "unknown",
+    false,
+    "No logo on the original, so there is nothing to compare."
+   ]
+  },
+  "model": "qwen2.5vl:7b",
+  "figure": "docs/images/example_colour.png"
+ },
+ {
+  "example": "text",
+  "title": "Text edited on purpose: the word SALE added",
+  "verdict": "Looks fine",
+  "fired": [],
+  "checks": {
+   "Product present": [
+    "pass",
+    true,
+    "The product covers 49.1% of the output."
+   ],
+   "Colour": [
+    "pass",
+    true,
+    "Colours moved by 1.5 CIEDE2000 on average."
+   ],
+   "Text": [
+    "unknown",
+    false,
+    "No text on the original product, so there is nothing to compare."
+   ],
+   "Pattern": [
+    "pass",
+    true,
+    "5% of the output product differs from the original pattern."
+   ],
+   "Shape": [
+    "pass",
+    true,
+    "Shape kept: sleeves full in both; length hip in both; neckline collar in both."
+   ],
+   "Logo": [
+    "unknown",
+    false,
+    "No logo on the original, so there is nothing to compare."
+   ]
+  },
+  "model": "qwen2.5vl:7b",
+  "figure": "docs/images/example_text.png"
+ },
+ {
+  "example": "stripes",
+  "title": "Pattern edited on purpose: stripes added",
+  "verdict": "Looks fine",
+  "fired": [],
+  "checks": {
+   "Product present": [
+    "pass",
+    true,
+    "The product covers 49.9% of the output."
+   ],
+   "Colour": [
+    "pass",
+    true,
+    "Colours moved by 2.5 CIEDE2000 on average."
+   ],
+   "Text": [
+    "unknown",
+    false,
+    "No text on the original product, so there is nothing to compare."
+   ],
+   "Pattern": [
+    "pass",
+    true,
+    "22% of the output product differs from the original pattern."
+   ],
+   "Shape": [
+    "pass",
+    true,
+    "Shape kept: sleeves full in both; length hip in both; neckline collar in both."
+   ],
+   "Logo": [
+    "unknown",
+    false,
+    "No logo on the original, so there is nothing to compare."
+   ]
+  },
+  "model": "qwen2.5vl:7b",
+  "figure": "docs/images/example_stripes.png"
+ }
+]

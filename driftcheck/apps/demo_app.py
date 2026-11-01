@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
+from driftcheck.config import PROJECT_ROOT
 from driftcheck.dataset import parse_output_id
 from driftcheck.evaluate import image_type as image_type_for_style
 from driftcheck.pipeline import Report, load_image
@@ -28,28 +29,34 @@ CHECK_NAMES = {
 
 @dataclass
 class Example:
+    slug: str
     title: str
     original: Path
     generated: Path
     image_type: str  # flat or scene, as in the evaluation
 
 
-# Picked from the test split with the saved evaluation: a clean pass, and two deliberately
-# changed copies that DriftCheck catches. The real Gemini outputs have no labelled changes.
+EXAMPLES_DIR = PROJECT_ROOT / "examples"
+
+# Made by scripts/make_examples.py from the user's own photo, with one change edited in on
+# purpose. They ship with the repo, so the demo has examples on any machine after a clone.
+# They are not real AI outputs and not Scalio outputs.
 EXAMPLE_KEYS = [
-    ("Clean pass: white top, Gemini studio shot", "products/p031/original.jpg", "products/p031/outputs/studio__gemini_app.jpg", "flat"),
-    ("Colour changed: NEYMAR jersey, colour shifted on purpose", "products/p041/original.jpg", "synthetic/p041/colour_shift.jpg", "flat"),
-    ("Pattern changed: striped tee, pattern shuffled on purpose","products/p022/original.jpg", "synthetic/p022/pattern_swap.jpg", "flat"),
+    ("unchanged", "Unchanged copy of the shirt", "plain_shirt_unchanged.jpg"),
+    ("colour", "Colour edited on purpose: black shirt made blue", "plain_shirt_colour.jpg"),
+    ("text", "Text edited on purpose: the word SALE added", "plain_shirt_text.jpg"),
+    ("stripes", "Pattern edited on purpose: stripes added", "plain_shirt_stripes.jpg"),
 ]
+EXAMPLE_ORIGINAL = "plain_shirt_original.jpg"
 
 
-def examples(data_dir: Path) -> list[Example]:
-    """The example pairs whose files exist. data/ is not in git, so a fresh clone has none."""
-    found = []
-    for title, original, generated, kind in EXAMPLE_KEYS:
-        if (data_dir / original).exists() and (data_dir / generated).exists():
-            found.append(Example(title, data_dir / original, data_dir / generated, kind))
-    return found
+def examples(folder: Path = EXAMPLES_DIR) -> list[Example]:
+    """The example pairs whose files exist in the examples folder."""
+    original = folder / EXAMPLE_ORIGINAL
+    if not original.exists():
+        return []
+    return [Example(slug, title, original, folder / name, "flat")
+            for slug, title, name in EXAMPLE_KEYS if (folder / name).exists()]
 
 
 def guess_image_type(choice: str, generated_path: str | None) -> str:
@@ -112,7 +119,7 @@ def run_check(checker, original_path: str | None, generated_path: str | None, ch
             words["matches"], timing)
 
 
-def build_demo(checker_factory: Callable, data_dir: Path, model_note: str):
+def build_demo(checker_factory: Callable, model_note: str, examples_dir: Path = EXAMPLES_DIR):
     import gradio as gr
 
     holder: dict = {}
@@ -150,12 +157,12 @@ def build_demo(checker_factory: Callable, data_dir: Path, model_note: str):
         outputs = [summary, checks, heatmap, read_original, read_generated, matches, timing]
         run.click(lambda o, g, k: run_check(checker(), o, g, k), [original, generated, kind], outputs)
 
-        found = examples(data_dir)
+        found = examples(examples_dir)
         if found:
             gr.Examples(
                 examples=[[str(e.original), str(e.generated), e.image_type] for e in found],
                 example_labels=[e.title for e in found],
                 inputs=[original, generated, kind],
-                label="Try an example from the test set",
+                label="Try an example. These were edited on purpose to show how DriftCheck responds. They are not real AI or Scalio outputs.",
             )
     return demo

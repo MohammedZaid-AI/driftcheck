@@ -18,7 +18,14 @@ A clothes parsing model now keeps only the garment in worn photos, and the thres
 
 Colour and pattern are now skipped on scene images, such as model shots, lifestyle scenes and posters, because the same product looks different on a body or in a scene. With that, and a fix to how the evaluation decides text so it matches the live check, 11 of the 40 real test images are still flagged. The rest of the false alarms come mostly from the logo and shape checks.
 
-The text check now passes letter swaps. Its tuned threshold is a match score of 40, so BROOKLYN read as UROKKLYH still counts as the same text. In the test split it caught none of the synthetic text replacements on its own. A colour or pattern change in a scene image is now only caught if another check notices it.
+The text check now passes letter swaps. Its tuned threshold is a match score of 40, so a brand name read back with two or three letters changed still counts as the same text. In the test split it caught none of the synthetic text replacements on its own. A colour or pattern change in a scene image is now only caught if another check notices it.
+
+## Changes the checks do not look for
+
+The public examples in examples/ show two gaps. Both were run with the full pipeline and the frozen thresholds.
+
+1. Added text. The text check only confirms that text on the original is still there. When the word SALE was added to a plain shirt, the text check said not applicable, because the original had no text, and the verdict was looks fine.
+2. Added pattern. When stripes were added to the plain shirt, the pattern check found 22 percent of the shirt different, but its setting only flags above 90 percent, so the verdict was looks fine. The colour check also passed it, because it only asks whether each original colour is still there, not whether new colours appeared.
 
 All of these changes were made after the first test results were seen.
 
@@ -30,12 +37,12 @@ On a laptop with 12 GB of RAM and a 6 GB GPU, one image takes a median of 51 sec
 
 ### Large stylised titles can be misread
 
-On p045, the Rasoi roast masala box, the big Bengali title রসুই is not read correctly. The normal pass reads it as রস্ুই at 0.3 confidence. A second pass on the title area at twice the size reads বসুই at 0.43 confidence. That is one letter wrong. The smaller Bengali words on the same box are read well, at 0.80 to 0.94 confidence.
+On one packaged food box with a large stylised Bengali title, the title is not read correctly. The normal pass reads it at 0.3 confidence. A second pass on the title area at twice the size reads it at 0.43 confidence, still one letter wrong. The smaller Bengali words on the same box are read well, at 0.80 to 0.94 confidence.
 
 Because the original and the output go through the same OCR, the same misreading on both sides still matches. A real change to the title can be missed if OCR misreads the output in a way that happens to match.
 
 ### Script detection is a first guess
 
-The scripts on each product are detected once from the original and saved as text_scripts in meta.json. On the 40 core products the detection was wrong for 5 of them, all with Hindi or other Devanagari text: p017, p043, p049, p057 and p068. easyocr reads real Hindi on these photos at only 0.36 to 0.57 confidence, under the 0.7 needed to count. On p049 the Bengali reader also read the Hindi as made up Bengali at 0.74 confidence. These 5 were set by hand in config/selection.json.
+The scripts on each product are detected once from the original and saved as text_scripts in meta.json. On the 40 core products the detection was wrong for 5 of them, all with Hindi or other Devanagari text. easyocr reads real Hindi on these photos at only 0.36 to 0.57 confidence, under the 0.7 needed to count. On one of them the Bengali reader also read the Hindi as made up Bengali at 0.74 confidence. These 5 were set by hand in config/selection.json.
 
 New products need the same check by eye before their text results can be trusted.

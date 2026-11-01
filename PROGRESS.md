@@ -206,6 +206,13 @@ Note on phase numbers: the original plan had Phase 8 as the FastAPI service and 
 
 v0.1, tagged on commit c42591f on 2026-10-31: the first working version with the demo and an honest evaluation.
 
+Public examples, 2026-11-01
+1. Only the user's own photo may be published. data/products is private and no image from it is in the repo. scripts/make_examples.py makes four pairs in examples/ from data/samples/plain_shirt.jpg: an unchanged copy, the shirt made blue, the word SALE added, stripes added. They are edits made on purpose, not AI outputs, and every place that shows them says so.
+2. The demo now loads its examples from examples/, so they work after a clone. The private test set examples were removed from the demo.
+3. scripts/make_figures.py ran the full pipeline with qwen2.5vl:7b on local Ollama, flat image type, frozen thresholds, and drew docs/images/example_*.png. Results in examples/results.json: unchanged looks fine; blue changed, colour fired at 18.8 against 15.01; SALE added looks fine, a miss, text not applicable because the original has no text; stripes added looks fine, a miss, pattern found 22% different against a 90% cut off and colour 2.5.
+4. The edits and thresholds were not changed to make the misses pass. The README opens with all four figures, misses included, then a Quickstart.
+5. New gaps added to Limitations and Next steps: added text is never checked, the pattern cut off is loose, added colours are not counted. Brand text from a private product was removed from README.md and docs/limitations.md.
+
 ## Next
 
 1. User reviews README.md and docs/demo.md.

@@ -63,12 +63,19 @@ def test_missing_upload_is_explained() -> None:
 
 def test_examples_only_when_files_exist(tmp_path: Path) -> None:
     assert examples(tmp_path) == []
-    for relative in ("products/p031/original.jpg", "products/p031/outputs/studio__gemini_app.jpg"):
-        (tmp_path / relative).parent.mkdir(parents=True, exist_ok=True)
-        garment().save(tmp_path / relative)
+    garment().save(tmp_path / "plain_shirt_original.jpg")
+    garment(colour=(30, 90, 170)).save(tmp_path / "plain_shirt_colour.jpg")
     found = examples(tmp_path)
-    assert len(found) == 1 and found[0].image_type == "flat" and "Clean pass" in found[0].title
+    assert [e.slug for e in found] == ["colour"] and found[0].image_type == "flat"
+
+
+def test_repo_ships_its_examples_outside_data() -> None:
+    from driftcheck.apps.demo_app import EXAMPLES_DIR
+
+    found = examples()
+    assert [e.slug for e in found] == ["unchanged", "colour", "text", "stripes"]
+    assert all("data" not in e.generated.relative_to(EXAMPLES_DIR.parent).parts for e in found)
 
 
 def test_demo_builds(tmp_path: Path) -> None:
-    assert build_demo(lambda: _checker([]), tmp_path, "Vision model: test.") is not None
+    assert build_demo(lambda: _checker([]), "Vision model: test.", tmp_path) is not None
