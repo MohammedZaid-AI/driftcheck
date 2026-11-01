@@ -1557,7 +1557,7 @@
    ],
    "file": "missed_synthetic_p015__pattern_blur.png",
    "reasons_from_recorded_run": {
-    "text": "9 of 9 text items not found or changed: fresh, Pure, nqndini, PASTEUaISEO TONED, QUALITY EXCELLENCE FROTT COw T0, CONSUNILR, ಾದೂ, ಶದ್ದ, ಹಾಗೂ",
+    "text": "9 of 9 text items not found or changed.",
     "pattern": "The product has fewer than 3920 pixels. Too small to compare patterns."
    }
   },
@@ -1570,7 +1570,7 @@
    ],
    "file": "missed_synthetic_p028__pattern_swap.png",
    "reasons_from_recorded_run": {
-    "text": "7 of 14 text items not found or changed: UGHTER, (osmel, bint, rose-linted lip &, chcck stain, blush liquide rose, 6mL/0.2 US f. oz.",
+    "text": "7 of 14 text items not found or changed.",
     "pattern": "78% of the output product has no close match in the original pattern, above 45%."
    }
   },
@@ -1583,7 +1583,7 @@
    ],
    "file": "missed_synthetic_p029__pattern_swap.png",
    "reasons_from_recorded_run": {
-    "text": "1 of 1 text items not found or changed: अमृततुल्थ",
+    "text": "1 of 1 text items not found or changed.",
     "pattern": "92% of the output product has no close match in the original pattern, above 45%."
    }
   },
@@ -1596,7 +1596,7 @@
    ],
    "file": "missed_synthetic_p043__pattern_swap.png",
    "reasons_from_recorded_run": {
-    "text": "1 of 1 text items not found or changed: @पारी",
+    "text": "1 of 1 text items not found or changed.",
     "pattern": "86% of the output product has no close match in the original pattern, above 45%."
    }
   },
@@ -1609,7 +1609,7 @@
    ],
    "file": "missed_synthetic_p068__pattern_blur.png",
    "reasons_from_recorded_run": {
-    "text": "1 of 1 text items not found or changed: अमृततुल्य",
+    "text": "1 of 1 text items not found or changed.",
     "pattern": "52% of the output product has no close match in the original pattern, above 45%."
    }
   },
@@ -1622,7 +1622,7 @@
    ],
    "file": "missed_synthetic_p068__pattern_swap.png",
    "reasons_from_recorded_run": {
-    "text": "1 of 1 text items not found or changed: अमृततुल्य",
+    "text": "1 of 1 text items not found or changed.",
     "pattern": "The product has fewer than 3920 pixels. Too small to compare patterns."
    }
   },
@@ -1700,7 +1700,7 @@
    ],
    "file": "false_alarm_real_p027__model_shot__gemini_app.png",
    "reasons_from_recorded_run": {
-    "text": "1 of 1 text items not found or changed: olo]"
+    "text": "1 of 1 text items not found or changed."
    }
   },
   {

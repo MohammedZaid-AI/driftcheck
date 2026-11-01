@@ -43,7 +43,7 @@ def test_normalise() -> None:
     assert normalise("ＡＢＣ") == "abc"
     assert normalise("नमस्ते!") == "नमस्ते"
     assert normalise("ಹಾಲು,") == "ಹಾಲು"
-    assert normalise("রসুই!") == "রসুই"
+    assert normalise("নুন!") == "নুন"
 
 
 def test_merge_keeps_more_confident_duplicate() -> None:
@@ -99,9 +99,9 @@ def _engine(tmp_path: Path, rows: dict, crop_rows: dict | None = None) -> OcrEng
 
 def test_text_script() -> None:
     assert ocr.text_script("ROAST") == "en"
-    assert ocr.text_script("रसोई") == "hi"
+    assert ocr.text_script("नमक") == "hi"
     assert ocr.text_script("ರಸ") == "kn"
-    assert ocr.text_script("রসুই") == "bn"
+    assert ocr.text_script("নুন") == "bn"
     assert ocr.text_script("200 / 50") is None
 
 
@@ -111,7 +111,7 @@ def test_choose_scripts_drops_made_up_devanagari() -> None:
 
 
 def test_choose_scripts_needs_a_confident_reading() -> None:
-    boxes = [TextBox("मोती", 0.57, (0, 0, 10, 10), "en_hi"), TextBox("Moti", 1.0, (0, 20, 10, 30), "en_hi")]
+    boxes = [TextBox("दूध", 0.57, (0, 0, 10, 10), "en_hi"), TextBox("Milk", 1.0, (0, 20, 10, 30), "en_hi")]
     assert ocr.choose_scripts(boxes) == ["en"]  # Hindi under 0.7 is missed; fix it by hand in selection.json
 
 
@@ -137,11 +137,11 @@ def test_read_detects_scripts_when_not_given(tmp_path: Path) -> None:
 
 def test_unsure_title_is_read_again_at_twice_the_size(tmp_path: Path) -> None:
     title = (20, 80, 140, 150)  # tall box, 35% of the image height
-    rows = {"en_bn": [(title, "রস্ুই", 0.3)]}
+    rows = {"en_bn": [(title, "নু্ন", 0.3)]}
     # In the 2x crop: a neighbour read very surely, and the title read better than before.
-    crop = {"en_bn": [((10, 0, 60, 20), "ইফদ", 0.97), ((30, 30, 270, 170), "রসুই", 0.6)]}
+    crop = {"en_bn": [((10, 0, 60, 20), "ইফদ", 0.97), ((30, 30, 270, 170), "নুন", 0.6)]}
     found = _engine(tmp_path, rows, crop).read(garment(), ["en", "bn"])
-    assert [(b.text, b.reader, b.box) for b in found] == [("রসুই", "en_bn_x2", title)]
+    assert [(b.text, b.reader, b.box) for b in found] == [("নুন", "en_bn_x2", title)]
 
 
 def test_reader_results_are_cached(tmp_path: Path) -> None:

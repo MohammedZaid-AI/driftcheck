@@ -31,7 +31,7 @@ All of these changes were made after the first test results were seen.
 
 ## Speed and memory
 
-On a laptop with 12 GB of RAM and a 6 GB GPU, one image takes a median of 51 seconds with qwen2.5vl:7b on Ollama, and up to 146 seconds for the slowest 10 percent. With the 7b model loaded, easyocr crashed the Python process 11 times in 406 images with a Windows access violation. The evaluation restarted itself after each crash.
+On a laptop with 12 GB of RAM and a 6 GB GPU, one real output took a median of 51.5 seconds with qwen2.5vl:7b on Ollama, and 143.6 seconds for the slowest 10 percent, with 2.42 vision calls per image. With the 7b model loaded, easyocr crashed the Python process 11 times in 406 images with a Windows access violation. The evaluation restarted itself after each crash.
 
 ## Text
 

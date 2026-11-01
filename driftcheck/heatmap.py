@@ -19,6 +19,9 @@ PANEL_HEIGHT = 512
 RED = (220, 30, 30)
 GREEN = (30, 160, 60)
 STATUS_COLOUR = {"pass": GREEN, "fail": RED, "unknown": (150, 150, 150)}
+# Plain words for the picture, so a reader never sees code names.
+VERDICT_WORDS = {"drifted": "changed", "faithful": "looks fine", "unknown": "not sure"}
+STATUS_WORDS = {"pass": "fine", "fail": "changed", "unknown": "not sure"}
 
 
 def _font(size: int) -> ImageFont.ImageFont:
@@ -69,7 +72,10 @@ def draw_colour_strip(report: Report, width: int) -> Image.Image:
     matches = colour.details.get("matches", [])
     strip = Image.new("RGB", (width, 44 + 34 * max(1, len(matches))), "white")
     draw = ImageDraw.Draw(strip)
-    draw.text((10, 10), f"Colour: original -> output, CIEDE2000. Limit {colour.threshold}", fill="black", font=_font(18))
+    title = "Colours: original, then the output colour it matched."
+    if colour.threshold is not None:
+        title += f" Changed above a difference of {colour.threshold}"
+    draw.text((10, 10), title, fill="black", font=_font(18))
     if not matches:
         draw.text((10, 44), colour.reason, fill="black", font=_font(16))
     for i, match in enumerate(matches):
@@ -78,24 +84,25 @@ def draw_colour_strip(report: Report, width: int) -> Image.Image:
         draw.rectangle((80, y, 140, y + 26), fill=match["output"], outline="black")
         delta = match["delta_e"]
         flag = RED if colour.threshold is not None and delta > colour.threshold else (60, 60, 60)
-        draw.text((155, y + 4), f"{match['share']:.0%} of product   delta E {delta:.1f}", fill=flag, font=_font(16))
+        draw.text((155, y + 4), f"{match['share']:.0%} of product   difference {delta:.1f}", fill=flag, font=_font(16))
     return strip
 
 
 def draw_header(report: Report, width: int) -> Image.Image:
     header = Image.new("RGB", (width, 70), "white")
     draw = ImageDraw.Draw(header)
-    draw.text((10, 8), f"Verdict: {report.verdict}", fill=STATUS_COLOUR.get(
+    draw.text((10, 8), f"Verdict: {VERDICT_WORDS[report.verdict]}", fill=STATUS_COLOUR.get(
         {"drifted": "fail", "faithful": "pass"}.get(report.verdict, "unknown")), font=_font(24))
     x = 10
     for check in report.checks:
-        label = f"{check.name}: {check.status}" + ("" if check.applicable else " (n/a)")
+        word = STATUS_WORDS[check.status] if check.applicable else "not applicable"
+        label = f"{check.name.replace('_', ' ')}: {word}"
         draw.text((x, 42), label, fill=STATUS_COLOUR[check.status], font=_font(16))
         x += int(draw.textlength(label, font=_font(16))) + 24
     return header
 
 
-def draw_heatmap(original: Image.Image, output: Image.Image, report: Report) -> Image.Image:
+def draw_heatmap(original: Image.Image, output: Image.Image, report: Report, output_label: str = "Output") -> Image.Image:
     original_panel, original_scale = _scale(original.convert("RGB"))
     output_panel, output_scale = _scale(output.convert("RGB"))
     original_panel = draw_text_boxes(original_panel, report, original_scale)
@@ -108,7 +115,7 @@ def draw_heatmap(original: Image.Image, output: Image.Image, report: Report) -> 
     canvas.paste(header, (0, 0))
     top = header.height + 24
     ImageDraw.Draw(canvas).text((10, header.height + 2), "Original", fill="black", font=_font(16))
-    ImageDraw.Draw(canvas).text((original_panel.width + 20, header.height + 2), "Output", fill="black", font=_font(16))
+    ImageDraw.Draw(canvas).text((original_panel.width + 20, header.height + 2), output_label, fill="black", font=_font(16))
     canvas.paste(original_panel, (10, top))
     canvas.paste(output_panel, (original_panel.width + 20, top))
     canvas.paste(strip, (0, top + PANEL_HEIGHT + 6))

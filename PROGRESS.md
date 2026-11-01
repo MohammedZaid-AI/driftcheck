@@ -187,10 +187,10 @@ Phase 7: Gradio demo, 2026-10-31
 5. Checked: the app starts and serves its page.
 
 Text decision fix in the evaluation, found while building the demo
-1. Live, a text item OCR misses goes to the vision model and counts as found if its reading matches at the text threshold. The evaluation only used vision readings that matched at 95, the recording threshold, so at the tuned 40 it marked items missing that the live check finds. Example: p067 text_replace, where the vision model read NYc as NK, a score of 40.
+1. Live, a text item OCR misses goes to the vision model and counts as found if its reading matches at the text threshold. The evaluation only used vision readings that matched at 95, the recording threshold, so at the tuned 40 it marked items missing that the live check finds. Example: p067 text_replace, where the vision model read a short printed word with one letter wrong, a score of 40.
 2. driftcheck/evaluate.py now uses the saved vision readings like the live check. Thresholds unchanged. The report adds a fourth column.
 3. Measured on the test split with the fix: real test images wrongly flagged 11 of 40, from 15 of 40. Text wrong flag rate 2.9%, from 14.3%. Synthetic changes caught 57 of 99, from 58. Synthetic text recall 56.2%, from 59.4%.
-4. With a text threshold of 40, letter swaps such as BROOKLYN to UROKKLYH still count as a match, so the text check alone caught none of the synthetic text replacements in the test split. Worth a look before Phase 9.
+4. With a text threshold of 40, a word read back with two or three letters swapped still counts as a match, so the text check alone caught none of the synthetic text replacements in the test split. Worth a look before Phase 9.
 5. Previous report kept as reports/eval_report_before_textfix.md and .json.
 
 Phase 8, as the user named it: README and demo walkthrough, 2026-10-31
@@ -212,6 +212,13 @@ Public examples, 2026-11-01
 3. scripts/make_figures.py ran the full pipeline with qwen2.5vl:7b on local Ollama, flat image type, frozen thresholds, and drew docs/images/example_*.png. Results in examples/results.json: unchanged looks fine; blue changed, colour fired at 18.8 against 15.01; SALE added looks fine, a miss, text not applicable because the original has no text; stripes added looks fine, a miss, pattern found 22% different against a 90% cut off and colour 2.5.
 4. The edits and thresholds were not changed to make the misses pass. The README opens with all four figures, misses included, then a Quickstart.
 5. New gaps added to Limitations and Next steps: added text is never checked, the pattern cut off is loose, added colours are not counted. Brand text from a private product was removed from README.md and docs/limitations.md.
+
+Public release cleanup, 2026-11-01
+1. Two more photos, a chocolate pack with text and a hoodie with a back print, were offered for examples. Both show large third party brands and look like shop photos, so they were kept local only: not copied into data/samples, not committed, and test pics/ is now in .gitignore. Run locally with qwen2.5vl:7b, flat image type, frozen thresholds: unchanged pack looks fine; one word on the pack changed, caught by text; print shuffled looks fine as flat, a miss, pattern 31% against a 90% cut off; as scene, pattern did not run.
+2. The README now opens with the shirt colour catch and the clean pass. The two shirt misses, added text and added stripes, moved into Limitations with their figures.
+3. Figures use plain words: changed, looks fine, not applicable, product missing. The edited panel is labelled Edited image.
+4. Real product, brand and shop names were removed from config/selection.json, PROGRESS.md and the tests. The OCR word lists in the text reasons of the tracked report JSON files were cut, keeping the counts. Product IDs stay. Earlier commits in the git history still hold the old text.
+5. docs/limitations.md speed now matches the final report: median 51.52 s, p90 143.56 s, 2.42 vision calls per image.
 
 ## Next
 

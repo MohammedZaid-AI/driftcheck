@@ -4,25 +4,17 @@ DriftCheck checks whether an AI generated product image changed the real product
 
 ## See it work
 
-These four pairs use one photo of a shirt. Each second image was edited on purpose to show how DriftCheck responds. They are not real AI outputs and not Scalio outputs. The results come from examples/results.json, made by running the full pipeline with qwen2.5vl:7b on local Ollama.
+These pairs use one photo of a shirt. The second image in each pair was edited on purpose to show how DriftCheck responds. They are not real AI outputs and not Scalio outputs. The results come from examples/results.json, made by running the full pipeline with qwen2.5vl:7b on local Ollama.
 
-**Unchanged copy.** DriftCheck says it looks fine. This is right.
-
-![Unchanged copy: DriftCheck says looks fine](docs/images/example_unchanged.png)
-
-**The black shirt made blue.** DriftCheck says changed, and the colour check fired. This is right.
+**The black shirt made blue.** DriftCheck says changed, and the colour check fired.
 
 ![Colour edited: DriftCheck says changed, colour fired](docs/images/example_colour.png)
 
-**The word SALE added to the chest.** DriftCheck says it looks fine. This is a miss. The text check only looks for text that was on the original, and this shirt had none, so new text is not checked.
+**An unchanged copy.** DriftCheck says it looks fine, and no check fired.
 
-![Text added: DriftCheck says looks fine, a miss](docs/images/example_text.png)
+![Unchanged copy: DriftCheck says looks fine](docs/images/example_unchanged.png)
 
-**Stripes added.** DriftCheck says it looks fine. This is a miss. The pattern check marked 22 percent of the shirt as different, shown in red, but at its current setting it only flags when more than 90 percent differs.
-
-![Stripes added: DriftCheck says looks fine, a miss](docs/images/example_stripes.png)
-
-So on these four, DriftCheck caught one of three changes and passed the unchanged copy. The two misses are listed under Limitations with the planned fixes.
+Two more edits of the same shirt, added text and added stripes, were missed. They are shown under Limitations, with the reason for each.
 
 ## Quickstart
 
@@ -166,11 +158,17 @@ These numbers come from reports/eval_report.json. They were measured on this dat
 ## Limitations
 
 1. **Text passes garbled words.** The tuned text threshold is a match score of 40. At that level, a brand name read back with two or three letters changed still counts as the same text. On its own, the text check caught none of the synthetic text replacements in the test half.
-2. **New text is not checked.** The text check only confirms that text on the original is still there. Text the generator adds, like the word SALE in the example above, is never looked at.
-3. **The pattern setting is loose.** The pattern check only flags when more than 90 percent of the product differs. The stripes example above marked 22 percent and passed. This setting came from tuning on the real calibration images, where worn and scene photos made the check flag good images.
+2. **New text is not checked.** The text check only confirms that text on the original is still there. Text the generator adds is never looked at. In the example below, the word SALE was added to the plain shirt on purpose. The original has no text, so the text check said not applicable and the verdict was looks fine. This is a miss.
+
+    ![Text added on purpose: DriftCheck says looks fine, a miss](docs/images/example_text.png)
+
+3. **The pattern setting is loose.** The pattern check only flags when more than 90 percent of the product differs. This setting came from tuning on the real calibration images, where worn and scene photos made the check flag good images. In the example below, stripes were added to the plain shirt on purpose. The pattern check marked 22 percent of the shirt as different, shown in red, and passed it. This is a miss.
+
+    ![Stripes added on purpose: DriftCheck says looks fine, a miss](docs/images/example_stripes.png)
+
 4. **The vision model is weak on shape.** The shape check caught 1 of 11 synthetic sleeve changes and wrongly flagged 4 of 40 good images. The logo check wrongly flagged 5 of 35.
 5. **Colour and pattern only work on flat photos.** They are skipped on model shots, lifestyle scenes and posters, so a colour or print change in those images is only caught if another check notices it.
-6. **New colours are not counted.** The colour check asks whether each original colour is still there. Colours the generator adds, like the grey stripes in the example above, do not count.
+6. **New colours are not counted.** The colour check asks whether each original colour is still there. Colours the generator adds, like the grey stripes in the example under item 3, do not count.
 7. **No real drift in the test set.** All 80 real outputs were labelled unchanged, so catches come only from synthetic changes, which are cleaner than real AI drift.
 8. **One generator.** All real outputs come from the Gemini app. The Kaggle route with Qwen Image Edit ran out of GPU memory on free Kaggle GPUs.
 9. **Small data.** 40 products and 80 real outputs.

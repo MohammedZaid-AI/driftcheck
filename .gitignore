@@ -33,3 +33,6 @@ reports/gallery/
 # Data: only data/samples is tracked
 data/*
 !data/samples/
+
+# Photos kept local only, never published
+test pics/

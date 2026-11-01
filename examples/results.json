@@ -4,6 +4,7 @@
   "title": "Unchanged copy of the shirt",
   "verdict": "Looks fine",
   "fired": [],
+  "image_type": "flat",
   "checks": {
    "Product present": [
     "pass",
@@ -46,6 +47,7 @@
   "fired": [
    "Colour"
   ],
+  "image_type": "flat",
   "checks": {
    "Product present": [
     "pass",
@@ -86,6 +88,7 @@
   "title": "Text edited on purpose: the word SALE added",
   "verdict": "Looks fine",
   "fired": [],
+  "image_type": "flat",
   "checks": {
    "Product present": [
     "pass",
@@ -126,6 +129,7 @@
   "title": "Pattern edited on purpose: stripes added",
   "verdict": "Looks fine",
   "fired": [],
+  "image_type": "flat",
   "checks": {
    "Product present": [
     "pass",
